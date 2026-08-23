@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Americas: Live+ - electricity interconnections across the Americas</title>
-<meta name="description" content="How the grids of the USA, Canada, Mexico and South America connect to each other - synchronous interconnections, HVDC ties, and the big shared hydro dams. No connection at all to Great Britain's own grid.">
+<title>Interconnections of the Americas - UK Grid: Live+</title>
+<meta name="description" content="How the electricity grids of North and South America connect to each other: the three US/Canada interconnections, Quebec's asynchronous HVDC ties, and the big cross-border hydro dams and DC ties of South America, with real capacity figures.">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +24,16 @@
   })();
 </script>
 <!-- End Matomo Code -->
+<style>
+  .diagram-wrap { overflow-x: auto; margin: 1rem 0 .5rem; }
+  .diagram-wrap svg { display: block; min-width: 640px; width: 100%; height: auto; }
+  .diagram-note { font-size: .85rem; color: var(--text-muted); margin: 0 0 1.25rem; }
+  .tie-node text { font-family: var(--font-body); }
+  .tie-node rect { fill: var(--bg-inset); stroke: var(--border); stroke-width: 1.5; }
+  .tie-label-bg { fill: var(--bg-elevated); opacity: .92; }
+  .tie-line { stroke: var(--interconnector); stroke-width: 2.5; fill: none; }
+  .tie-line--inactive { stroke-dasharray: 6 5; opacity: .6; }
+</style>
 </head>
 <body>
 <div class="preview-banner">BETA PREVIEW: UK Grid: Live+ is in testing. <a href="data-sources.html">See data sources →</a></div>
@@ -41,7 +51,7 @@
         <path d="M35.3 9.5h6.4M38.5 6.3v6.4" stroke="var(--accent-contrast)" stroke-width="2.2" stroke-linecap="round"/>
       </svg>
       <span class="brand__name">UK&nbsp;Grid: <em>Live+</em></span>
-      <span class="brand__tagline">Americas: how the grids of the Americas connect to each other</span>
+      <span class="brand__tagline">Great Britain's electricity grid, live and over time</span>
     </a>
     <div class="header-controls">
       <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
@@ -100,10 +110,7 @@
         <ul class="nav-group__menu" id="navgroup-americas">
           <li><a href="usa.html">USA</a></li>
           <li><a href="canada.html">Canada</a></li>
-          <li><a href="brazil.html">Brazil</a></li>
-          <li><a href="argentina.html">Argentina</a></li>
-          <li><a href="chile.html">Chile</a></li>
-          <li><a href="colombia.html">Colombia</a></li>
+          <li><a href="south-america.html">South America</a></li>
           <li><a href="americas-interconnects.html" aria-current="page">Interconnections</a></li>
         </ul>
       </li>
@@ -124,48 +131,186 @@
 
     <section class="hero">
       <h1>How the grids of the Americas connect to each other</h1>
-      <p>Unlike Great Britain and its subsea interconnectors to continental Europe, none of the grids covered on this site's Americas pages are electrically connected to GB at all - the Atlantic has no HVDC cable crossing it for power. This page instead covers how the grids <em>within</em> the Americas connect to one another: which countries share synchronous grids, which are tied together by HVDC links, and the handful of jointly-operated hydro dams that straddle national borders.</p>
+      <p>North and South America aren't wired together into one continent-spanning grid, and even within each continent, power doesn't flow freely everywhere. The USA, Canada and Mexico run three separate synchronous interconnections, tied together only by a handful of HVDC back-to-back stations. South America is looser still: mostly bilateral ties between neighbours, several of them built around specific shared hydroelectric dams rather than a general-purpose grid link. This page maps out which grids actually connect to which, and how much power those connections can actually carry.</p>
     </section>
 
     <section class="panel" aria-labelledby="north-heading">
-      <h2 id="north-heading">North America: three asynchronous interconnections</h2>
-      <p>The USA, Canada and northern Mexico share three large synchronous interconnections rather than one single grid - within each, every generator runs locked to the same AC frequency; between them, power can only cross via HVDC back-to-back ties that convert to direct current and back, rather than flowing directly.</p>
+      <h2 id="north-heading">North America: three interconnections, tied together by HVDC</h2>
+      <p>Within each interconnection below, every generator runs locked to the same AC frequency and power flows freely. Between interconnections, power can only cross via HVDC back-to-back ties, which convert to direct current and back rather than letting the two sides run in sync.</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic diagram of North America's electricity interconnections: the Western Interconnection, Eastern Interconnection, ERCOT and Quebec, linked by HVDC ties.">
+          <g class="tie-node">
+            <rect x="40" y="110" width="260" height="140" rx="10"/>
+            <text x="170" y="170" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">Western Interconnection</text>
+            <text x="170" y="192" text-anchor="middle" font-size="13" fill="var(--text-muted)">US West, British Columbia,</text>
+            <text x="170" y="208" text-anchor="middle" font-size="13" fill="var(--text-muted)">Alberta</text>
+          </g>
+          <g class="tie-node">
+            <rect x="340" y="90" width="280" height="160" rx="10"/>
+            <text x="480" y="155" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">Eastern Interconnection</text>
+            <text x="480" y="177" text-anchor="middle" font-size="13" fill="var(--text-muted)">US East, Ontario, Manitoba,</text>
+            <text x="480" y="193" text-anchor="middle" font-size="13" fill="var(--text-muted)">the Maritimes</text>
+          </g>
+          <g class="tie-node">
+            <rect x="610" y="20" width="150" height="80" rx="10"/>
+            <text x="685" y="55" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">Québec</text>
+            <text x="685" y="75" text-anchor="middle" font-size="12" fill="var(--text-muted)">asynchronous - HVDC only</text>
+          </g>
+          <g class="tie-node">
+            <rect x="380" y="290" width="180" height="70" rx="10"/>
+            <text x="470" y="320" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">ERCOT</text>
+            <text x="470" y="340" text-anchor="middle" font-size="12" fill="var(--text-muted)">Texas - islanded by design</text>
+          </g>
+          <g class="tie-node">
+            <rect x="60" y="290" width="200" height="70" rx="10"/>
+            <text x="160" y="320" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">Mexico (CENACE)</text>
+            <text x="160" y="340" text-anchor="middle" font-size="12" fill="var(--text-muted)">Sistema Eléctrico Nacional</text>
+          </g>
+
+          <path class="tie-line" d="M300,180 L340,180"/>
+          <rect class="tie-label-bg" x="228" y="150" width="185" height="30" rx="5"/>
+          <text x="320" y="163" text-anchor="middle" font-size="12" fill="var(--text)">~1,320MW combined</text>
+          <text x="320" y="177" text-anchor="middle" font-size="12" fill="var(--text)">7 back-to-back DC ties</text>
+
+          <path class="tie-line" d="M470,250 L470,290"/>
+          <rect class="tie-label-bg" x="405" y="255" width="130" height="30" rx="5"/>
+          <text x="470" y="269" text-anchor="middle" font-size="12" fill="var(--text)">820MW combined</text>
+          <text x="470" y="283" text-anchor="middle" font-size="12" fill="var(--text)">2 DC ties</text>
+
+          <path class="tie-line" d="M600,110 L650,100"/>
+          <rect class="tie-label-bg" x="500" y="35" width="245" height="44" rx="5"/>
+          <text x="622" y="50" text-anchor="middle" font-size="12" fill="var(--text)">~2,170-2,275MW HVDC</text>
+          <text x="622" y="64" text-anchor="middle" font-size="12" fill="var(--text)">Radisson-Sandy Pond, Highgate,</text>
+          <text x="622" y="78" text-anchor="middle" font-size="12" fill="var(--text)">Appalaches-Maine</text>
+
+          <path class="tie-line" d="M160,250 L160,290"/>
+          <rect class="tie-label-bg" x="95" y="255" width="130" height="30" rx="5"/>
+          <text x="160" y="275" text-anchor="middle" font-size="12" fill="var(--text)">small AC/HVDC ties</text>
+        </svg>
+      </div>
+      <p class="diagram-note">Schematic only - not to scale and not a geographic map. Line thickness doesn't reflect capacity.</p>
+
       <ul>
-        <li><strong>Eastern Interconnection</strong> - covers most of the US east of the Rockies, plus Ontario, Quebec (partially), Manitoba and the Maritime provinces of Canada. IESO's Ontario grid, covered on this site's <a href="canada.html">Canada page</a>, sits inside this interconnection.</li>
+        <li><strong>Eastern Interconnection</strong> - covers most of the US east of the Rockies, plus Ontario, Manitoba and the Maritime provinces of Canada. IESO's Ontario grid, covered on this site's <a href="canada.html">Canada page</a>, sits inside this interconnection.</li>
         <li><strong>Western Interconnection</strong> - covers the western US, British Columbia, Alberta and a sliver of northern Mexico (Baja California).</li>
-        <li><strong>ERCOT (Texas)</strong> - covers most of Texas, deliberately kept separate from the other two (and largely outside US federal FERC jurisdiction) specifically to avoid interstate power flows.</li>
+        <li><strong>ERCOT (Texas)</strong> - covers most of Texas, deliberately kept separate from the other two (and largely outside US federal FERC jurisdiction) specifically to avoid interstate power flows. It ties to the Eastern Interconnection via two back-to-back HVDC stations totalling 820MW: a 220MW North tie at Oklaunion and a 600MW East tie between Monticello and Welsh.</li>
+        <li><strong>Québec</strong> - nominally part of the Eastern Interconnection's synchronous area geographically, but Hydro-Québec operates it asynchronously, tied to its neighbours only via HVDC - largely a historical/operational choice rather than a geographic necessity. Its ties to New England alone total roughly 2,170MW of import and 2,275MW of export capacity across several lines, including the Radisson-Sandy Pond multiterminal HVDC line (regularly carrying 1,200-1,400MW+), the older 225MW Highgate interconnection, and the newer Appalaches-Maine line (adding a further 1,200MW).</li>
+        <li><strong>Eastern-Western tie</strong> - seven back-to-back HVDC converter stations strung along the Great Plains (Rapid City SD, two in the Nebraska panhandle, Blackwater and Artesia NM, Lamar CO, and others), carrying roughly 1,320MW combined.</li>
+        <li><strong>Mexico</strong> - the Sistema Eléctrico Nacional, operated by CENACE, connects to the US Western and Eastern Interconnections via several smaller HVDC and AC ties near the border, and is not otherwise synchronised with either.</li>
       </ul>
-      <p>Quebec's grid (Hydro-Québec) is a partial exception: it's nominally part of the Eastern Interconnection's synchronous area geographically, but is operated asynchronously, tied to its neighbours (Ontario, the US Northeast, the Maritimes) only via HVDC links rather than direct AC connection - largely a historical/operational choice by Hydro-Québec rather than a geographic necessity.</p>
-      <p>Mexico's main grid, the Sistema Eléctrico Nacional operated by CENACE, connects to the US Western and Eastern Interconnections via several small HVDC and AC ties near the border, and is not otherwise synchronised with either.</p>
     </section>
 
     <section class="panel" aria-labelledby="south-heading">
-      <h2 id="south-heading">South America: shared dams and cross-border hydro</h2>
-      <p>South America's grids are less uniformly interconnected than Europe's - most trade with immediate neighbours only, often built around specific shared infrastructure rather than a continent-wide synchronous grid:</p>
+      <h2 id="south-heading">South America: bilateral ties, often built around shared dams</h2>
+      <p>South America has no single transparency platform or synchronous supergrid the way Europe or North America do. Most cross-border links are bilateral, and several of the largest were built to share output from a specific hydroelectric dam sitting on a border river, rather than as general-purpose interconnectors.</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic diagram of South America's electricity interconnections between Colombia, Venezuela, Ecuador, Brazil, Paraguay, Argentina, Uruguay and Chile, with tie capacities in megawatts.">
+          <g class="tie-node">
+            <rect x="40" y="20" width="180" height="60" rx="10"/>
+            <text x="130" y="55" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">Colombia</text>
+          </g>
+          <g class="tie-node">
+            <rect x="260" y="20" width="180" height="60" rx="10"/>
+            <text x="350" y="55" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">Venezuela</text>
+          </g>
+          <g class="tie-node">
+            <rect x="40" y="120" width="180" height="60" rx="10"/>
+            <text x="130" y="155" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">Ecuador</text>
+          </g>
+          <g class="tie-node">
+            <rect x="480" y="100" width="280" height="180" rx="10"/>
+            <text x="620" y="195" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">Brazil</text>
+          </g>
+          <g class="tie-node">
+            <rect x="280" y="220" width="180" height="60" rx="10"/>
+            <text x="370" y="255" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">Paraguay</text>
+          </g>
+          <g class="tie-node">
+            <rect x="160" y="300" width="240" height="140" rx="10"/>
+            <text x="280" y="375" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">Argentina</text>
+          </g>
+          <g class="tie-node">
+            <rect x="480" y="320" width="180" height="60" rx="10"/>
+            <text x="570" y="355" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">Uruguay</text>
+          </g>
+          <g class="tie-node">
+            <rect x="40" y="300" width="100" height="140" rx="10"/>
+            <text x="90" y="375" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">Chile</text>
+          </g>
+
+          <path class="tie-line" d="M130,80 L130,120"/>
+          <rect class="tie-label-bg" x="140" y="86" width="90" height="20" rx="4"/>
+          <text x="185" y="100" text-anchor="middle" font-size="11" fill="var(--text)">450MW</text>
+
+          <path class="tie-line" d="M220,50 L260,50"/>
+          <rect class="tie-label-bg" x="185" y="20" width="110" height="20" rx="4"/>
+          <text x="240" y="34" text-anchor="middle" font-size="11" fill="var(--text)">290MW (reactivating)</text>
+
+          <path class="tie-line" d="M460,250 L480,220" stroke-width="4"/>
+          <rect class="tie-label-bg" x="465" y="255" width="140" height="20" rx="4"/>
+          <text x="535" y="269" text-anchor="middle" font-size="11" fill="var(--text)">Itaipu - 14,000MW</text>
+
+          <path class="tie-line" d="M280,300 L340,280"/>
+          <rect class="tie-label-bg" x="185" y="282" width="140" height="20" rx="4"/>
+          <text x="255" y="296" text-anchor="middle" font-size="11" fill="var(--text)">Yacyretá - 3,200MW</text>
+
+          <path class="tie-line" d="M400,330 L480,270"/>
+          <rect class="tie-label-bg" x="395" y="290" width="135" height="20" rx="4"/>
+          <text x="462" y="304" text-anchor="middle" font-size="11" fill="var(--text)">Garabí - 2,200MW</text>
+
+          <path class="tie-line" d="M400,400 L480,355"/>
+          <rect class="tie-label-bg" x="392" y="365" width="150" height="20" rx="4"/>
+          <text x="467" y="379" text-anchor="middle" font-size="11" fill="var(--text)">Salto Grande - 1,890MW</text>
+
+          <path class="tie-line" d="M620,280 L580,320"/>
+          <rect class="tie-label-bg" x="590" y="285" width="70" height="20" rx="4"/>
+          <text x="625" y="299" text-anchor="middle" font-size="11" fill="var(--text)">500MW</text>
+
+          <path class="tie-line tie-line--inactive" d="M140,370 L160,370"/>
+          <rect class="tie-label-bg" x="30" y="248" width="170" height="34" rx="4"/>
+          <text x="115" y="262" text-anchor="middle" font-size="11" fill="var(--text)">Andes-Cobos - up to 200MW</text>
+          <text x="115" y="276" text-anchor="middle" font-size="11" fill="var(--text)">currently disconnected</text>
+        </svg>
+      </div>
+      <p class="diagram-note">Schematic only - not to scale and not a geographic map. Line thickness doesn't reflect capacity, except Itaipu is drawn heavier as by far the largest tie shown.</p>
+
       <ul>
-        <li><strong>Itaipu Dam (Brazil-Paraguay)</strong> - one of the largest hydroelectric plants ever built, jointly owned and operated by Brazil and Paraguay on the border river. Paraguay uses only a fraction of its half of the output domestically and exports the rest to Brazil, making Itaipu a major, permanent cross-border power flow rather than an occasional trade.</li>
-        <li><strong>Yacyretá Dam (Argentina-Paraguay)</strong> - a second large jointly-operated hydro dam, on the Paraná river between the two countries, feeding both grids.</li>
-        <li><strong>Argentina-Brazil-Uruguay</strong> - connected via a mix of AC and HVDC back-to-back ties, allowing significant trade, particularly of Argentine and Brazilian surplus into Uruguay's smaller, wind-and-hydro-heavy grid.</li>
-        <li><strong>Chile-Argentina</strong> - several cross-border ties exist, historically used more for emergency backup and limited exchange than large sustained commercial flows, reflecting Chile's SEN being a long, narrow, largely self-contained system.</li>
-        <li><strong>Colombia-Ecuador</strong> and <strong>Colombia-Venezuela</strong> - Colombia trades with both neighbours, though the Venezuela link has seen intermittent operation in recent years tied to that country's own grid reliability issues.</li>
+        <li><strong>Itaipu Dam (Brazil-Paraguay)</strong> - 14,000MW installed across 20 generating units, making it one of the largest hydroelectric plants ever built. It's jointly owned and operated by Brazil and Paraguay; Paraguay uses only a fraction of its half of the output domestically and exports the rest to Brazil, making Itaipu a huge, permanent cross-border flow rather than an occasional trade. Ten of its units generate at 50Hz (Paraguay's frequency) and ten at 60Hz (Brazil's) - the output is converted between the two.</li>
+        <li><strong>Yacyretá Dam (Argentina-Paraguay)</strong> - 3,200MW installed, a second large jointly-operated hydro dam on the Paraná river, supplying around 60% of Argentina's hydroelectric output.</li>
+        <li><strong>Garabí (Argentina-Brazil)</strong> - a 2,200MW back-to-back HVDC station (two 1,100MW phases), rather than a shared dam - it converts power to DC and back specifically because Argentina and Brazil's grids aren't frequency-synchronised.</li>
+        <li><strong>Salto Grande (Argentina-Uruguay)</strong> - 1,890MW installed, a shared dam on the Uruguay River, plus a separate roughly 500MW AC interconnection directly between Brazil and Uruguay.</li>
+        <li><strong>Chile-Argentina</strong> - the Andes-Cobos line carries up to 200MW from Argentina to Chile (80MW the other way), but has been disconnected from Chile's national grid in recent years - reflecting how these ties have historically been used more for emergency backup and limited exchange than large sustained commercial flows.</li>
+        <li><strong>Colombia-Ecuador</strong> - 450MW combined across two lines (a 230kV double circuit and a smaller 138kV line).</li>
+        <li><strong>Colombia-Venezuela</strong> - two lines totalling 290MW, historically underused and largely inactive through the 2010s and early 2020s amid Venezuela's own grid reliability problems; both countries announced steps to reactivate and expand the link in 2026.</li>
       </ul>
-      <p>Unlike ENTSO-E's single pan-European transparency platform, there's no equivalent single data source covering cross-border flows for all of South America - each pair of interconnected countries' actual traded volumes would need querying from each country's own operator individually, which this site doesn't currently do (see each country's own Data sources section for what is and isn't wired up).</p>
+      <p style="color:var(--text-muted);font-size:.9rem;">There's no single South American equivalent of ENTSO-E's transparency platform - actual traded volumes across each of these ties would need querying from each country's own operator individually, which this site doesn't currently do. See each country's own page in the <a href="south-america.html">South America overview</a> for what live data this site does and doesn't have.</p>
     </section>
 
-    <section class="panel" aria-labelledby="not-gb-heading">
-      <h2 id="not-gb-heading">None of this connects to Great Britain</h2>
-      <p>To be explicit: nothing on this page, or on any of this site's Americas pages, has any electrical connection whatsoever to Great Britain's own grid. GB's actual interconnectors are all with continental Europe and Ireland - see the <a href="interconnectors.html">GB Interconnectors page</a>. The USA, Canada, Brazil, Argentina, Chile and Colombia are included on this site purely so their figures can be compared against GB's and against each other on the <a href="comparisons.html">Comparisons page</a>, not because of any physical grid relationship.</p>
+    <section class="panel" aria-labelledby="capacity-heading">
+      <h2 id="capacity-heading">Tie capacities compared</h2>
+      <p>The figures above, ranked by installed/rated capacity - Itaipu alone is roughly the same size as three or four of Great Britain's largest power stations combined.</p>
+      <div class="chart-wrap" style="height:340px;"><canvas id="tie-capacity-bar" role="img" aria-label="Bar chart comparing the capacity in megawatts of the interconnections and shared dams described on this page"></canvas></div>
+      <p class="chart-caption">Figures are installed/rated capacity of each tie or dam, not typical actual flow, which is usually well below the rated maximum. See sources below for each figure. Last checked: 23 August 2026.</p>
     </section>
 
     <section class="panel" aria-labelledby="sources-heading">
       <h2 id="sources-heading">Sources</h2>
       <ul style="font-size:.85rem;color:var(--text-muted);">
-        <li><a href="https://www.eia.gov/todayinenergy/detail.php?id=27152">US Energy Information Administration: US electric system is made up of interconnections</a> - overview of the Eastern, Western and ERCOT interconnections.</li>
-        <li><a href="https://www.hydroquebec.com/">Hydro-Québec</a> - Quebec's own asynchronous grid and its HVDC ties to neighbouring systems.</li>
-        <li><a href="https://www.itaipu.gov.br/en">Itaipu Binacional</a> - the jointly-operated Brazil-Paraguay dam.</li>
-        <li><a href="https://www.eby.gov.py/">Entidad Binacional Yacyretá</a> - the jointly-operated Argentina-Paraguay dam.</li>
+        <li><a href="https://en.wikipedia.org/wiki/Eastern_Interconnection">Eastern Interconnection</a> and <a href="https://en.wikipedia.org/wiki/Western_Interconnection">Western Interconnection</a> - Wikipedia, with primary citations to NERC and DOE material.</li>
+        <li><a href="https://www.nmppenergy.org/energy-education/connecting-grid-dc-ties-serve-critical-role">NMPP Energy: Connecting the Grid - DC Ties Serve Critical Role</a> - the seven Eastern-Western back-to-back HVDC ties.</li>
+        <li><a href="https://www.ercot.com/gridmktinfo/dashboards/dctieflows">ERCOT DC Tie Flows dashboard</a> - ERCOT's own live page for its two DC ties to the Eastern Interconnection.</li>
+        <li><a href="https://www.hydroquebec.com/clean-energy-provider/markets/new-england.html">Hydro-Québec: New England's clean energy partner</a> - Quebec-New England interconnection capacity and individual line details.</li>
+        <li><a href="https://www.itaipu.energy/">Itaipu Binacional</a> - the jointly-operated Brazil-Paraguay dam.</li>
+        <li><a href="https://en.wikipedia.org/wiki/Yacyret%C3%A1_Dam">Yacyretá Dam</a> and <a href="https://www.eby.gov.py/">Entidad Binacional Yacyretá</a> - the jointly-operated Argentina-Paraguay dam.</li>
+        <li><a href="https://en.wikipedia.org/wiki/Garab%C3%AD-Panambi_Hydroelectric_Complex">Garabí back-to-back interconnection</a> - the Argentina-Brazil HVDC tie.</li>
+        <li><a href="https://en.wikipedia.org/wiki/Salto_Grande_Dam">Salto Grande Dam</a> - the jointly-operated Argentina-Uruguay dam.</li>
+        <li><a href="https://www.enelfoundation.org/">Enel Foundation: VRES and grid interconnection in South America</a> - Chile-Argentina and Argentina-Brazil-Uruguay interconnection studies.</li>
+        <li><a href="https://www.olade.org/">OLADE: Situation of Electricity Integration in South America</a> - regional technical note covering Colombia-Ecuador and Colombia-Venezuela tie capacities.</li>
         <li><a href="https://www.ons.org.br/">ONS (Brazil)</a>, <a href="https://cammesaweb.cammesa.com/">CAMMESA (Argentina)</a>, <a href="https://www.coordinador.cl/">Coordinador Eléctrico Nacional (Chile)</a>, and <a href="https://www.xm.com.co/">XM (Colombia)</a> - each country's own grid operator, for their respective interconnection arrangements.</li>
       </ul>
+      <p style="font-size:.85rem;color:var(--text-muted);">None of the grids on this page or on this site's other Americas pages are electrically connected to Great Britain - they're tracked here purely so their figures can be compared against GB's and against each other on the <a href="comparisons.html">Comparisons page</a>.</p>
     </section>
 
   </div>
@@ -180,5 +325,19 @@
 
 <script src="../assets/app.js"></script>
 <script src="../assets/data.js"></script>
+<script>
+(function () {
+  var canvas = document.getElementById("tie-capacity-bar");
+  if (!canvas || !window.GridPreview || !GridPreview.renderBarChart) return;
+  var color = getComputedStyle(document.documentElement).getPropertyValue("--interconnector").trim() || "#d98e04";
+  GridPreview.renderBarChart(
+    canvas,
+    ["Itaipu (BR-PY)", "Yacyretá (AR-PY)", "Garabí (AR-BR)", "Québec-New England", "Salto Grande (AR-UY)", "Eastern-Western (US)", "ERCOT-Eastern (US)", "Brazil-Uruguay", "Colombia-Ecuador", "Colombia-Venezuela", "Chile-Argentina"],
+    [14000, 3200, 2200, 2170, 1890, 1320, 820, 500, 450, 290, 200],
+    color,
+    { unit: "MW", horizontal: true, thickness: 20 }
+  );
+})();
+</script>
 </body>
 </html>
