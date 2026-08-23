@@ -1,8 +1,18 @@
 # Changelog
 
-All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed.
+All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
-## 2026-08-23
+## 2026-08-23 (v59)
+
+### Changed
+
+- **Brazil, Argentina, Chile and Colombia consolidated into a single `pages/south-america.html`.** None of the four had live data wired up (all four were illustrative/context-only, per `pages/data-sources.html`), so rather than maintain four near-identical standalone pages they're now one page with an in-page section per country (`#brazil`, `#argentina`, `#chile`, `#colombia`). Every page's Americas nav dropdown was updated to match, and `data-sources.html`'s per-country source links now point at the matching section anchor instead of a standalone page.
+
+### Fixed
+
+- **Broken Americas nav links on the homepage.** `index.html`'s Americas dropdown (USA, Canada, South America, Interconnections) had lost its `pages/` path prefix in the same update that introduced the South America consolidation above - every other nav entry on `index.html` correctly keeps the prefix since `index.html` sits at the site root, so as shipped this would have 404'd all four of those links from the homepage. Caught and fixed before this reached the repository.
+
+## 2026-08-23 (v57)
 
 ### Fixed
 
