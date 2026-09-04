@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Dates are when the chan
 
 ## 2026-09-04 (repository)
 
+### Checked
+
+- **GB Records panels re-verified.** Checked `index.html`'s four Records tabs (wind, solar, emissions, demand) and the Records panels on `pages/storage.html`, `pages/renewables.html`, `pages/nuclear-biomass.html`, `pages/fossil-fuels.html` and `pages/interconnectors.html` against NESO, Elexon BMRS, the Carbon Intensity API, and press coverage (RenewableUK, Edie, Solar Power Portal, pv magazine). No figures changed - every headline record (23,880MW wind, 25 Mar 2026; 15,427MW solar, 12 Jul 2026; the 39g/kWh carbon-intensity floor; the now-settled winter 2025/26 demand peak) is still current. All "Last checked" dates bumped to 4 September 2026. Note: the narrower "this year" BMRS superlatives (highest Dinorwig discharge, highest/lowest nuclear/biomass/gas, highest interconnector flows) had no specific press coverage to confirm against either way and were left unchanged rather than guessed - see the commit message for the full reasoning.
+
 ### Added
 
 - **NESO TEC Register cited as a source.** `pages/renewables-plans.html`'s grid connection queue section now links directly to NESO's [Transmission Entry Capacity Register](https://www.neso.energy/data-portal/transmission-entry-capacity-tec-register/tec_register) - the public, project-by-project dataset behind the queue figures discussed there (2,201 entries as of this check). Also added as its own source-card on `pages/data-sources.html`'s Great Britain grid, marked clearly as a reference link rather than a live-polled source - NESO's own register warns that summing the raw file double-counts staged/multi-technology projects, so the existing 770GW headline figure still cites NESO/Ofgem's own reported number rather than a total derived here.
