@@ -56,4 +56,4 @@ Written for shared hosting (cPanel/Plesk, no SSH assumed) - see [`README-DEPLOY.
 
 ## License
 
-No license file is currently included; all rights reserved by default. Add a `LICENSE` if you want to make reuse terms explicit.
+No open-source license is attached to this repository by design. The only redistribution terms that apply are the ones the data APIs themselves require - notably Elexon's BMRS data licence, which requires the attribution statement already included in every page's footer and on the Sources page (`pages/data-sources.html`). See `README-DEPLOY.md`'s "About the data sources" section for each API's own terms.
