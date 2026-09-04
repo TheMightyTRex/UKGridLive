@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-04 (repository)
+
+### Added
+
+- **NESO TEC Register cited as a source.** `pages/renewables-plans.html`'s grid connection queue section now links directly to NESO's [Transmission Entry Capacity Register](https://www.neso.energy/data-portal/transmission-entry-capacity-tec-register/tec_register) - the public, project-by-project dataset behind the queue figures discussed there (2,201 entries as of this check). Also added as its own source-card on `pages/data-sources.html`'s Great Britain grid, marked clearly as a reference link rather than a live-polled source - NESO's own register warns that summing the raw file double-counts staged/multi-technology projects, so the existing 770GW headline figure still cites NESO/Ofgem's own reported number rather than a total derived here.
+- **GitHub repo linked from the About page.** `pages/about.html` has a new "Source code" section pointing at this repository. Confirmed no separate open-source licence is needed - the only redistribution terms that apply are the data APIs' own (Elexon's BMRS attribution, already in every footer); `README.md`'s License section now says so directly instead of suggesting a `LICENSE` file might be added.
+
 ## 2026-08-23 (v59)
 
 ### Changed
