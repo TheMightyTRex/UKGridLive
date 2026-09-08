@@ -125,7 +125,7 @@
       <p>The Netherlands runs a compact, densely-interconnected grid at the heart of north-west Europe's electricity market, operated by TenneT. It's shifting fast from a gas-dominated mix towards offshore wind and solar - the Dutch North Sea is filling with turbines, and the country has one of the highest rates of solar capacity per person in the world. It connects to Great Britain through BritNed, a subsea interconnector to the Isle of Grain in Kent. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="fr-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
+    <p class="data-status-banner is-illustrative" id="nl-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
 
     <dl class="status-grid status-grid--4" aria-label="the Netherlands grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
@@ -140,7 +140,7 @@
       <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#nl-sources">data sources</a>.</p>
       <div class="panel-grid panel-grid--2">
         <table class="mix">
-          <caption class="visually-hidden">Illustrative the Netherlands generation by source</caption>
+          <caption class="visually-hidden">Illustrative Netherlands generation by source</caption>
           <thead>
             <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
           </thead>
@@ -325,7 +325,7 @@
   // the data sources section below.
   async function initCountryStatusStrip() {
     const caption = document.getElementById("stat-caption");
-    const banner = document.getElementById("fr-status-banner");
+    const banner = document.getElementById("nl-status-banner");
     const asOfEl = document.getElementById("stat-time");
     const liveKeys = ["demand", "generation", "price"];
 

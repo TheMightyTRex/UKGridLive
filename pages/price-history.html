@@ -198,6 +198,7 @@
 </footer>
 
 <script src="../assets/app.js"></script>
+<script src="../assets/data.js"></script>
 <script>
 (function () {
   const ranges = ["day", "week", "month", "season", "year", "5year", "10year", "all"];
@@ -218,16 +219,29 @@
     host.querySelector("[data-period-label]").textContent = GridPreview.getRangePeriodLabel(range);
 
     const priceCanvas = host.querySelector('canvas[data-metric="price"]');
-    const series = GridPreview.buildSeries(range, 64, 26, idx * 71 + 11, { min: 5, max: 220, cycles: range === "day" ? 2 : 3 });
-    GridPreview.renderLineChart(priceCanvas, series, { label: "Price", color: "#0a6e5c", unit: "£" });
-    priceCanvas.closest(".chart-wrap").classList.remove("is-loading");
+    const fetchPromise = window.GridData ? window.GridData.fetchSeries("price", range) : Promise.resolve(null);
+    fetchPromise.then((series) => {
+      priceCanvas.closest(".chart-wrap").classList.remove("is-loading");
+      if (!series) {
+        // No live price history yet on this install (fresh install, or
+        // on-demand refresh hasn't run for this range) - show the error
+        // state rather than silently drawing made-up numbers, matching
+        // history.html's own "Price per MWh" chart.
+        GridPreview.showChartError(priceCanvas, "Live data unavailable for this range.");
+        host.querySelector('[data-stat="avg"]').textContent = "-";
+        host.querySelector('[data-stat="min"]').textContent = "-";
+        host.querySelector('[data-stat="max"]').textContent = "-";
+        return;
+      }
+      GridPreview.renderLineChart(priceCanvas, series, { label: "Price", color: "#0a6e5c", unit: series.unit || "£" });
 
-    const avg = series.values.reduce((a, b) => a + b, 0) / series.values.length;
-    const min = Math.min(...series.values);
-    const max = Math.max(...series.values);
-    host.querySelector('[data-stat="avg"]').textContent = `£${avg.toFixed(1)}/MWh`;
-    host.querySelector('[data-stat="min"]').textContent = `£${min.toFixed(1)}/MWh`;
-    host.querySelector('[data-stat="max"]').textContent = `£${max.toFixed(1)}/MWh`;
+      const avg = series.values.reduce((a, b) => a + b, 0) / series.values.length;
+      const min = Math.min(...series.values);
+      const max = Math.max(...series.values);
+      host.querySelector('[data-stat="avg"]').textContent = `£${avg.toFixed(1)}/MWh`;
+      host.querySelector('[data-stat="min"]').textContent = `£${min.toFixed(1)}/MWh`;
+      host.querySelector('[data-stat="max"]').textContent = `£${max.toFixed(1)}/MWh`;
+    });
   }
 
   drawRange("day", 0);

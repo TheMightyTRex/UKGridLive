@@ -271,7 +271,7 @@
     return { times, values, labels, unit: present[0].unit };
   }
 
-  // History section: sums each of the 5 tracked countries' own real
+  // History section: sums each of the 10 tracked countries' own real
   // recorded history, same sumSeriesAcrossCountries() helper as the live
   // snapshot above (demand/generation summed, price averaged - not
   // weighted by demand, same simplification the live figures already
@@ -333,7 +333,7 @@
     if (!live.length) {
       if (banner) { banner.className = "chart-caption data-status-banner is-illustrative"; banner.innerHTML = '<span class="dot" aria-hidden="true"></span>None of the tracked EU countries have live data yet on this install'; }
       if (asOfEl) { asOfEl.textContent = "Not available yet"; asOfEl.classList.remove("is-loading-text"); }
-      if (caption) caption.textContent = "None of the 5 tracked EU countries have live ENTSO-E data yet on this install - see data sources below.";
+      if (caption) caption.textContent = "None of the 10 tracked EU countries have live ENTSO-E data yet on this install - see data sources below.";
       if (mixCaption) mixCaption.textContent = "Not available yet - see data sources below.";
       return;
     }
@@ -366,7 +366,7 @@
     }
     if (banner) {
       banner.className = "chart-caption data-status-banner";
-      banner.innerHTML = `<span class="dot" aria-hidden="true"></span>Live from ${live.length} of 5 tracked EU countries via ENTSO-E`;
+      banner.innerHTML = `<span class="dot" aria-hidden="true"></span>Live from ${live.length} of 10 tracked EU countries via ENTSO-E`;
     }
     if (caption) {
       caption.textContent = `Live totals summed across ${live.length} of the 10 EU member states this site tracks (Ireland, France, Netherlands, Belgium, Denmark, Germany, Spain, Italy, Sweden, Portugal) - price is a simple average, not weighted by demand. "Data as of" shows the oldest of those countries' own timestamps, since each updates on its own schedule. This is a subset of the EU-27, not a full EU total - see the note below.`;
@@ -376,7 +376,7 @@
       GridPreview.renderPsrMixSection(mixTotals, {
         tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
         donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
-        statusCaptionHtml: `Live, summed across ${mixCountriesCount} of the 5 tracked countries - see <a href="#eu-sources">data sources</a>.`,
+        statusCaptionHtml: `Live, summed across ${mixCountriesCount} of the 10 tracked countries - see <a href="#eu-sources">data sources</a>.`,
         sourceLabel: "ENTSO-E Transparency Platform, summed across tracked countries",
       });
     } else if (mixCaption) {

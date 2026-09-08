@@ -125,7 +125,7 @@
       <p>Norway's grid runs almost entirely on hydropower, drawn from a vast network of reservoirs that let Statnett store energy for months at a time rather than generating it the instant it's needed - a rare luxury among the world's major grids. This page covers NO2, the southwest Norway price zone, since that's specifically where North Sea Link - Norway's only direct interconnector to Great Britain - comes ashore. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="fr-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
+    <p class="data-status-banner is-illustrative" id="no-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
 
     <dl class="status-grid status-grid--4" aria-label="Norway (NO2) grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
@@ -319,7 +319,7 @@
   // sources section below.
   async function initCountryStatusStrip() {
     const caption = document.getElementById("stat-caption");
-    const banner = document.getElementById("fr-status-banner");
+    const banner = document.getElementById("no-status-banner");
     const asOfEl = document.getElementById("stat-time");
     const liveKeys = ["demand", "generation", "price"];
 

@@ -125,7 +125,7 @@
       <p>Denmark pioneered modern wind power, and its western grid - DK1, covering Jutland and Funen - now regularly generates more electricity from wind than it consumes in total. This page covers DK1 specifically because that's where Viking Link, Denmark's only direct interconnector to Great Britain, comes ashore; DK1 is also part of the Continental Europe synchronous area, unlike eastern Denmark's DK2, which is Nordic-synchronous. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="fr-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
+    <p class="data-status-banner is-illustrative" id="dk-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
 
     <dl class="status-grid status-grid--4" aria-label="Denmark (DK1) grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
@@ -137,7 +137,7 @@
 
     <section class="panel" aria-labelledby="mix-heading">
       <h2 id="mix-heading">Generation mix right now</h2>
-      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#de-sources">data sources</a>.</p>
+      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#dk-sources">data sources</a>.</p>
       <div class="panel-grid panel-grid--2">
         <table class="mix">
           <caption class="visually-hidden">Illustrative Denmark (DK1) generation by source</caption>
@@ -230,8 +230,8 @@
       <p class="chart-caption">Figures are approximate, gathered from public Energinet/ENTSO-E reporting rather than a long-run historical feed. Last checked: 23 August 2026.</p>
     </section>
 
-    <section class="panel" id="de-sources" aria-labelledby="de-sources-heading">
-      <h2 id="de-sources-heading">Data sources for Denmark (DK1)</h2>
+    <section class="panel" id="dk-sources" aria-labelledby="dk-sources-heading">
+      <h2 id="dk-sources-heading">Data sources for Denmark (DK1)</h2>
       <p>The Elexon Insights Solution, NESO Data Portal and Carbon Intensity API that power the Great Britain pages are GB-specific and don't cover Denmark (DK1), so this page draws on a different source instead:</p>
       <ul>
         <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub, required by EU regulation for every connected TSO (RTE included) to publish to. Powers demand, generation, day-ahead price, the generation mix, the 24-hour mix chart and the History section above, all via Denmark (DK1)'s own bidding zone. Requires the site operator's own free API token, obtained through a short registration process - shows "not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
@@ -324,7 +324,7 @@
   // the data sources section below.
   async function initCountryStatusStrip() {
     const caption = document.getElementById("stat-caption");
-    const banner = document.getElementById("fr-status-banner");
+    const banner = document.getElementById("dk-status-banner");
     const asOfEl = document.getElementById("stat-time");
     const liveKeys = ["demand", "generation", "price"];
 
@@ -366,7 +366,7 @@
           donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
           statusCaptionHtml: isCached
             ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
-            : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#de-sources">data sources</a>.',
+            : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#dk-sources">data sources</a>.',
           sourceLabel: "ENTSO-E Transparency Platform (Denmark (DK1) bidding zone)",
         });
       }

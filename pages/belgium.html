@@ -125,7 +125,7 @@
       <p>Belgium runs a compact, nuclear-anchored grid operated by Elia, sitting at the crossroads of France, the Netherlands, Germany and Great Britain's interconnected electricity markets. Nuclear power - long slated for a full phase-out - was given a reprieve in the mid-2020s as two reactors had their lifetimes extended to shore up supply, and North Sea offshore wind has grown into a major second pillar of the mix. Belgium connects to Great Britain through Nemo Link, a subsea interconnector to Richborough in Kent. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="fr-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
+    <p class="data-status-banner is-illustrative" id="be-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
 
     <dl class="status-grid status-grid--4" aria-label="Belgium grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
@@ -324,7 +324,7 @@
   // sources section below.
   async function initCountryStatusStrip() {
     const caption = document.getElementById("stat-caption");
-    const banner = document.getElementById("fr-status-banner");
+    const banner = document.getElementById("be-status-banner");
     const asOfEl = document.getElementById("stat-time");
     const liveKeys = ["demand", "generation", "price"];
 
