@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-08 (EU generation mix)
+
+### Fixed
+
+- **Six EU country pages had a broken, copy-pasted "Generation mix right now" table.** `pages/germany.html` was showing large nuclear generation despite Germany completing its nuclear phase-out in April 2023 - closer inspection found the same illustrative mix table (originally built for France, whose 56.3% nuclear share it still carried) had been copy-pasted onto `pages/italy.html`, `pages/spain.html`, `pages/sweden.html`, `pages/portugal.html` and `pages/belgium.html` as well, each keeping France's nuclear percentage or a rough guess unrelated to that country's real mix, and four of them (Italy, Spain, Sweden, Portugal) also still carried France's `stat-demand`/`stat-generation` figures (54.2GW/58.6GW) even though none of those grids run anywhere near that scale. Rebuilt each table, its `SOURCE_LABELS`/`SOURCE_VALUES` chart arrays, and (for Italy, Spain, Sweden, Portugal) the demand/generation stats from current per-country generation-mix data: Germany now shows no nuclear at all (phased out); Italy and Portugal show no nuclear (Italy since a 1987 referendum, Portugal never had commercial nuclear); Spain, Sweden and Belgium keep their real, smaller nuclear shares (17.9%, 25.6% and 20.0% respectively) instead of France's. `pages/france.html` itself was already correct and is unchanged in substance - only re-verified. Every corrected page keeps the site's convention that the mix table's total equals its own `stat-generation` figure (checked with a script, not by hand).
+
 ## 2026-09-04 (repository)
 
 ### Checked
