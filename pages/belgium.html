@@ -145,14 +145,14 @@
             <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
           </thead>
           <tbody id="mix-tbody">
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--other)"></span>Nuclear</th><td class="num">4.1</td><td class="num">39.0</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">3.8</td><td class="num">36.2</td></tr>
-            <tr><td>Wind (offshore)</td><td class="num">1.7</td><td class="num">16.2</td></tr>
-            <tr><td>Wind (onshore)</td><td class="num">1.0</td><td class="num">9.5</td></tr>
-            <tr><td>Solar</td><td class="num">1.1</td><td class="num">10.5</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">2.2</td><td class="num">21.0</td></tr>
-            <tr><td>Gas</td><td class="num">2.2</td><td class="num">21.0</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Other &amp; storage</th><td class="num">0.4</td><td class="num">3.8</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">3.3</td><td class="num">31.4</td></tr>
+            <tr><td>Solar</td><td class="num">1.4</td><td class="num">13.3</td></tr>
+            <tr><td>Wind (offshore)</td><td class="num">1.1</td><td class="num">10.5</td></tr>
+            <tr><td>Wind (onshore)</td><td class="num">0.8</td><td class="num">7.6</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--other)"></span>Nuclear</th><td class="num">2.1</td><td class="num">20.0</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">1.9</td><td class="num">18.1</td></tr>
+            <tr><td>Gas</td><td class="num">1.9</td><td class="num">18.1</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Other &amp; storage (net imports)</th><td class="num">3.2</td><td class="num">30.5</td></tr>
           </tbody>
         </table>
         <div>
@@ -285,8 +285,8 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  const SOURCE_LABELS = ["Nuclear", "Gas", "Wind (offshore)", "Solar", "Wind (onshore)", "Other & storage"];
-  const SOURCE_VALUES = [4.1, 2.2, 1.7, 1.1, 1.0, 0.4];
+  const SOURCE_LABELS = ["Other & storage", "Nuclear", "Gas", "Solar", "Wind (offshore)", "Wind (onshore)"];
+  const SOURCE_VALUES = [3.2, 2.1, 1.9, 1.4, 1.1, 0.8];
   // From GridData's site-wide canonical label->colour map (assets/data.js).
   const SOURCE_COLORS = window.GridData.colorsFor(SOURCE_LABELS);
 
