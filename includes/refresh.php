@@ -80,6 +80,7 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
         'EIA' => 240,
         'IESO' => 30,
         'ENTSOE' => 20,
+        'OPENELECTRICITY' => 15,
         'WEATHER' => 60,
         'CONSTRAINTS' => 1440,
         'NOTABLE_MOMENTS' => 1440,
@@ -92,6 +93,7 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
         'EIA' => 15,
         'IESO' => 7, // per-request, not total - ukgrid_ingest_ieso() makes two sequential calls
         'ENTSOE' => 6, // per-request, not total - see includes/config.php.example
+        'OPENELECTRICITY' => 8, // per-request, not total - ukgrid_ingest_openelectricity() makes two sequential calls
         'WEATHER' => 8,
         'CONSTRAINTS' => 10,
         'NOTABLE_MOMENTS' => 12,
@@ -161,6 +163,9 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
                 // cron/fetch_entsoe.php's timeout fix addressed on the cron
                 // side.
                 ukgrid_ingest_entsoe($pdo, $config, $timeoutSeconds, $intervals['ENTSOE'] ?? 20, 1);
+                break;
+            case 'OPENELECTRICITY':
+                ukgrid_ingest_openelectricity($pdo, $config, $timeoutSeconds);
                 break;
             case 'WEATHER':
                 ukgrid_ingest_weather($pdo, $config, $timeoutSeconds);

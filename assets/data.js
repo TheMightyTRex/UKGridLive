@@ -286,6 +286,82 @@
     return { entries, totalMw };
   }
 
+  /** Latest Australia (AEMO NEM) snapshot: demand/generation/price + fueltech-group mix. Returns null if unavailable. See api/australia_current.php's docblock for the NEM-only (no WEM/Western Australia) scope. */
+  async function fetchAustraliaCurrent(apiBase) {
+    try {
+      const data = await fetchJSON((apiBase || DEFAULT_API_BASE) + "australia_current.php");
+      if (!data.live) return null;
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** Historical series for one Australia metric+range. Same shape as fetchSeries's return value. See api/australia_series.php's docblock for the full metric list, including why "oil" and "nuclear" are accepted (mapped to distillate, and to an always-empty series, respectively). */
+  async function fetchAustraliaSeries(metric, range, apiBase) {
+    try {
+      const url = (apiBase || DEFAULT_API_BASE) + "australia_series.php?metric=" + encodeURIComponent(metric) + "&range=" + encodeURIComponent(range);
+      const data = await fetchJSON(url);
+      if (!data.points || !data.points.length) return null;
+      const cfg = (window.GridPreview && window.GridPreview.RANGE_CONFIG[range]) || { fmt: "date" };
+      const fmt = window.GridPreview && window.GridPreview.formatLabel ? window.GridPreview.formatLabel : (t) => new Date(t).toLocaleString();
+      return {
+        labels: data.points.map((p) => fmt(p.t, cfg.fmt)),
+        times: data.points.map((p) => p.t),
+        values: data.points.map((p) => p.v),
+        unit: data.unit,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** Australia generation mix over time (fossil/renewable/other, bucketed) - same shape as fetchMixSeries's GB equivalent, for pages/australia.html's 24-hour stacked-area chart. "other" here means dispatchable storage (pumped hydro + battery discharging), not nuclear (the NEM has none) - see api/australia_series.php's metric=mix comment for the full group definitions. */
+  async function fetchAustraliaMixSeries(range, apiBase) {
+    try {
+      const url = (apiBase || DEFAULT_API_BASE) + "australia_series.php?metric=mix&range=" + encodeURIComponent(range);
+      const data = await fetchJSON(url);
+      if (!data.points || !data.points.length) return null;
+      const cfg = (window.GridPreview && window.GridPreview.RANGE_CONFIG[range]) || { fmt: "date" };
+      const fmt = window.GridPreview && window.GridPreview.formatLabel ? window.GridPreview.formatLabel : (t) => new Date(t).toLocaleString();
+      return {
+        labels: data.points.map((p) => fmt(p.t, cfg.fmt)),
+        times: data.points.map((p) => p.t),
+        fossil: data.points.map((p) => p.fossil),
+        renewable: data.points.map((p) => p.renewable),
+        other: data.points.map((p) => p.other),
+        unit: data.unit,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Open Electricity fueltech_group codes, mapped to display labels - keep
+  // in sync with includes/ingest.php's ukgrid_ingest_openelectricity() and
+  // api/australia_current.php's $generationGroups list. battery_charging
+  // is deliberately not included here - it's never part of mix_mw (see
+  // that file's docblock).
+  const AUSTRALIA_FUEL_LABELS = {
+    coal: "Coal", gas: "Gas", wind: "Wind", solar: "Solar", hydro: "Hydro",
+    distillate: "Distillate", bioenergy: "Bioenergy", pumps: "Pumped hydro",
+    battery_discharging: "Battery storage",
+  };
+
+  /**
+   * Turns api/australia_current.php's raw { fueltechGroup: MW } mix_mw
+   * object into the shape pages/australia.html's mix table/donut/bar need:
+   * sorted labelled pairs plus a total - same pattern as summarizeUsaMix().
+   */
+  function summarizeAustraliaMix(mixMw) {
+    const entries = Object.keys(mixMw || {})
+      .map((code) => ({ label: AUSTRALIA_FUEL_LABELS[code] || code, mw: mixMw[code] }))
+      .filter((e) => e.mw != null)
+      .sort((a, b) => b.mw - a.mw);
+    const totalMw = entries.reduce((sum, e) => sum + e.mw, 0);
+    return { entries, totalMw };
+  }
+
   /** Latest Canada (Ontario/IESO) snapshot: demand + generation-by-fuel mix. Returns null if unavailable. See api/canada_current.php's docblock for the Ontario-only scope. */
   async function fetchCanadaCurrent(apiBase) {
     try {
@@ -587,6 +663,9 @@
     fetchUsaCurrent,
     fetchUsaSeries,
     fetchUsaMixSeries,
+    fetchAustraliaCurrent,
+    fetchAustraliaSeries,
+    fetchAustraliaMixSeries,
     fetchCanadaCurrent,
     fetchCanadaSeries,
     fetchCanadaMixSeries,
@@ -595,10 +674,12 @@
     fetchCountryMixSeries,
     summarizeGeneration,
     summarizeUsaMix,
+    summarizeAustraliaMix,
     summarizeEntsoeMix,
     FUEL_LABELS,
     INTERCONNECTOR_LABELS,
     USA_FUEL_LABELS,
+    AUSTRALIA_FUEL_LABELS,
     CANADA_FUEL_LABELS,
     ENTSOE_PSR_LABELS,
     ENTSOE_PSR_COLORS,

@@ -7,8 +7,8 @@
  * use only, not visitors.
  *
  * Runs every configured source's ingest function - Elexon, Carbon
- * Intensity, NESO, EirGrid, EIA, ENTSO-E (once per configured country) -
- * regardless of whether each is actually due yet. The real readings_*
+ * Intensity, NESO, EirGrid, EIA, ENTSO-E (once per configured country),
+ * Open Electricity - regardless of whether each is actually due yet. The real readings_*
  * tables still get written to normally - this is a genuine pull, not a dry
  * run - but nothing is written to includes/refresh.log or the ingest_log
  * table (see ukgrid_start_log_capture()/ukgrid_stop_log_capture() in
@@ -79,6 +79,7 @@ if (isset($_GET['ajax'])) {
         // (see this file's own docblock above) - keeping this tight leaves
         // more headroom below whatever that ceiling turns out to be.
         'IESO' => static fn () => ukgrid_ingest_ieso($pdo, $config, 8),
+        'OPENELECTRICITY' => static fn () => ukgrid_ingest_openelectricity($pdo, $config, 12),
         // One country per call: skipFresherThanMinutes=0 so nothing is
         // ever skipped, maxCountriesPerRun=1 so this stays short. The page
         // calls this once per configured country, and staleness-based
@@ -133,7 +134,7 @@ foreach ($countries as $countryCfg) {
 // ENTSOE card at all.
 $entsoeCallCount = max($entsoeCallCount, 1);
 
-$sourceOrder = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE'];
+$sourceOrder = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY'];
 
 // ---------------------------------------------------------------------
 // Config check - runs on every normal page load, entirely from what's
@@ -163,6 +164,10 @@ $eiaKey = trim((string) ($config['sources']['eia_api_key'] ?? ''));
 if ($eiaKey === '' || $eiaKey === 'CHANGE-ME') {
     $configWarnings[] = "eia_api_key isn't set in includes/config.php - the USA page will show no live data until you add one. Free, instant signup - see includes/config.php.example.";
 }
+$openElectricityKey = trim((string) ($config['sources']['openelectricity_api_key'] ?? ''));
+if ($openElectricityKey === '' || $openElectricityKey === 'CHANGE-ME') {
+    $configWarnings[] = "openelectricity_api_key isn't set in includes/config.php - the Australia page will show no live data until you add one. Free, instant signup - see includes/config.php.example.";
+}
 
 $expectedEntsoeCountries = [
     'IE' => 'ireland.html', 'FR' => 'france.html', 'NL' => 'nl.html', 'BE' => 'belgium.html',
@@ -179,7 +184,7 @@ if (!empty($missingEntsoeCountries)) {
     $configWarnings[] = 'entsoe_countries in includes/config.php is missing: ' . implode(', ', $missingList) . ' - those pages will stay on illustrative/no data until added. See includes/config.php.example for the exact entries to copy in.';
 }
 
-$expectedOnDemandSources = ['ELEXON', 'CARBON_INTENSITY', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS'];
+$expectedOnDemandSources = ['ELEXON', 'CARBON_INTENSITY', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS'];
 $intervalsCfg = $config['refresh']['intervals_minutes'] ?? [];
 $timeoutsCfg = $config['refresh']['timeouts_seconds'] ?? [];
 $missingOnDemand = array_unique(array_merge(
@@ -287,7 +292,7 @@ if (empty($config['refresh']['on_demand'])) {
   var ENTSOE_CALLS = <?php echo (int) $entsoeCallCount; ?>;
   var sourceOrder = <?php echo json_encode($sourceOrder); ?>;
 
-  var steps = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO'];
+  var steps = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'OPENELECTRICITY'];
   for (var i = 0; i < ENTSOE_CALLS; i++) steps.push('ENTSOE');
 
   // Per-source accumulated result, kept around for the "copy results" button

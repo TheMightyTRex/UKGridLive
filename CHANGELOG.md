@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-19 (Australia goes live)
+
+### Added
+
+- **Australia (NEM) is now a fully live page, backed by a real Open Electricity API key.** Sourced from the Open Electricity API (formerly OpenNEM), covering AEMO's National Electricity Market: New South Wales, Queensland, Victoria, South Australia and Tasmania (NEM does not include Western Australia or the Northern Territory, which run separate markets). New `pages/australia.html` follows `pages/usa.html`'s "no illustrative fallback" convention - stats show "-"/"Not available" until real data loads or a fetch fails, never a fabricated placeholder - combined with the price/band/sparkline handling used on the ENTSO-E-style pages.
+- New dedicated tables (`readings_au_demand`, `readings_au_generation`, `readings_au_price`), following the site's established convention of a dedicated table set per distinct data-source family rather than folding into the generic ENTSO-E `country_code` schema. `sql/schema.sql` uses `IF NOT EXISTS` throughout, so it's safe to re-run in full against an existing database.
+- New `ukgrid_ingest_openelectricity()` in `includes/ingest.php`, plus a new `ukgrid_http_get_json_auth()` helper in `includes/http.php` for the API's `Authorization: Bearer` auth (unlike EIA's query-param key). Pulls generation via `/v4/data/network/NEM` (grouped by `fueltech_group`) and price/demand via `/v4/market/network/NEM` (grouped by region), converting the API's timezone-naive NEM-local (fixed UTC+10, no DST) timestamps to UTC for storage. Since no single "NEM price" exists - each of the five regions sets its own spot price - the headline price is a demand-weighted average across regions. The API's live responses include an extra, undocumented `battery` fueltech_group that isn't in Open Electricity's own published list; confirmed by exact arithmetic against real data that it's simply `battery_discharging - battery_charging` (a redundant net-convenience rollup), so it's deliberately skipped on ingest to avoid double-counting - `battery_charging` and `battery_discharging` are stored and reported separately instead, with `battery_charging` excluded from generation totals (it's a load, not generation) but still exposed in the API response for transparency.
+- New `cron/fetch_openelectricity.php` entry point, wired into `includes/refresh.php` (on-demand refresh) and `tools/full-refresh.php` (manual full-refresh tool), matching the pattern already used for EIA/IESO.
+- New `api/australia_current.php` and `api/australia_series.php` endpoints, mirroring `api/usa_current.php`/`api/usa_series.php`, plus matching client helpers in `assets/data.js` (`fetchAustraliaCurrent`, `fetchAustraliaSeries`, `fetchAustraliaMixSeries`, `summarizeAustraliaMix`).
+- Australia added site-wide: nav link on all 30 other pages, a country option in `pages/comparisons.html`'s country selector and its Energy Sources tab (including a `biomass` metric alias so it lines up with that page's canonical fuel key), and updated copy on `pages/about.html`, `pages/data-sources.html` (new source-card disclosing Open Electricity's CC BY-NC 4.0 non-commercial licence) and `README-DEPLOY.md` moving Australia from "planned" to live, alongside a new `australia_staleness_minutes` config setting.
+- Ingestion logic verified end-to-end against real, live NEM data fetched with a real API key (generation, demand and demand-weighted price all checked by hand against the raw API response) before this was shipped.
+
+### Note for deployment
+
+This feature needs two manual steps on the live server that this repo's automated tooling can't do: put the real key into the live `includes/config.php`'s `openelectricity_api_key` (never committed - `includes/config.php.example` keeps the placeholder), and run the three new `CREATE TABLE` statements (or safely re-import the whole of `sql/schema.sql`) against the live database.
+
 ## 2026-09-19 (demand/generation/chart consistency pass)
 
 ### Fixed
