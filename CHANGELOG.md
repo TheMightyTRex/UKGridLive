@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-19 (demand/generation/chart consistency pass)
+
+### Fixed
+
+- **Five pages' sparkline configs still described a different, older set of demand/generation figures than the same page's own headline stats.** `assets/app.js`'s live sparkline rendering only ever reads `SPARK_METRICS[key].color` on success - the `base`/`amp`/`min`/`max` fields only feed the unreachable `drawMockSparkline()` fallback - so this had no visible effect, but it was still a genuine leftover from an earlier fix (the 2026-09-08 "EU generation mix" entry) that corrected each page's `stat-demand`/`stat-generation` and mix table but missed the matching `SPARK_METRICS` object: `pages/italy.html`, `pages/portugal.html`, `pages/spain.html` and `pages/sweden.html` all still carried France/Germany-scale sparkline bases (54.2/58.6) years after their own stats were fixed to their real, much smaller scale. `pages/ireland.html`'s price sparkline base (88) had also drifted from its own `stat-price` (92.30). `index.html`'s own sparkline bases (price/emissions/demand/generation/transfers) had similarly drifted from its current stat values. All six pages' `SPARK_METRICS` now match their own displayed figures.
+- **Italy, Portugal, Spain and Sweden's "Low/Below average/Average/High/Very high" demand and generation band indicators used France and Germany's typical range (35-85GW) instead of their own.** Unlike the sparkline issue above, `GridPreview.bandFromRange()` runs on every successful live page load, not just as an illustrative fallback - so this was a real, user-facing bug: Portugal's actual ~8.5-9.0GW grid and Sweden's ~15.5-16.0GW grid would almost always have read "Low" regardless of true conditions, and Italy's/Spain's own generation figures (34.0GW) fell at or below the stated 35GW floor of their own "typical" range. Replaced with each country's own approximate typical range: Italy demand 22-58GW/generation 20-52GW, Portugal 4.5-10GW (both), Spain demand 18-42GW/generation 16-44GW, Sweden 9-27GW (both) - each page's current stat value now falls comfortably (36-82%) within its own band, matching the pattern already used correctly on Belgium, Denmark, France, Germany, NL, Norway, Poland and Ireland.
+- Both issues were found and fixed with a small verification script (checking `stat-demand`/`stat-generation` against each page's mix-table sum, `SOURCE_VALUES` sum, donut `centerLabel`, `SPARK_METRICS` bases, and `bandFromRange()` low/high arguments across all 13 ENTSO-E-style pages plus the homepage), re-run clean after the fixes above.
+
 ## 2026-09-19 (Australia groundwork)
 
 ### Added
