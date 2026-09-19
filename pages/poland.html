@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spain: Live+ - the live status of the Spanish electricity grid</title>
-<meta name="description" content="A live dashboard for Spain's electricity grid - demand, generation, day-ahead price and generation mix, live from the ENTSO-E Transparency Platform.">
+<title>Poland: Live+ - the live status of the Polish electricity grid</title>
+<meta name="description" content="A live dashboard for Poland's electricity grid - demand, generation, day-ahead price and generation mix, live from the ENTSO-E Transparency Platform.">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@
         <path d="M35.3 9.5h6.4M38.5 6.3v6.4" stroke="var(--accent-contrast)" stroke-width="2.2" stroke-linecap="round"/>
       </svg>
       <span class="brand__name">UK&nbsp;Grid: <em>Live+</em></span>
-      <span class="brand__tagline">Spain: the Spanish electricity grid, live via ENTSO-E</span>
+      <span class="brand__tagline">Poland: the Polish electricity grid, live via ENTSO-E</span>
     </a>
     <div class="header-controls">
       <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
@@ -87,11 +87,11 @@
           <li><a href="norway.html">Norway (NO2)</a></li>
           <li><a href="denmark.html">Denmark (DK1)</a></li>
           <li><a href="germany.html">Germany</a></li>
-          <li><a href="spain.html" aria-current="page">Spain</a></li>
+          <li><a href="spain.html">Spain</a></li>
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
-          <li><a href="poland.html">Poland</a></li>
+          <li><a href="poland.html" aria-current="page">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -122,48 +122,48 @@
   <div class="wrap">
 
     <section class="hero">
-      <h1>Spain: the live status of the Spanish electricity grid</h1>
-      <p>Spain's grid, operated by Red Eléctrica (REE), has one of the highest wind and solar shares of any major European grid, backed by significant hydro and a shrinking nuclear fleet. It's connected to the rest of Continental Europe mainly through France, with a much smaller link to Portugal and Morocco. It isn't physically interconnected to Great Britain, so it's included here for comparison rather than as one of GB's own interconnector partners. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
+      <h1>Poland: the live status of the Polish electricity grid</h1>
+      <p>Poland's grid, operated by transmission system operator PSE, still relies on coal for roughly half its generation - more than almost any other European grid - though wind and solar have pushed renewables to a record share of output in recent years. Poland connected its first offshore wind farm, Baltic Power in the Baltic Sea, to the grid in July 2026, alongside a fast-growing onshore wind and solar fleet. It isn't physically interconnected to Great Britain, so it's included here for comparison rather than as one of GB's own interconnector partners. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="es-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
+    <p class="data-status-banner is-illustrative" id="pl-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
 
-    <dl class="status-grid status-grid--4" aria-label="Spain grid snapshot">
+    <dl class="status-grid status-grid--4" aria-label="Poland grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>Day-ahead price</dt><dd>€<span id="stat-price">78.40</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">32.0</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">34.0</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Day-ahead price</dt><dd>€<span id="stat-price">72.00</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">20.0</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">19.0</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
     </dl>
-    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Illustrative figures in the rough range of Spain's actual totals, not a live reading. Each figure shows an illustrative trend over the last 3 hours.</p>
+    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Illustrative figures in the rough range of Poland's actual totals, not a live reading. Each figure shows an illustrative trend over the last 3 hours.</p>
 
     <section class="panel" aria-labelledby="mix-heading">
       <h2 id="mix-heading">Generation mix right now</h2>
-      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#es-sources">data sources</a>.</p>
+      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#pl-sources">data sources</a>.</p>
       <div class="panel-grid panel-grid--2">
         <table class="mix">
-          <caption class="visually-hidden">Illustrative Spain generation by source</caption>
+          <caption class="visually-hidden">Illustrative Poland generation by source</caption>
           <thead>
             <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
           </thead>
           <tbody id="mix-tbody">
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">18.7</td><td class="num">55.0</td></tr>
-            <tr><td>Wind</td><td class="num">7.1</td><td class="num">20.9</td></tr>
-            <tr><td>Solar</td><td class="num">7.1</td><td class="num">20.9</td></tr>
-            <tr><td>Hydro</td><td class="num">4.5</td><td class="num">13.2</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--other)"></span>Nuclear</th><td class="num">6.1</td><td class="num">17.9</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">6.8</td><td class="num">20.0</td></tr>
-            <tr><td>Gas</td><td class="num">6.8</td><td class="num">20.0</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Other &amp; storage</th><td class="num">2.4</td><td class="num">7.1</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">12.4</td><td class="num">65.3</td></tr>
+            <tr><td>Coal (hard coal &amp; lignite)</td><td class="num">9.9</td><td class="num">52.1</td></tr>
+            <tr><td>Gas</td><td class="num">2.5</td><td class="num">13.2</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">5.5</td><td class="num">28.9</td></tr>
+            <tr><td>Wind</td><td class="num">2.7</td><td class="num">14.2</td></tr>
+            <tr><td>Solar</td><td class="num">2.3</td><td class="num">12.1</td></tr>
+            <tr><td>Hydro &amp; biomass</td><td class="num">0.5</td><td class="num">2.6</td></tr>
+            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Other &amp; storage (net imports)</th><td class="num">1.1</td><td class="num">5.8</td></tr>
           </tbody>
         </table>
         <div>
-          <div class="chart-wrap"><canvas id="mix-donut" role="img" aria-label="Donut chart of Spain generation mix by source"></canvas></div>
+          <div class="chart-wrap"><canvas id="mix-donut" role="img" aria-label="Donut chart of Poland generation mix by source"></canvas></div>
           <ul class="chart-legend" id="mix-donut-legend"></ul>
-          <p class="chart-caption" id="mix-donut-caption">Spain's grid regularly runs on very high renewable shares during sunny, windy periods - among the highest of any major European grid.</p>
+          <p class="chart-caption" id="mix-donut-caption">Coal remains by far Poland's largest single source, though wind and solar have driven renewables to a record share of generation in recent years.</p>
         </div>
       </div>
       <div class="chart-wrap" style="height:220px;margin-top:1.5rem;">
-        <canvas id="mix-bar" role="img" aria-label="Bar chart comparing Spain generation by source"></canvas>
+        <canvas id="mix-bar" role="img" aria-label="Bar chart comparing Poland generation by source"></canvas>
       </div>
       <p class="chart-caption">Generation by source right now, ranked highest to lowest.</p>
     </section>
@@ -209,33 +209,33 @@
     </section>
 
     <section class="panel" aria-labelledby="about-heading">
-      <h2 id="about-heading">About the Spanish grid</h2>
-      <p>Red Eléctrica de España (REE) operates Spain's transmission grid, part of the Iberian bidding zone (shared trading arrangements with Portugal) inside the Continental Europe synchronous area. Spain has built one of Europe's largest wind and solar fleets, complemented by hydro, a shrinking nuclear fleet and gas for flexible backup - giving it some of the highest renewable-generation shares of any large European grid on sunny, windy days.</p>
-      <p>Spain's main interconnection to the rest of Continental Europe runs through France, with smaller links to Portugal and (via a subsea HVDC cable) Morocco. It has no direct electrical interconnector with Great Britain, and is included on this site purely for cross-country comparison via the Comparisons page.</p>
+      <h2 id="about-heading">About the Polish grid</h2>
+      <p>PSE (Polskie Sieci Elektroenergetyczne) operates Poland's transmission grid, part of the Continental Europe synchronous area. Poland's generation mix remains the most coal-dependent of any major European grid, with hard coal and lignite together supplying roughly half of output, though onshore wind and a fast-growing solar fleet have pushed renewables to a record share of generation in recent years. Poland has no commercial nuclear power yet - its first plant is planned for the early 2030s.</p>
+      <p>Poland connects to Germany, the Czech Republic, Slovakia, Lithuania (via the LitPol Link) and Sweden (via the subsea SwePol Link), and has no direct electrical interconnector with Great Britain. It's included on this site purely for cross-country comparison via the Comparisons page, not because of any GB grid relationship.</p>
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
       <h2 id="records-heading">Context</h2>
       <div class="panel-grid panel-grid--2">
         <ul class="records-list">
-          <li><span>Renewable share of generation</span><strong>~56% in 2024 - first year renewables outpaced non-renewables</strong></li>
-          <li><span>Wind capacity</span><strong>~32.6GW installed (2025) - Spain's largest single generation technology</strong></li>
-          <li><span>Nuclear fleet</span><strong>7 reactors, ~20% of generation in 2024</strong></li>
-          <li><span>Iberian Peninsula blackout</span><strong>28 April 2025 - grid collapse across Spain, Portugal and parts of southern France</strong></li>
+          <li><span>Renewable share of generation</span><strong>~29.4% in 2025 (record, though nearly flat vs. 2024's 29.0%)</strong></li>
+          <li><span>Coal share of generation</span><strong>~52% in 2025 (hard coal and lignite combined)</strong></li>
+          <li><span>First offshore wind power</span><strong>Baltic Power delivered its first electricity to the grid in July 2026</strong></li>
+          <li><span>Record electricity demand</span><strong>29.2GW gross, 9 January 2026, amid a severe cold spell</strong></li>
         </ul>
         <div>
-          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Spain's approximate renewable generation share, 2022 to 2025"></canvas></div>
-          <p class="chart-caption">Approximate renewable share of Spanish generation by year - renewables passed the halfway mark for the first time in 2024.</p>
+          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Poland's approximate renewable share of electricity generation, 2021 to 2025"></canvas></div>
+          <p class="chart-caption">Approximate renewable share of generation by year - growth has slowed since the sharp rise of 2022-2023.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are approximate, gathered from public Red Eléctrica (REE)/ENTSO-E reporting rather than a long-run historical feed. Last checked: 23 August 2026.</p>
+      <p class="chart-caption">Figures are approximate, gathered from public Fraunhofer ISE/Energy-Charts and PSE reporting rather than a long-run historical feed. Last checked: 19 September 2026.</p>
     </section>
 
-    <section class="panel" id="es-sources" aria-labelledby="es-sources-heading">
-      <h2 id="es-sources-heading">Data sources for Spain</h2>
-      <p>The Elexon Insights Solution, NESO Data Portal and Carbon Intensity API that power the Great Britain pages are GB-specific and don't cover Spain, so this page draws on a different source instead:</p>
+    <section class="panel" id="pl-sources" aria-labelledby="pl-sources-heading">
+      <h2 id="pl-sources-heading">Data sources for Poland</h2>
+      <p>The Elexon Insights Solution, NESO Data Portal and Carbon Intensity API that power the Great Britain pages are GB-specific and don't cover Poland, so this page draws on a different source instead:</p>
       <ul>
-        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub, required by EU regulation for every connected transmission system operator to publish to. Powers demand, generation, day-ahead price, the generation mix, the 24-hour mix chart and the History section above, all via Spain's own bidding zone. Requires the site operator's own free API token, obtained through a short registration process - shows "not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
+        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub, required by EU regulation for every connected transmission system operator to publish to. Powers demand, generation, day-ahead price, the generation mix, the 24-hour mix chart and the History section above, all via Poland's own bidding zone. Requires the site operator's own free API token, obtained through a short registration process - shows "not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
       </ul>
       <p>Two figures aren't shown on this page at all: ENTSO-E doesn't publish emissions intensity (g/kWh), and its generation-per-type data doesn't include cross-border physical flow, so rather than show a permanently illustrative placeholder for either, they're left out until a real source exists. See <a href="data-sources.html">the sitewide data sources page</a> for how this compares to the other pages.</p>
     </section>
@@ -246,7 +246,7 @@
 <footer class="site-footer">
   <div class="wrap">
     <p style="margin-top:.5rem;">Demand, generation, day-ahead price and generation mix are live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a>.</p>
-    <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with Red Eléctrica, ENTSO-E or the Spanish government</span></p>
+    <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with PSE, ENTSO-E or the Polish government</span></p>
   </div>
 </footer>
 
@@ -254,7 +254,7 @@
 <script src="../assets/data.js"></script>
 <script>
 (function () {
-  const COUNTRY_CODE = "ES";
+  const COUNTRY_CODE = "PL";
   const METRICS = {
     demand:     { label: "Demand",     unit: "GW",    color: "#1d6fe0" },
     generation: { label: "Generation", unit: "GW",    color: "#0a6e5c" },
@@ -286,14 +286,14 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  const SOURCE_LABELS = ["Wind", "Solar", "Gas", "Nuclear", "Hydro", "Other & storage"];
-  const SOURCE_VALUES = [7.1, 7.1, 6.8, 6.1, 4.5, 2.4];
+  const SOURCE_LABELS = ["Coal", "Wind", "Solar", "Gas", "Hydro & biomass", "Other & storage"];
+  const SOURCE_VALUES = [9.9, 2.7, 2.3, 2.5, 0.5, 1.1];
   // From GridData's site-wide canonical label->colour map (assets/data.js).
   const SOURCE_COLORS = window.GridData.colorsFor(SOURCE_LABELS);
 
   GridPreview.renderDonutChart(
     document.getElementById("mix-donut"), SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-legend", unit: "GW", centerLabel: "34.0GW", centerSub: "generated (illustrative)" }
+    { legendTarget: "mix-donut-legend", unit: "GW", centerLabel: "19.0GW", centerSub: "generated (illustrative)" }
   );
 
   (function () {
@@ -302,9 +302,9 @@
   })();
 
   const SPARK_METRICS = {
-    price:      { base: 78,   amp: 55, color: "#d98e04", min: -30, max: 260 },
-    demand:     { base: 54.2, amp: 12, color: "#1d6fe0", min: 32,  max: 102 },
-    generation: { base: 58.6, amp: 12, color: "#0a6e5c", min: 35,  max: 108 },
+    price:      { base: 72,   amp: 45, color: "#d98e04", min: -20, max: 240 },
+    demand:     { base: 20.0, amp: 5,  color: "#1d6fe0", min: 12,  max: 29 },
+    generation: { base: 19.0, amp: 5,  color: "#0a6e5c", min: 11,  max: 30 },
   };
   const SPARK_KEYS = Object.keys(SPARK_METRICS);
 
@@ -316,16 +316,16 @@
     GridPreview.renderSparkline(canvas, series.values, cfg.color);
   }
 
-  // Spain's ENTSO-E config fetches price, generation and demand (see
+  // Poland's ENTSO-E config fetches price, generation and demand (see
   // entsoe_countries in includes/config.php.example) - that's everything
   // this page shows a figure for. Emissions intensity and GB-specific
   // interconnector flow aren't published by ENTSO-E for this bidding zone
   // at all, so rather than show a permanently illustrative placeholder for
   // either, they've been left off this page entirely - see the data
   // sources section below.
-  async function initESStatusStrip() {
+  async function initPLStatusStrip() {
     const caption = document.getElementById("stat-caption");
-    const banner = document.getElementById("es-status-banner");
+    const banner = document.getElementById("pl-status-banner");
     const asOfEl = document.getElementById("stat-time");
     const liveKeys = ["demand", "generation", "price"];
 
@@ -339,9 +339,10 @@
       if (current.generation_mw != null) setStat("stat-generation", (current.generation_mw / 1000).toFixed(1));
       // Reference range: a rough typical low-to-peak demand window for this
       // grid (not an official published threshold - see
-      // GridPreview.bandFromRange's own docblock). 35-85GW here.
-      GridPreview.setStatBand("stat-demand-band", GridPreview.bandFromRange(current.demand_mw != null ? current.demand_mw / 1000 : null, 35, 85), " relative to this grid's typical demand range (rough guide, not an official banding)");
-      GridPreview.setStatBand("stat-generation-band", GridPreview.bandFromRange(current.generation_mw != null ? current.generation_mw / 1000 : null, 35, 85), " relative to this grid's typical generation range (rough guide, not an official banding)");
+      // GridPreview.bandFromRange's own docblock). 12-29GW here, based on
+      // Poland's own published winter demand record.
+      GridPreview.setStatBand("stat-demand-band", GridPreview.bandFromRange(current.demand_mw != null ? current.demand_mw / 1000 : null, 12, 29), " relative to this grid's typical demand range (rough guide, not an official banding)");
+      GridPreview.setStatBand("stat-generation-band", GridPreview.bandFromRange(current.generation_mw != null ? current.generation_mw / 1000 : null, 11, 30), " relative to this grid's typical generation range (rough guide, not an official banding)");
       if (current.price_eur_mwh != null) setStat("stat-price", current.price_eur_mwh.toFixed(2));
 
       if (asOfEl) {
@@ -357,7 +358,7 @@
       if (caption) {
         caption.textContent = isCached
           ? "Showing the last successfully loaded figures while this page fetches the latest data."
-          : "Live demand, generation and day-ahead price from the ENTSO-E Transparency Platform (Spain bidding zone)" +
+          : "Live demand, generation and day-ahead price from the ENTSO-E Transparency Platform (Poland bidding zone)" +
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
 
@@ -367,15 +368,15 @@
           donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
           statusCaptionHtml: isCached
             ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
-            : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#es-sources">data sources</a>.',
-          sourceLabel: "ENTSO-E Transparency Platform (Spain bidding zone)",
+            : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#pl-sources">data sources</a>.',
+          sourceLabel: "ENTSO-E Transparency Platform (Poland bidding zone)",
         });
       }
     }
 
     const { usedCache, promise } = GridPreview.withCachedFallback(
-      "country-current-FR",
-      () => (window.GridData ? window.GridData.fetchCountryCurrent("ES") : Promise.resolve(null)),
+      "country-current-PL",
+      () => (window.GridData ? window.GridData.fetchCountryCurrent("PL") : Promise.resolve(null)),
       renderCountry
     );
     const current = await promise;
@@ -409,7 +410,7 @@
     // awaiting them sequentially in a loop meant the page waited for three
     // full network round trips back-to-back instead of the slowest one
     // (see the matching comment in pages/ireland.html's initIeStatusStrip).
-    const countrySeriesList = await Promise.all(liveKeys.map((key) => window.GridData.fetchCountrySeries("ES", key, "3hour")));
+    const countrySeriesList = await Promise.all(liveKeys.map((key) => window.GridData.fetchCountrySeries("PL", key, "3hour")));
     liveKeys.forEach((key, i) => {
       const canvas = document.getElementById("spark-" + key);
       if (!canvas) return;
@@ -422,12 +423,12 @@
     });
   }
 
-  initESStatusStrip();
+  initPLStatusStrip();
 
   (async function () {
     const canvas = document.getElementById("mix-stack");
     if (!canvas || !window.GridData) return;
-    const mix = await window.GridData.fetchCountryMixSeries("ES", "day");
+    const mix = await window.GridData.fetchCountryMixSeries("PL", "day");
     canvas.closest(".chart-wrap").classList.remove("is-loading");
     if (!mix) {
       GridPreview.showChartError(canvas, "Not enough recorded history yet for the last 24 hours.");
@@ -443,9 +444,9 @@
 
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
-    ["2022", "2023", "2024", "2025"],
-    [46, 50, 56, 56],
-    "#c0392b",
+    ["2021", "2022", "2023", "2024", "2025"],
+    [14.7, 19.3, 26.0, 29.0, 29.4],
+    "#2e8b57",
     { unit: "%", horizontal: false, thickness: 32 }
   );
 })();

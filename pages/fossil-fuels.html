@@ -92,6 +92,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -130,8 +131,8 @@
     </section>
 
     <dl class="status-grid" aria-label="Current fossil fuels status" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><dt>Current output</dt><dd>7.58GW</dd></div>
-      <div class="stat"><dt>Share of generation</dt><dd>26.2%</dd></div>
+      <div class="stat"><dt>Current output</dt><dd id="stat-output" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Share of generation</dt><dd id="stat-share" class="is-loading-text">Loading live data…</dd></div>
     </dl>
 
     <section class="panel">
@@ -139,9 +140,9 @@
       <table class="mix">
         <caption class="visually-hidden">Fossil fuels generation by source</caption>
         <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
-        <tbody>
-            <tr><td>Gas</td><td class="num">7.58</td><td class="num">26.2</td></tr>
-            <tr><td>Coal</td><td class="num">0.00</td><td class="num">0.0</td></tr>
+        <tbody id="mix-tbody">
+            <tr><td>Gas</td><td class="num" id="row-gas-gw">-</td><td class="num" id="row-gas-pct">-</td></tr>
+            <tr><td>Coal</td><td class="num" id="row-coal-gw">-</td><td class="num" id="row-coal-pct">-</td></tr>
         </tbody>
       </table>
     </section>
@@ -223,6 +224,51 @@
 (function () {
   const template = document.getElementById("range-panel-template");
   const drawn = {};
+
+  // "Current output" / "Share of generation" and the Breakdown table used
+  // to be a fixed, hand-typed snapshot presented with no indication it
+  // wasn't live, unlike this page's own meta description and the History
+  // section below it - fixed to pull the same live api/current.php feed
+  // the homepage uses (window.GridData.summarizeGeneration), rather than a
+  // number that could only ever go stale.
+  (async function initCurrentOutput() {
+    const outputEl = document.getElementById("stat-output");
+    const shareEl = document.getElementById("stat-share");
+    const setRow = (gwId, pctId, gw, pct) => {
+      const gwEl = document.getElementById(gwId), pctEl = document.getElementById(pctId);
+      if (gwEl) gwEl.textContent = gw;
+      if (pctEl) pctEl.textContent = pct;
+    };
+    if (!window.GridData) return;
+    const current = await window.GridData.fetchCurrent();
+    if (!current) {
+      if (outputEl) { outputEl.textContent = "No data available"; outputEl.classList.remove("is-loading-text"); }
+      if (shareEl) { shareEl.textContent = "No data available"; shareEl.classList.remove("is-loading-text"); }
+      setRow("row-gas-gw", "row-gas-pct", "-", "-");
+      setRow("row-coal-gw", "row-coal-pct", "-", "-");
+      return;
+    }
+    const summary = window.GridData.summarizeGeneration(current.generation);
+    const bySource = summary.bySource || {};
+    // Oil is folded into "Gas" here rather than given its own row - it's
+    // usually ~0MW on this grid and the table has always had just these
+    // two rows; nothing is silently dropped, it just isn't split out.
+    const gasMw = (bySource.Gas || 0) + (bySource["Gas (peaking)"] || 0) + (bySource.Oil || 0);
+    const coalMw = bySource.Coal || 0;
+    const totalMw = summary.totalGenMw;
+    if (!totalMw) {
+      if (outputEl) { outputEl.textContent = "No data available"; outputEl.classList.remove("is-loading-text"); }
+      if (shareEl) { shareEl.textContent = "No data available"; shareEl.classList.remove("is-loading-text"); }
+      setRow("row-gas-gw", "row-gas-pct", "-", "-");
+      setRow("row-coal-gw", "row-coal-pct", "-", "-");
+      return;
+    }
+    const fossilMw = gasMw + coalMw;
+    if (outputEl) { outputEl.textContent = (fossilMw / 1000).toFixed(2) + "GW"; outputEl.classList.remove("is-loading-text"); }
+    if (shareEl) { shareEl.textContent = (fossilMw / totalMw * 100).toFixed(1) + "%"; shareEl.classList.remove("is-loading-text"); }
+    setRow("row-gas-gw", "row-gas-pct", (gasMw / 1000).toFixed(2), (gasMw / totalMw * 100).toFixed(1));
+    setRow("row-coal-gw", "row-coal-pct", (coalMw / 1000).toFixed(2), (coalMw / totalMw * 100).toFixed(1));
+  })();
 
   // Real data from api/series.php's fossil/generation metrics (see that
   // file's comment on the 'fossil' case for exactly which fuel codes

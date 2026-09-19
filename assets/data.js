@@ -532,6 +532,7 @@
     Hydro: "#2a8fbd",
     "Hydro (run-of-river)": "#2a8fbd",
     "Hydro (reservoir)": "#1f6f94",
+    "Hydro & biomass": "#3f8fa0",
     Coal: "#4a4a4a",
     "Coal & lignite": "#4a4a4a",
     Biomass: "#7a8f3f",

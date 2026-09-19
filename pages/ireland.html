@@ -91,6 +91,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -246,7 +247,7 @@
         <li><strong><a href="https://www.sem-o.com/">SEMO</a></strong> (Single Electricity Market Operator) - publishes wholesale day-ahead and intraday market pricing for the island of Ireland. SEMO itself isn't wired up here, but the same day-ahead price is also published via ENTSO-E below, so the SEM price stat above is now live through that route instead.</li>
         <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM price stat, the generation-mix table/donut/bar (by fuel type, not by individual power station), the 24-hour mix chart and the History section's price panel above, via its Ireland (SEM) bidding zone. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
       </ul>
-      <p>ENTSO-E's generation-per-type figures don't break interconnector flows down individually (Moyle vs. EWIC vs. Greenlink) the way EirGrid's own dashboard would - the mix table below shows GB interconnection as one combined figure, from EirGrid's net interconnection reading rather than ENTSO-E. The 24-hour generation-mix stack further up and the History section's per-range charts aren't wired to ENTSO-E yet and stay illustrative.</p>
+      <p>ENTSO-E's generation-per-type figures don't break interconnector flows down individually (Moyle vs. EWIC vs. Greenlink) the way EirGrid's own dashboard would - the mix table below shows GB interconnection as one combined figure, from EirGrid's net interconnection reading rather than ENTSO-E. The 24-hour generation-mix stack further up and the History section's per-range charts are live too, from the same EirGrid/ENTSO-E feeds - each shows "not enough recorded history yet" rather than a placeholder if this install hasn't collected enough history for a given range.</p>
     </section>
 
   </div>
@@ -366,32 +367,31 @@
         const priceEl = document.getElementById("stat-price");
         if (priceEl) priceEl.textContent = entsoe.price_eur_mwh.toFixed(2);
       }
-      if (entsoe) {
-        GridPreview.renderPsrMixSection(entsoe.mix_mw, {
-          tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
-          donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
-          statusCaptionHtml: isCached
-            ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
-            : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#ie-sources">data sources</a>.',
-          sourceLabel: "ENTSO-E Transparency Platform (Ireland/SEM bidding zone)",
-          // ENTSO-E's generation-per-type data doesn't split interconnector
-          // flow out by individual cable - EirGrid's own interconnection_mw
-          // reading is folded in as one combined line instead (see the
-          // ie-sources section's copy for why).
-          extraLine: current && current.interconnection_mw != null
-            // A literal hex, not var(--interconnector) - this colour also
-            // feeds the donut chart's canvas gradient below (see
-            // renderPsrMixSection in app.js), and canvas fillStyle/gradient
-            // stops don't resolve CSS custom properties the way an inline
-            // element style does, so a var() reference here would throw
-            // partway through drawing the donut every time GB interconnection
-            // data is present. #d98e04 is this site's --interconnector value.
-            ? { label: "GB interconnect", mw: current.interconnection_mw, color: "#d98e04" }
-            : null,
-        });
-      }
-      // If entsoe is null (no cache, no live data yet), the illustrative
-      // table/donut/bar already in the markup stays exactly as-is.
+      // Always call - renderPsrMixSection now shows an explicit "No data
+      // available" state itself when entsoe/entsoe.mix_mw is missing,
+      // rather than leaving the illustrative table/donut/bar untouched.
+      GridPreview.renderPsrMixSection(entsoe && entsoe.mix_mw, {
+        tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+        donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
+        statusCaptionHtml: isCached
+          ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
+          : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#ie-sources">data sources</a>.',
+        sourceLabel: "ENTSO-E Transparency Platform (Ireland/SEM bidding zone)",
+        // ENTSO-E's generation-per-type data doesn't split interconnector
+        // flow out by individual cable - EirGrid's own interconnection_mw
+        // reading is folded in as one combined line instead (see the
+        // ie-sources section's copy for why).
+        extraLine: current && current.interconnection_mw != null
+          // A literal hex, not var(--interconnector) - this colour also
+          // feeds the donut chart's canvas gradient below (see
+          // renderPsrMixSection in app.js), and canvas fillStyle/gradient
+          // stops don't resolve CSS custom properties the way an inline
+          // element style does, so a var() reference here would throw
+          // partway through drawing the donut every time GB interconnection
+          // data is present. #d98e04 is this site's --interconnector value.
+          ? { label: "GB interconnect", mw: current.interconnection_mw, color: "#d98e04" }
+          : null,
+      });
 
       if (!current) return;
       const setStat = (id, value) => {
@@ -418,7 +418,7 @@
           ? "Showing the last successfully loaded figures while this page fetches the latest data."
           : "Live demand, generation, emissions and GB interconnection from EirGrid's Smart Grid Dashboard" +
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".") +
-            (entsoe ? " SEM price and the generation-mix breakdown below are live from ENTSO-E too." : " SEM price and the generation-mix breakdown below stay on illustrative figures for now - see data sources below.");
+            (entsoe ? " SEM price and the generation-mix breakdown below are live from ENTSO-E too." : " SEM price and the generation-mix breakdown below show no data available for now - see data sources below.");
       }
     }
 
@@ -442,13 +442,15 @@
     // handling below - renderIeSnapshot only sets the price figure itself.
     if (entsoe && entsoe.price_eur_mwh != null) {
       const priceSeries = await window.GridData.fetchCountrySeries("IE", "price", "3hour");
+      const priceCanvas = document.getElementById("spark-price");
       if (priceSeries && priceSeries.values.length) {
-        GridPreview.renderSparkline(document.getElementById("spark-price"), priceSeries.values, SPARK_METRICS.price.color);
-      } else {
-        drawMockSparkline("price");
+        GridPreview.renderSparkline(priceCanvas, priceSeries.values, SPARK_METRICS.price.color);
+      } else if (priceCanvas) {
+        GridPreview.showChartError(priceCanvas, null);
       }
     } else {
-      drawMockSparkline("price");
+      const priceCanvas = document.getElementById("spark-price");
+      if (priceCanvas) GridPreview.showChartError(priceCanvas, null);
     }
 
     if (!current) {
@@ -460,7 +462,7 @@
       } else {
         GridPreview.showLiveDataBanner(
           "EirGrid data is currently unavailable - demand, generation, wind and GB interconnection figures below could not be loaded." +
-          (entsoe ? " SEM price and the generation-mix breakdown below are still live from ENTSO-E." : " SEM price and the generation-mix breakdown below stay on illustrative figures too.") +
+          (entsoe ? " SEM price and the generation-mix breakdown below are still live from ENTSO-E." : " SEM price and the generation-mix breakdown below show no data available too.") +
           " See the footer for the data pipeline's status."
         );
         if (asOfEl) { asOfEl.textContent = "-"; asOfEl.classList.remove("is-loading-text"); }
@@ -470,7 +472,7 @@
           const canvas = document.getElementById("spark-" + key);
           if (canvas) GridPreview.showChartError(canvas, null);
         });
-        if (caption) caption.textContent = "Live data is currently unavailable." + (entsoe ? " SEM price and the generation-mix breakdown below are still live from ENTSO-E." : " SEM price and the generation-mix breakdown below stay on illustrative figures too.") + " See data sources below.";
+        if (caption) caption.textContent = "Live data is currently unavailable." + (entsoe ? " SEM price and the generation-mix breakdown below are still live from ENTSO-E." : " SEM price and the generation-mix breakdown below show no data available too.") + " See data sources below.";
       }
       return;
     }

@@ -92,6 +92,7 @@
           <li><a href="pages/italy.html">Italy</a></li>
           <li><a href="pages/sweden.html">Sweden (SE3)</a></li>
           <li><a href="pages/portugal.html">Portugal</a></li>
+          <li><a href="pages/poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -141,14 +142,14 @@
 
       <div class="chart-grid chart-grid--donuts">
         <div>
-          <div class="chart-wrap" style="height:440px;"><canvas id="mix-donut-source" role="img" aria-label="Donut chart of current generation by individual source"></canvas></div>
+          <div class="chart-wrap is-loading" style="height:440px;"><canvas id="mix-donut-source" role="img" aria-label="Donut chart of current generation by individual source"></canvas></div>
           <ul class="chart-legend" id="mix-donut-source-legend"></ul>
-          <p class="chart-caption">Generation by individual source (28.7GW). Hover a slice for details.</p>
+          <p class="chart-caption" id="mix-donut-source-caption">Loading live data…</p>
         </div>
         <div>
-          <div class="chart-wrap" style="height:440px;"><canvas id="mix-donut-category" role="img" aria-label="Donut chart of the renewable, non-renewable and interconnector share of demand"></canvas></div>
+          <div class="chart-wrap is-loading" style="height:440px;"><canvas id="mix-donut-category" role="img" aria-label="Donut chart of the renewable, non-renewable and interconnector share of demand"></canvas></div>
           <ul class="chart-legend" id="mix-donut-category-legend"></ul>
-          <p class="chart-caption">Renewable vs. non-renewable generation plus the net interconnector contribution, as a share of demand (28.9GW). Hover a slice for details.</p>
+          <p class="chart-caption" id="mix-donut-category-caption">Loading live data…</p>
         </div>
       </div>
 
@@ -167,19 +168,12 @@
         <thead>
           <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
         </thead>
+        <tbody id="mix-tbody">
+          <tr><td colspan="3" style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">Loading live data…</td></tr>
+        </tbody>
         <tbody>
-          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">7.58</td><td class="num">26.2</td></tr>
-          <tr><td>Gas</td><td class="num">7.58</td><td class="num">26.2</td></tr>
-          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">14.73</td><td class="num">51.0</td></tr>
-          <tr><td>Solar</td><td class="num">4.19</td><td class="num">14.5</td></tr>
-          <tr><td>Wind</td><td class="num">10.33</td><td class="num">35.8</td></tr>
-          <tr><td>Hydro</td><td class="num">0.21</td><td class="num">0.7</td></tr>
-          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--other)"></span>Other sources</th><td class="num">6.38</td><td class="num">22.1</td></tr>
-          <tr><td>Nuclear</td><td class="num">3.86</td><td class="num">13.4</td></tr>
-          <tr><td>Biomass</td><td class="num">2.52</td><td class="num">8.7</td></tr>
-          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--interconnector)"></span>Interconnectors</th><td class="num">0.20</td><td class="num">0.7</td></tr>
-          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Storage</th><td class="num" id="idx-storage-total-gw">0.79</td><td class="num" id="idx-storage-total-pct">2.7</td></tr>
-          <tr><td>Pumped hydro</td><td class="num">0.79</td><td class="num">2.7</td></tr>
+          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Storage</th><td class="num" id="idx-storage-total-gw">-</td><td class="num" id="idx-storage-total-pct">-</td></tr>
+          <tr><td>Pumped hydro</td><td class="num" id="idx-pumped-gw">-</td><td class="num" id="idx-pumped-pct">-</td></tr>
           <tr><td>Battery</td><td class="num" id="idx-battery-gw" aria-live="polite">-</td><td class="num" id="idx-battery-pct" aria-live="polite">-</td></tr>
         </tbody>
       </table>
@@ -212,7 +206,7 @@
         <canvas id="mix-stack" role="img" aria-label="Stacked area chart of fossil fuel, renewable and other generation over the last 24 hours"></canvas>
       </div>
       <ul class="chart-legend" id="mix-stack-legend" style="justify-content:center;"></ul>
-      <p class="chart-caption">Fossil fuel, renewable and nuclear/biomass generation stacked to show how the overall mix shifts through the day.</p>
+      <p class="chart-caption">Renewable, non-renewable and storage generation stacked to show how the overall mix shifts through the day, from the Elexon Insights Solution.</p>
     </section>
 
     <section class="panel" aria-labelledby="history-heading">
@@ -386,37 +380,122 @@
   // comment for why per-page hardcoded arrays are worth avoiding.
   const SOURCE_COLORS = window.GridData.colorsFor(SOURCE_LABELS);
 
-  // Outer ring: renewable / non-renewable / interconnector share of demand.
-  // Renewable = Solar+Wind+Hydro (14.73GW); Non-renewable = Gas+Nuclear+Biomass (13.96GW);
-  // Interconnector = net import, matching the Transfers stat above (0.2GW). Together these
-  // total ~28.9GW, matching the Demand stat.
-  const CATEGORY_LABELS = ["Renewable", "Non-renewable", "Interconnector"];
-  const CATEGORY_VALUES = [14.73, 13.96, 0.20];
-  const CATEGORY_COLORS = window.GridData.colorsFor(CATEGORY_LABELS);
+  // "Generation mix right now": table + two donuts + bar chart, rebuilt
+  // live every time current data loads from summarizeGeneration()'s
+  // per-fuel breakdown (assets/data.js), the same live figures the
+  // snapshot-download feature already uses - rather than ever drawing a
+  // fixed illustrative snapshot that only ever looked like "right now".
+  // Groups mirror the ones the mix table has always used (Fossil fuels /
+  // Renewables / Other sources), built from Elexon's own fuel-type labels
+  // since those don't match ENTSO-E's psrType codes used by the country
+  // pages' equivalent (GridPreview.renderPsrMixSection).
+  const MIX_GROUPS = [
+    { label: "Fossil fuels", color: "var(--fossil)", sources: ["Gas", "Gas (peaking)", "Coal", "Oil"] },
+    { label: "Renewables", color: "var(--renewable)", sources: ["Solar", "Wind", "Wind (embedded)", "Hydro"] },
+    { label: "Other sources", color: "var(--other)", sources: ["Nuclear", "Biomass", "Other"] },
+  ];
 
-  GridPreview.renderDonutChart(
-    document.getElementById("mix-donut-source"),
-    SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-source-legend", unit: "GW", centerLabel: "28.7GW", centerSub: "generation" }
-  );
+  // Live pumped-storage total (GW/%), read by the battery toggle below -
+  // null until the first successful fetch resolves. Elexon's fuel-type
+  // feed only reports pumped storage as one combined "PS" figure, so
+  // "Battery" stays the toggle's own preview figure rather than a
+  // fabricated live one (see that panel's own "planned feature" caption).
+  let pumpedGw = null, pumpedPct = null, lastGenGw = null;
 
-  GridPreview.renderDonutChart(
-    document.getElementById("mix-donut-category"),
-    CATEGORY_LABELS, CATEGORY_VALUES, CATEGORY_COLORS,
-    { legendTarget: "mix-donut-category-legend", unit: "GW", centerLabel: "28.9GW", centerSub: "demand" }
-  );
+  function showNoGbMixData() {
+    GridPreview.showNoMixData({ tbodyId: "mix-tbody", donutId: "mix-donut-source", legendId: "mix-donut-source-legend", barId: "mix-bar" });
+    GridPreview.showChartError(document.getElementById("mix-donut-category"), "No data available");
+    const catLegend = document.getElementById("mix-donut-category-legend");
+    if (catLegend) catLegend.innerHTML = "";
+    const srcCaption = document.getElementById("mix-donut-source-caption");
+    if (srcCaption) srcCaption.textContent = "No data available.";
+    const catCaption = document.getElementById("mix-donut-category-caption");
+    if (catCaption) catCaption.textContent = "No data available.";
+    pumpedGw = null; pumpedPct = null; lastGenGw = null;
+    ["idx-pumped-gw", "idx-pumped-pct", "idx-storage-total-gw", "idx-storage-total-pct"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = "-";
+    });
+  }
 
-  // Horizontal bar chart, ranked by output
-  (function () {
-    const paired = SOURCE_LABELS.map((l, i) => ({ l, v: SOURCE_VALUES[i], c: SOURCE_COLORS[i] })).sort((a, b) => b.v - a.v);
-    GridPreview.renderBarChart(
-      document.getElementById("mix-bar"),
-      paired.map((p) => p.l),
-      paired.map((p) => p.v),
-      paired.map((p) => p.c),
-      { unit: "GW" }
-    );
-  })();
+  function renderGbMixSection(summary, demandMw) {
+    const bySource = summary.bySource || {};
+    const sourceLabels = Object.keys(bySource).filter((l) => bySource[l] > 0);
+    if (!sourceLabels.length) { showNoGbMixData(); return; }
+
+    // % is of demand (not generation) when a live demand figure is
+    // available, matching how every other page on this site computes its
+    // mix-table percentages - falls back to generation+net-import if
+    // demand hasn't loaded for some reason.
+    const totalMw = demandMw != null ? demandMw : (summary.totalGenMw + summary.interconnectorMw);
+    const gw = (mw) => (mw / 1000).toFixed(2);
+    const pct = (mw) => totalMw > 0 ? (mw / totalMw * 100).toFixed(1) : "0.0";
+
+    const tbody = document.getElementById("mix-tbody");
+    if (tbody) {
+      tbody.innerHTML = "";
+      MIX_GROUPS.forEach((group) => {
+        const groupLabels = sourceLabels.filter((l) => group.sources.includes(l));
+        const groupMw = groupLabels.reduce((sum, l) => sum + bySource[l], 0);
+        if (groupMw <= 0) return;
+        const groupRow = document.createElement("tr");
+        groupRow.className = "group-row";
+        groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${group.color}"></span>${group.label}</th><td class="num">${gw(groupMw)}</td><td class="num">${pct(groupMw)}</td>`;
+        tbody.appendChild(groupRow);
+        groupLabels.sort((a, b) => bySource[b] - bySource[a]).forEach((label) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${label}</td><td class="num">${gw(bySource[label])}</td><td class="num">${pct(bySource[label])}</td>`;
+          tbody.appendChild(row);
+        });
+      });
+      const interRow = document.createElement("tr");
+      interRow.className = "group-row";
+      interRow.innerHTML = `<th scope="row"><span class="swatch" style="background:var(--interconnector)"></span>Interconnectors</th><td class="num">${gw(summary.interconnectorMw)}</td><td class="num">${pct(summary.interconnectorMw)}</td>`;
+      tbody.appendChild(interRow);
+    }
+
+    pumpedGw = summary.storageMw / 1000;
+    pumpedPct = totalMw > 0 ? (summary.storageMw / totalMw * 100) : 0;
+    lastGenGw = summary.totalGenMw / 1000;
+    const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+    setText("idx-pumped-gw", pumpedGw.toFixed(2));
+    setText("idx-pumped-pct", pumpedPct.toFixed(1));
+    setText("idx-storage-total-gw", pumpedGw.toFixed(2));
+    setText("idx-storage-total-pct", pumpedPct.toFixed(1));
+
+    const sortedLabels = sourceLabels.slice().sort((a, b) => bySource[b] - bySource[a]);
+    const donutSourceCanvas = document.getElementById("mix-donut-source");
+    if (donutSourceCanvas) {
+      donutSourceCanvas.closest(".chart-wrap").classList.remove("is-loading");
+      const values = sortedLabels.map((l) => bySource[l] / 1000);
+      const colors = window.GridData.colorsFor(sortedLabels);
+      GridPreview.renderDonutChart(donutSourceCanvas, sortedLabels, values, colors, {
+        legendTarget: "mix-donut-source-legend", unit: "GW", centerLabel: gw(summary.totalGenMw) + "GW", centerSub: "generation",
+      });
+    }
+    const srcCaption = document.getElementById("mix-donut-source-caption");
+    if (srcCaption) srcCaption.textContent = `Generation by individual source (${gw(summary.totalGenMw)}GW). Hover a slice for details.`;
+
+    const categoryLabels = ["Renewable", "Non-renewable", "Interconnector"];
+    const categoryValues = [summary.renewableMw / 1000, summary.nonRenewableMw / 1000, summary.interconnectorMw / 1000];
+    const categoryColors = window.GridData.colorsFor(categoryLabels);
+    const donutCategoryCanvas = document.getElementById("mix-donut-category");
+    if (donutCategoryCanvas) {
+      donutCategoryCanvas.closest(".chart-wrap").classList.remove("is-loading");
+      GridPreview.renderDonutChart(donutCategoryCanvas, categoryLabels, categoryValues, categoryColors, {
+        legendTarget: "mix-donut-category-legend", unit: "GW", centerLabel: gw(totalMw) + "GW", centerSub: "demand",
+      });
+    }
+    const catCaption = document.getElementById("mix-donut-category-caption");
+    if (catCaption) catCaption.textContent = `Renewable vs. non-renewable generation plus the net interconnector contribution, as a share of demand (${gw(totalMw)}GW). Hover a slice for details.`;
+
+    const barCanvas = document.getElementById("mix-bar");
+    if (barCanvas) {
+      barCanvas.closest(".chart-wrap").classList.remove("is-loading");
+      const paired = sortedLabels.map((l) => ({ l, v: bySource[l] / 1000, c: window.GridData.colorFor(l) }));
+      GridPreview.renderBarChart(barCanvas, paired.map((p) => p.l), paired.map((p) => p.v), paired.map((p) => p.c), { unit: "GW" });
+    }
+  }
 
   // Sparklines + headline numbers in the status strip. Tries the real
   // backend first (api/current.php + api/series.php); falls back to
@@ -663,6 +742,7 @@
         if (el) el.textContent = value;
       };
       const summary = window.GridData.summarizeGeneration(current.generation);
+      renderGbMixSection(summary, current.demand_mw);
 
       setStat("stat-price", current.price_gbp_mwh != null ? "£" + current.price_gbp_mwh.toFixed(2) : "-");
       setStat("stat-emissions", current.emissions_gco2 != null ? String(current.emissions_gco2) : "-");
@@ -722,6 +802,7 @@
           const canvas = document.getElementById("spark-" + key);
           if (canvas) GridPreview.showChartError(canvas, null);
         });
+        showNoGbMixData();
         if (caption) caption.textContent = "Live data is currently unavailable.";
       }
       return;
@@ -809,21 +890,25 @@
 
   initNotableMoments();
 
-  // Stacked area: generation mix over the last 24 hours. Uses the same
-  // renderStackedAreaChart component as the History page's mix chart, so
-  // this gets the same per-band fade fill and the same hover behaviour
-  // (guide line + tooltip breaking down every type at that point) rather
-  // than a separate, older implementation with neither.
-  (function () {
+  // Stacked area: generation mix over the last 24 hours. Live from the same
+  // series.php?metric=mix feed the History page's equivalent chart uses
+  // (window.GridData.fetchMixSeries), rather than a fixed random-walk
+  // illustration that never reflected the actual day - shows an honest
+  // "not enough recorded history yet" state if this install hasn't
+  // collected enough history for the last 24 hours.
+  (async function () {
     const canvas = document.getElementById("mix-stack");
-    const fossil = GridPreview.buildSeries("day", 7, 4, 11, { min: 1, max: 16, cycles: 2 });
-    const renewable = GridPreview.buildSeries("day", 14, 9, 22, { min: 2, max: 26, cycles: 3 });
-    const other = GridPreview.buildSeries("day", 6, 1.5, 33, { min: 4, max: 9, cycles: 1 });
-
-    GridPreview.renderStackedAreaChart(canvas, fossil.times, fossil.labels, [
-      { name: "Fossil fuels", color: "#8a5a3c", values: fossil.values },
-      { name: "Renewables", color: "#1f9d5a", values: renewable.values },
-      { name: "Nuclear & biomass", color: "#6a5acd", values: other.values },
+    if (!canvas || !window.GridData) return;
+    const mix = await window.GridData.fetchMixSeries("day");
+    canvas.closest(".chart-wrap").classList.remove("is-loading");
+    if (!mix) {
+      GridPreview.showChartError(canvas, "Not enough recorded history yet for the last 24 hours.");
+      return;
+    }
+    GridPreview.renderStackedAreaChart(canvas, mix.times, mix.labels, [
+      { name: "Renewable", color: window.GridData.colorFor("Renewable"), values: mix.renewable },
+      { name: "Non-renewable", color: window.GridData.colorFor("Non-renewable"), values: mix.nonRenewable },
+      { name: "Storage", color: window.GridData.colorFor("Battery"), values: mix.storage },
     ], { unit: "GW", legendTarget: "mix-stack-legend" });
   })();
 
@@ -863,9 +948,15 @@
     document.getElementById("records-tablist").addEventListener("rangechange", (e) => drawRecords(e.detail.range));
   })();
 
-  // Battery charge/discharge toggle (overview)
+  // Battery charge/discharge toggle (overview) - preview of a planned
+  // feature (see this control's own on-page caption): Elexon's fuel-type
+  // feed has no battery-specific reading at all, so unlike the rest of
+  // this section there is no live source to wire this up to yet, and the
+  // chart/figure below are clearly-labelled illustrative preview data
+  // rather than something claiming to be live. The pumped-storage total it
+  // adds to IS live (pumpedGw/pumpedPct, set by renderGbMixSection above)
+  // and reads "-" until the first successful fetch resolves.
   (function () {
-    const PUMPED_GW = 0.79, PUMPED_PCT = 2.7;
     const toggle = document.getElementById("idx-battery-toggle");
     const panel = document.getElementById("idx-battery-panel");
     const batteryGw = document.getElementById("idx-battery-gw");
@@ -884,16 +975,16 @@
       if (on) {
         const batteryNow = -0.18;
         batteryGw.textContent = batteryNow.toFixed(2);
-        batteryPct.textContent = ((batteryNow / 28.7) * 100).toFixed(1);
-        totalGw.textContent = (PUMPED_GW + batteryNow).toFixed(2);
-        totalPct.textContent = (PUMPED_PCT + (batteryNow / 28.7) * 100).toFixed(1);
+        batteryPct.textContent = lastGenGw != null ? ((batteryNow / lastGenGw) * 100).toFixed(1) : "-";
+        totalGw.textContent = pumpedGw != null ? (pumpedGw + batteryNow).toFixed(2) : "-";
+        totalPct.textContent = (pumpedPct != null && lastGenGw != null) ? (pumpedPct + (batteryNow / lastGenGw) * 100).toFixed(1) : "-";
         panel.hidden = false;
         if (!drawn) { drawChart(); drawn = true; }
       } else {
         batteryGw.textContent = "-";
         batteryPct.textContent = "-";
-        totalGw.textContent = PUMPED_GW.toFixed(2);
-        totalPct.textContent = PUMPED_PCT.toFixed(1);
+        totalGw.textContent = pumpedGw != null ? pumpedGw.toFixed(2) : "-";
+        totalPct.textContent = pumpedPct != null ? pumpedPct.toFixed(1) : "-";
         panel.hidden = true;
       }
     }

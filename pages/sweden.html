@@ -91,6 +91,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html" aria-current="page">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -205,7 +206,7 @@
     </section>
 
     <section class="panel" aria-labelledby="about-heading">
-      <h2 id="about-heading">About the French grid</h2>
+      <h2 id="about-heading">About the Swedish grid</h2>
       <p>Svenska kraftnät operates Sweden's transmission grid, part of the Nordic synchronous area (shared with Norway, Finland and eastern Denmark) rather than Continental Europe. Sweden is split into four bidding zones, SE1 (north) through SE4 (south); this page tracks SE3, the zone covering Stockholm and central Sweden. The national mix is dominated by hydro and nuclear, with a rapidly expanding wind fleet, giving Sweden one of the lowest-carbon electricity systems of any country.</p>
       <p>Sweden has no direct electrical interconnector with Great Britain, trading instead with Norway, Finland, Denmark, Germany, Poland and the Baltic states. It's included on this site purely for cross-country comparison via the Comparisons page.</p>
     </section>
@@ -357,7 +358,7 @@
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
 
-      if (current.mix_mw) {
+      { // always call - renderPsrMixSection now shows "No data available" itself when mix_mw is missing/empty
         GridPreview.renderPsrMixSection(current.mix_mw, {
           tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
           donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
@@ -378,8 +379,24 @@
 
     if (!current) {
       if (!usedCache) {
-        if (asOfEl) { asOfEl.textContent = "Illustrative"; asOfEl.classList.remove("is-loading-text"); }
-        liveKeys.forEach(drawMockSparkline);
+        // No cache and the live fetch failed outright - show an honest
+        // "no data" state throughout rather than leaving the illustrative
+        // placeholder numbers on screen looking like they might be current.
+        if (asOfEl) { asOfEl.textContent = "-"; asOfEl.classList.remove("is-loading-text"); }
+        liveKeys.forEach((key) => GridPreview.showStatError("stat-" + key));
+        liveKeys.forEach((key) => {
+          const spark = document.getElementById("spark-" + key);
+          if (spark) GridPreview.showChartError(spark, null);
+        });
+        if (banner) {
+          banner.className = "data-status-banner has-error";
+          banner.innerHTML = '<span class="dot" aria-hidden="true"></span>No data available';
+        }
+        if (caption) caption.textContent = "No data available - see data sources below.";
+        GridPreview.showNoMixData({
+          tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+          donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
+        });
       }
       return;
     }
@@ -397,7 +414,7 @@
       if (series && series.values.length) {
         GridPreview.renderSparkline(canvas, series.values, SPARK_METRICS[key].color);
       } else {
-        drawMockSparkline(key);
+        GridPreview.showChartError(canvas, null);
       }
     });
   }

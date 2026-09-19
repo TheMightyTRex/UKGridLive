@@ -91,6 +91,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -208,7 +209,7 @@
     </section>
 
     <section class="panel" aria-labelledby="about-heading">
-      <h2 id="about-heading">About the French grid</h2>
+      <h2 id="about-heading">About the German grid</h2>
       <p>Germany's electricity system is coordinated across four regional transmission system operators - 50Hertz, Amprion, TenneT and TransnetBW - trading as a single national bidding zone (paired with Luxembourg) inside the Continental Europe synchronous area. Since completing its long-planned nuclear phase-out in April 2023, Germany has leaned further on wind, solar, lignite and hard coal, plus gas for flexible backup, giving it one of the more carbon-intensive generation mixes among large Western European economies alongside one of the fastest-growing renewable buildouts.</p>
       <p>Germany has no direct electrical interconnector with Great Britain - it trades instead with its many land and sea neighbours (France, the Netherlands, Belgium, Denmark, Poland, Switzerland, Austria and the Nordic countries via subsea links). It's included on this site purely for cross-country comparison via the Comparisons page, not because of any GB grid relationship.</p>
     </section>
@@ -360,7 +361,7 @@
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
 
-      if (current.mix_mw) {
+      { // always call - renderPsrMixSection now shows "No data available" itself when mix_mw is missing/empty
         GridPreview.renderPsrMixSection(current.mix_mw, {
           tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
           donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
@@ -381,8 +382,24 @@
 
     if (!current) {
       if (!usedCache) {
-        if (asOfEl) { asOfEl.textContent = "Illustrative"; asOfEl.classList.remove("is-loading-text"); }
-        liveKeys.forEach(drawMockSparkline);
+        // No cache and the live fetch failed outright - show an honest
+        // "no data" state throughout rather than leaving the illustrative
+        // placeholder numbers on screen looking like they might be current.
+        if (asOfEl) { asOfEl.textContent = "-"; asOfEl.classList.remove("is-loading-text"); }
+        liveKeys.forEach((key) => GridPreview.showStatError("stat-" + key));
+        liveKeys.forEach((key) => {
+          const spark = document.getElementById("spark-" + key);
+          if (spark) GridPreview.showChartError(spark, null);
+        });
+        if (banner) {
+          banner.className = "data-status-banner has-error";
+          banner.innerHTML = '<span class="dot" aria-hidden="true"></span>No data available';
+        }
+        if (caption) caption.textContent = "No data available - see data sources below.";
+        GridPreview.showNoMixData({
+          tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+          donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
+        });
       }
       return;
     }
@@ -400,7 +417,7 @@
       if (series && series.values.length) {
         GridPreview.renderSparkline(canvas, series.values, SPARK_METRICS[key].color);
       } else {
-        drawMockSparkline(key);
+        GridPreview.showChartError(canvas, null);
       }
     });
   }
