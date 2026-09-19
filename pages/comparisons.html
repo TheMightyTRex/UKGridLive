@@ -107,6 +107,7 @@
           <li><a href="americas-interconnects.html">Interconnections</a></li>
         </ul>
       </li>
+      <li><a href="australia.html">Australia</a></li>
       <li><a href="comparisons.html" aria-current="page">Comparisons</a></li>
       <li><a href="data-sources.html">Sources</a></li>
       <li><a href="about.html">About</a></li>
@@ -156,6 +157,7 @@
               <option value="PL">Poland</option>
               <option value="US">USA</option>
               <option value="CA">Canada (Ontario)</option>
+              <option value="AU">Australia (NEM)</option>
             </select>
           </label>
           <label>Country B
@@ -175,6 +177,7 @@
               <option value="PL">Poland</option>
               <option value="US">USA</option>
               <option value="CA">Canada (Ontario)</option>
+              <option value="AU">Australia (NEM)</option>
             </select>
           </label>
         </div>
@@ -261,6 +264,7 @@
               <option value="PL">Poland</option>
               <option value="US" selected>USA</option>
               <option value="CA">Canada (Ontario)</option>
+              <option value="AU">Australia (NEM)</option>
             </select>
           </label>
           <label>Source A
@@ -301,6 +305,7 @@
               <option value="PL">Poland</option>
               <option value="US">USA</option>
               <option value="CA">Canada (Ontario)</option>
+              <option value="AU">Australia (NEM)</option>
             </select>
           </label>
           <label>Source B
@@ -363,7 +368,7 @@
 <script src="../assets/data.js"></script>
 <script>
 (function () {
-  const COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", US: "USA", CA: "Canada (Ontario)" };
+  const COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", US: "USA", CA: "Canada (Ontario)", AU: "Australia (NEM)" };
 
   /** Normalizes each source's own current-snapshot shape into one common
       {label, ts, demandMw, generationMw, price, priceUnit, emissionsGco2}
@@ -423,6 +428,18 @@
         label: "Canada (Ontario)", ts: ca.ts,
         demandMw: ca.demand_mw, generationMw: ca.generation_mw,
         price: null, priceUnit: null, emissionsGco2: null,
+      };
+    }
+    if (code === "AU") {
+      // NEM only (not Western Australia/Northern Territory), via Open
+      // Electricity - see pages/australia.html's own data-sources section.
+      const au = await window.GridData.fetchAustraliaCurrent();
+      if (!au) return null;
+      return {
+        label: "Australia (NEM)", ts: au.ts,
+        demandMw: au.demand_mw, generationMw: au.generation_mw,
+        price: au.price_aud_mwh, priceUnit: "AUD/MWh",
+        emissionsGco2: null,
       };
     }
     // FR/NL/BE/NO/DK/DE/ES/IT/SE/PT - all the same ENTSO-E-sourced shape. None of these
@@ -596,17 +613,18 @@
     nuclear:         { label: "Nuclear",           color: "#6a5acd" },
     biomass:         { label: "Biomass",           color: "#7a8f3f" },
   };
-  const ENERGY_COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", US: "USA", CA: "Canada (Ontario)" };
+  const ENERGY_COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", US: "USA", CA: "Canada (Ontario)", AU: "Australia (NEM)" };
 
   // Routes a (country, metric) pair to whichever backend endpoint actually
-  // covers it. GB and USA each have one endpoint that covers every metric
-  // in ENERGY_SOURCE_META. The five ENTSO-E-only countries (FR/NL/BE/NO/DK)
-  // route everything through country_series.php, which covers demand too
-  // for all five (see entsoe_countries in includes/config.php.example).
-  // Ireland is the one exception: demand/generation/wind are EirGrid's own
-  // figures (matching the numbers shown elsewhere on pages/ireland.html),
-  // everything else comes from ENTSO-E's psr_type breakdown via
-  // country_series.php, same split as that page's own History section.
+  // covers it. GB, USA and Australia each have one endpoint that covers
+  // every metric in ENERGY_SOURCE_META. The ENTSO-E-only countries
+  // (FR/NL/BE/NO/DK/DE/ES/IT/SE/PT/PL) route everything through
+  // country_series.php, which covers demand too for all of them (see
+  // entsoe_countries in includes/config.php.example). Ireland is the one
+  // exception: demand/generation/wind are EirGrid's own figures (matching
+  // the numbers shown elsewhere on pages/ireland.html), everything else
+  // comes from ENTSO-E's psr_type breakdown via country_series.php, same
+  // split as that page's own History section.
   function fetchEnergySourceSeries(country, metric, range) {
     if (!window.GridData) return Promise.resolve(null);
     if (country === "GB") return window.GridData.fetchSeries(metric, range);
@@ -615,6 +633,7 @@
       return window.GridData.fetchIrelandSeries(metric, range);
     }
     if (country === "CA") return window.GridData.fetchCanadaSeries(metric, range);
+    if (country === "AU") return window.GridData.fetchAustraliaSeries(metric, range);
     return window.GridData.fetchCountrySeries(country, metric, range);
   }
 

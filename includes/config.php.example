@@ -111,19 +111,18 @@ return [
       'PL' => ['domain' => '10YPL-AREA-----S', 'label' => 'Poland', 'fetch' => ['price', 'generation', 'demand']],
     ],
 
-    // RESERVED for the planned Australia page - not consumed by any code
-    // yet (no cron/fetch_openelectricity.php or ukgrid_ingest_*() reads
-    // this key at the time of writing), so filling it in doesn't activate
-    // anything on its own. Documented here now so the slot exists in the
-    // usual place once that integration lands.
-    //
-    // Powers Australia's National Electricity Market (NEM) demand,
-    // generation-by-fuel and price data, via the Open Electricity API
-    // (formerly OpenNEM). Like eia_api_key above, this is NOT keyless -
-    // register a free account at https://platform.openelectricity.org.au/sign-up
-    // (instant, self-serve - first/last name, email, password, or
-    // continue with GitHub/Google; no approval wait like ENTSO-E) and
-    // generate a key from that account's dashboard, then paste it below.
+    // Powers pages/australia.html - Australia's National Electricity
+    // Market (NEM) demand, generation by fuel technology group, and a
+    // demand-weighted average spot price, via the Open Electricity API
+    // (formerly OpenNEM) - see includes/ingest.php's
+    // ukgrid_ingest_openelectricity() and cron/fetch_openelectricity.php.
+    // Like eia_api_key above, this is NOT keyless - register a free
+    // account at https://platform.openelectricity.org.au/sign-up (instant,
+    // self-serve - first/last name, email, password, or continue with
+    // GitHub/Google; no approval wait like ENTSO-E) and generate a key
+    // from that account's dashboard, then paste it below. Leave it as
+    // 'CHANGE-ME' and the Australia page simply shows no live data (no
+    // illustrative fallback, no error) - same convention as eia_api_key.
     // IMPORTANT - data licence: unless the Open Electricity API says
     // otherwise for a specific endpoint, its data is CC BY-NC 4.0
     // (non-commercial use only, with attribution) - a stricter term than
@@ -285,4 +284,11 @@ return [
   // own ~15-30 minute sources, hence its own threshold rather than reusing
   // staleness_minutes (90).
   'entsoe_staleness_minutes' => 240,
+
+  // Same idea again, for pages/australia.html. AEMO's NEM dispatch data
+  // updates every 5 minutes - close to GB/Ireland's own pace - so this
+  // stays much tighter than usa_staleness_minutes/entsoe_staleness_minutes
+  // above; it mainly exists to catch ingestion actually breaking rather
+  // than a normal source-side lag.
+  'australia_staleness_minutes' => 30,
 ];

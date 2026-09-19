@@ -69,6 +69,67 @@ function ukgrid_iso_to_mysql(string $iso): ?string
 }
 
 /**
+ * Same as ukgrid_http_get_json() but adds a "Authorization: Bearer
+ * <token>" header - needed for the Open Electricity API (see
+ * ukgrid_ingest_openelectricity() in includes/ingest.php), which rejects
+ * requests with no bearer token rather than accepting one as a query
+ * parameter the way the EIA API does. Kept as its own function rather than
+ * adding an optional header param to ukgrid_http_get_json() so every
+ * existing call site (which all pass a bare URL) stays untouched.
+ */
+function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeoutSeconds = 20): ?array
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => $timeoutSeconds,
+        CURLOPT_CONNECTTIMEOUT => min(8, $timeoutSeconds),
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTPHEADER => ['Accept: application/json', 'Authorization: Bearer ' . $bearerToken],
+        CURLOPT_USERAGENT => 'UK-Grid-Live-Plus/1.0 (+https://github.com/KateMorley/grid; contact via site data-sources page)',
+    ]);
+    $body = curl_exec($ch);
+    $errno = curl_errno($ch);
+    $error = curl_error($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($errno !== 0) {
+        $msg = "HTTP error fetching {$url}: curl errno {$errno} - {$error}";
+        error_log('ukgrid: ' . $msg);
+        if (function_exists('ukgrid_file_log')) {
+            ukgrid_file_log($msg);
+        }
+        return null;
+    }
+    if ($status < 200 || $status >= 300) {
+        // Open Electricity returns a JSON body even on 4xx (e.g.
+        // {"success":false,"error":"Unsupported metrics: demand"}) that's
+        // genuinely useful for diagnosis - same reasoning as
+        // ukgrid_http_get_raw()'s ENTSO-E 4xx handling - but this still
+        // treats it as a failed fetch rather than parsing it as success.
+        $bodyPreview = mb_substr((string) $body, 0, 300);
+        $msg = "HTTP {$status} fetching {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        error_log('ukgrid: ' . $msg);
+        if (function_exists('ukgrid_file_log')) {
+            ukgrid_file_log($msg);
+        }
+        return null;
+    }
+    $data = json_decode((string) $body, true);
+    if (!is_array($data)) {
+        $bodyPreview = mb_substr((string) $body, 0, 300);
+        $msg = "non-JSON or empty response from {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        error_log('ukgrid: ' . $msg);
+        if (function_exists('ukgrid_file_log')) {
+            ukgrid_file_log($msg);
+        }
+        return null;
+    }
+    return $data;
+}
+
+/**
  * Same as ukgrid_http_get_json() but for endpoints that return XML rather
  * than JSON (currently only the ENTSO-E Transparency Platform - see
  * ukgrid_ingest_entsoe() in includes/ingest.php) - returns the raw response

@@ -1069,6 +1069,222 @@ function ukgrid_ingest_eia(PDO $pdo, array $config, int $timeoutSeconds = 15): a
 }
 
 /**
+ * Open Electricity API (formerly OpenNEM) - Australia's National
+ * Electricity Market (AEMO NEM: NSW, QLD, VIC, SA, TAS - NOT Western
+ * Australia's separate WEM market). Requires a free API key (register at
+ * https://platform.openelectricity.org.au/sign-up) - see
+ * includes/config.php.example's openelectricity_api_key/base.
+ *
+ * Unlike ukgrid_ingest_eia() above, this one WAS verified against the live
+ * API with a working key while building this integration (2026-09), so the
+ * endpoint paths, query params and response shapes below are confirmed
+ * from a real response rather than reconstructed from documentation alone.
+ * If Open Electricity changes their API later, check includes/refresh.log
+ * for the first clue.
+ *
+ * Two requests per run:
+ *  1. GET /v4/data/network/NEM?metrics=power&interval=5m&secondary_grouping=fueltech_group
+ *     - NEM-wide generation by fuel technology group (coal, gas, wind,
+ *       solar, hydro, distillate, bioenergy, pumps, battery_charging,
+ *       battery_discharging). The live response also included an unlisted
+ *       "battery" group whose value was, in every sample checked, exactly
+ *       battery_discharging minus battery_charging - a convenience net
+ *       figure, not an independent category. Deliberately ignored here to
+ *       avoid double-counting; battery_charging/battery_discharging are
+ *       stored separately instead, same as every other fueltech group.
+ *  2. GET /v4/market/network/NEM?metrics=price&metrics=demand&interval=5m&primary_grouping=network_region
+ *     - price ($/MWh) and demand (MW) PER REGION - there's no single "NEM
+ *       price", each region sets its own spot price. Demand is summed
+ *       across the five regions for a NEM-wide total; price is combined
+ *       into a demand-weighted average (sum(price_i * demand_i) /
+ *       sum(demand_i)) rather than a plain mean, so a light-load region
+ *       (Tasmania, South Australia) doesn't move the headline price as
+ *       much as NSW or Victoria.
+ *
+ * Both endpoints want date_start/date_end as TIMEZONE-NAIVE, NEM-LOCAL
+ * (fixed UTC+10, no daylight saving - AEMO's market clock never changes,
+ * even though some of the states it covers observe their own DST)
+ * timestamps - passing a 'Z' or '+10:00' suffix gets a 400 "Date start
+ * must be timezone naive and in network time" back. The response's own
+ * timestamps DO carry a "+10:00" suffix though - see
+ * ukgrid_openelectricity_local_to_utc_mysql() below for converting those
+ * back to UTC for storage.
+ */
+function ukgrid_ingest_openelectricity(PDO $pdo, array $config, int $timeoutSeconds = 15): array
+{
+    $apiKey = trim((string) ($config['sources']['openelectricity_api_key'] ?? ''));
+    if ($apiKey === '' || $apiKey === 'CHANGE-ME') {
+        ukgrid_log_ingest('OPENELECTRICITY', 'OK', 0, 'openelectricity_api_key not set - skipping (Australia page stays on illustrative data until you add one, see includes/config.php.example).');
+        return ['rows' => 0, 'errors' => []];
+    }
+
+    $base = rtrim($config['sources']['openelectricity_base'] ?? 'https://api.openelectricity.org.au/v4', '/');
+    $errors = [];
+    $rowsWritten = 0;
+    $completedNormally = false;
+    ukgrid_register_partial_progress_safety_net('OPENELECTRICITY', 'its two requests (network power, market price/demand)', $completedNormally, $rowsWritten, $errors);
+
+    // NEM local time is a fixed UTC+10 offset year-round - see this
+    // function's docblock.
+    $nemNow = time() + 10 * 3600;
+    $nemStart = gmdate('Y-m-d\TH:i:s', $nemNow - 40 * 60); // 40 minutes covers a couple of missed 5-min runs
+    $nemEnd = gmdate('Y-m-d\TH:i:s', $nemNow);
+
+    // ---------- generation by fuel technology group ----------
+    $powerUrl = $base . '/data/network/NEM'
+        . '?metrics=power&interval=5m&secondary_grouping=fueltech_group'
+        . '&date_start=' . urlencode($nemStart) . '&date_end=' . urlencode($nemEnd);
+    $powerData = ukgrid_http_get_json_auth($powerUrl, $apiKey, $timeoutSeconds);
+    if ($powerData === null || empty($powerData['success'])) {
+        $errors[] = 'network power request failed' . ($powerData !== null && isset($powerData['error']) ? (': ' . $powerData['error']) : ' (check the API key is valid, or see includes/refresh.log for the raw HTTP error).');
+    } else {
+        $series = $powerData['data'][0]['results'] ?? null;
+        if (!is_array($series)) {
+            $errors[] = 'network power: unexpected response shape - top-level keys seen: ' . implode(', ', array_keys((array) $powerData));
+        } else {
+            $genStmt = $pdo->prepare('INSERT INTO readings_au_generation (ts, category, mw) VALUES (:ts, :category, :mw) ON DUPLICATE KEY UPDATE mw = VALUES(mw)');
+            $groupsSeen = [];
+            $areaRows = 0;
+            foreach ($series as $result) {
+                $group = $result['columns']['fueltech_group'] ?? null;
+                // Skip the unlisted net "battery" rollup - see this
+                // function's docblock for why (avoids double-counting
+                // against battery_charging/battery_discharging).
+                if ($group === null || $group === 'battery') {
+                    continue;
+                }
+                if (!in_array($group, $groupsSeen, true)) {
+                    $groupsSeen[] = $group;
+                }
+                $points = $result['data'] ?? [];
+                if (!is_array($points) || empty($points)) {
+                    continue;
+                }
+                $last = end($points); // most recent 5-min point in the window
+                if (!is_array($last) || count($last) < 2 || !is_numeric($last[1])) {
+                    continue;
+                }
+                $tsSql = ukgrid_openelectricity_local_to_utc_mysql((string) $last[0]);
+                if ($tsSql === null) {
+                    continue;
+                }
+                $genStmt->execute(['ts' => $tsSql, 'category' => (string) $group, 'mw' => (float) $last[1]]);
+                $areaRows++;
+            }
+            if ($areaRows === 0) {
+                $errors[] = 'network power: response parsed but no usable fueltech_group rows were found. Groups actually seen: ' . (empty($groupsSeen) ? 'none' : implode(', ', $groupsSeen)) . '. If that list looks very different from coal/gas/wind/solar/hydro/distillate/bioenergy/pumps/battery_charging/battery_discharging, Open Electricity has changed their fueltech_group codes - update ukgrid_ingest_openelectricity() to match.';
+            }
+            $rowsWritten += $areaRows;
+        }
+    }
+
+    // ---------- price + demand, per region ----------
+    $marketUrl = $base . '/market/network/NEM'
+        . '?metrics=price&metrics=demand&interval=5m&primary_grouping=network_region'
+        . '&date_start=' . urlencode($nemStart) . '&date_end=' . urlencode($nemEnd);
+    $marketData = ukgrid_http_get_json_auth($marketUrl, $apiKey, $timeoutSeconds);
+    if ($marketData === null || empty($marketData['success'])) {
+        $errors[] = 'market price/demand request failed' . ($marketData !== null && isset($marketData['error']) ? (': ' . $marketData['error']) : '.');
+    } else {
+        $metricBlocks = $marketData['data'] ?? null;
+        if (!is_array($metricBlocks)) {
+            $errors[] = 'market price/demand: unexpected response shape.';
+        } else {
+            $demandByTsRegion = []; // [ts_sql][region] => mw
+            $priceByTsRegion = [];  // [ts_sql][region] => price
+            foreach ($metricBlocks as $block) {
+                $metric = $block['metric'] ?? null;
+                $results = $block['results'] ?? [];
+                if (!is_array($results)) {
+                    continue;
+                }
+                foreach ($results as $result) {
+                    $region = $result['columns']['region'] ?? null;
+                    $points = $result['data'] ?? [];
+                    if ($region === null || !is_array($points)) {
+                        continue;
+                    }
+                    foreach ($points as $point) {
+                        if (!is_array($point) || count($point) < 2 || !is_numeric($point[1])) {
+                            continue;
+                        }
+                        $tsSql = ukgrid_openelectricity_local_to_utc_mysql((string) $point[0]);
+                        if ($tsSql === null) {
+                            continue;
+                        }
+                        if ($metric === 'demand') {
+                            $demandByTsRegion[$tsSql][$region] = (float) $point[1];
+                        } elseif ($metric === 'price') {
+                            $priceByTsRegion[$tsSql][$region] = (float) $point[1];
+                        }
+                    }
+                }
+            }
+
+            if (empty($demandByTsRegion)) {
+                $errors[] = 'market price/demand: response parsed but no usable demand rows were found - check the "metrics"/"primary_grouping" params are still accepted (see this function\'s docblock).';
+            } else {
+                $demandStmt = $pdo->prepare('INSERT INTO readings_au_demand (ts, mw) VALUES (:ts, :mw) ON DUPLICATE KEY UPDATE mw = VALUES(mw)');
+                $priceStmt = $pdo->prepare('INSERT INTO readings_au_price (ts, price_aud_mwh) VALUES (:ts, :price) ON DUPLICATE KEY UPDATE price_aud_mwh = VALUES(price_aud_mwh)');
+                $areaRows = 0;
+                foreach ($demandByTsRegion as $tsSql => $regionDemands) {
+                    $totalDemand = array_sum($regionDemands);
+                    if ($totalDemand <= 0) {
+                        continue;
+                    }
+                    $demandStmt->execute(['ts' => $tsSql, 'mw' => $totalDemand]);
+                    $areaRows++;
+
+                    $regionPrices = $priceByTsRegion[$tsSql] ?? [];
+                    if (!empty($regionPrices)) {
+                        $weightedSum = 0.0;
+                        $weightTotal = 0.0;
+                        foreach ($regionDemands as $region => $mw) {
+                            if (isset($regionPrices[$region])) {
+                                $weightedSum += $regionPrices[$region] * $mw;
+                                $weightTotal += $mw;
+                            }
+                        }
+                        if ($weightTotal > 0) {
+                            $priceStmt->execute(['ts' => $tsSql, 'price' => $weightedSum / $weightTotal]);
+                            $areaRows++;
+                        }
+                    }
+                }
+                $rowsWritten += $areaRows;
+                if ($areaRows === 0) {
+                    $errors[] = 'market price/demand: parsed rows but every region\'s demand summed to zero or less - unexpected, treating as no usable data.';
+                }
+            }
+        }
+    }
+
+    $status = $rowsWritten > 0 ? 'OK' : 'ERROR';
+    $completedNormally = true;
+    ukgrid_log_ingest('OPENELECTRICITY', $status, $rowsWritten, implode('; ', $errors));
+    return ['rows' => $rowsWritten, 'errors' => $errors];
+}
+
+/**
+ * Converts an Open Electricity timestamp (NEM-local, fixed UTC+10, e.g.
+ * "2026-09-20T01:15:00+10:00") to a UTC MySQL DATETIME string, matching
+ * every other readings_* table's "ts is always UTC" convention.
+ */
+function ukgrid_openelectricity_local_to_utc_mysql(string $localTs): ?string
+{
+    // Strip a trailing "+10:00"/"+1000" offset if present (the RESPONSE
+    // carries one even though the REQUEST params must not - see this
+    // function's docblock), then treat whatever's left as NEM-local
+    // (UTC+10).
+    $stripped = preg_replace('/[+\-]\d{2}:?\d{2}$/', '', $localTs);
+    $ts = strtotime($stripped . ' UTC');
+    if ($ts === false) {
+        return null;
+    }
+    return gmdate('Y-m-d H:i:s', $ts - 10 * 3600);
+}
+
+/**
  * ENTSO-E generation-type ("psrType") codes, per the Transparency
  * Platform's published code list - stable and unchanged for many years.
  * Used both to give readable labels in the frontend (via

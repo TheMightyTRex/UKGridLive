@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Australia: Live+ - the live status of Australia's National Electricity Market</title>
+<meta name="description" content="A live dashboard for Australia's National Electricity Market (NEM) - demand, spot price and generation mix, live from the Open Electricity API.">
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//www.ukgridlive.info/stat/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head>
+<body>
+<div class="preview-banner">BETA PREVIEW: UK Grid: Live+ is in testing. <a href="data-sources.html">See data sources →</a></div>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="site-head">
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="color:var(--accent)">
+        <path d="M24 7 38.7 15.5 38.7 32.5 24 41 9.3 32.5 9.3 15.5Z" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path d="M25 13 16 25h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/>
+        <circle class="brand__mark-pulse" cx="38.5" cy="9.5" r="7" fill="var(--accent)"/>
+        <path d="M35.3 9.5h6.4M38.5 6.3v6.4" stroke="var(--accent-contrast)" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <span class="brand__name">UK&nbsp;Grid: <em>Live+</em></span>
+      <span class="brand__tagline">Australia: the National Electricity Market, live via Open Electricity</span>
+    </a>
+    <div class="header-controls">
+      <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span data-theme-label>Auto mode</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="site-nav" aria-label="Main">
+  <div class="wrap">
+    <ul id="site-nav-list" data-nav-list>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-uk-btn" aria-expanded="false" aria-controls="navgroup-uk" data-nav-group>
+          Great Britain
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-uk">
+          <li><a href="../index.html">GB: Overview</a></li>
+          <li><a href="fossil-fuels.html">GB: Fossil fuels</a></li>
+          <li><a href="renewables.html">GB: Renewables</a></li>
+          <li><a href="nuclear-biomass.html">GB: Nuclear &amp; biomass</a></li>
+          <li><a href="interconnectors.html">GB: Interconnectors</a></li>
+          <li><a href="storage.html">GB: Storage</a></li>
+          <li><a href="history.html">GB: History</a></li>
+          <li><a href="electricity-prices.html">GB: Prices</a></li>
+          <li><a href="price-history.html">GB: Historic prices</a></li>
+          <li><a href="renewables-plans.html">2030 GB plans</a></li>
+        </ul>
+      </li>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-europe-btn" aria-expanded="false" aria-controls="navgroup-europe" data-nav-group>
+          Europe
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-europe">
+          <li><a href="ireland.html">Ireland</a></li>
+          <li><a href="france.html">France</a></li>
+          <li><a href="nl.html">Netherlands</a></li>
+          <li><a href="belgium.html">Belgium</a></li>
+          <li><a href="norway.html">Norway (NO2)</a></li>
+          <li><a href="denmark.html">Denmark (DK1)</a></li>
+          <li><a href="germany.html">Germany</a></li>
+          <li><a href="spain.html">Spain</a></li>
+          <li><a href="italy.html">Italy</a></li>
+          <li><a href="sweden.html">Sweden (SE3)</a></li>
+          <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
+        </ul>
+      </li>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-americas-btn" aria-expanded="false" aria-controls="navgroup-americas" data-nav-group>
+          Americas
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-americas">
+          <li><a href="usa.html">USA</a></li>
+          <li><a href="canada.html">Canada</a></li>
+          <li><a href="south-america.html">South America</a></li>
+          <li><a href="americas-interconnects.html">Interconnections</a></li>
+        </ul>
+      </li>
+      <li><a href="australia.html" aria-current="page">Australia</a></li>
+      <li><a href="comparisons.html">Comparisons</a></li>
+      <li><a href="data-sources.html">Sources</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
+      <span class="nav-toggle__icon" aria-hidden="true"></span>
+      <span class="visually-hidden" data-nav-toggle-label>Menu</span>
+    </button>
+  </div>
+</nav>
+</div>
+
+<main id="main">
+  <div class="wrap">
+
+    <section class="hero">
+      <h1>Australia: the live status of the National Electricity Market</h1>
+      <p>The National Electricity Market (NEM), coordinated by the Australian Energy Market Operator (AEMO), connects New South Wales, Queensland, Victoria, South Australia and Tasmania into one interconnected wholesale market and 5-minute spot price - it does <strong>not</strong> include Western Australia or the Northern Territory, which run their own separate, unconnected grids. Coal still supplies the largest single share of NEM generation, but wind and utility-scale solar have grown fast, and the NEM is home to some of the world's largest grid-scale batteries. It isn't physically interconnected to Great Britain, so it's included here for comparison rather than as one of GB's own interconnector partners. Demand, spot price and generation mix below are live from the Open Electricity API.</p>
+    </section>
+
+    <p class="data-status-banner is-illustrative" id="au-status-banner"><span class="dot" aria-hidden="true"></span>Connecting to live data…</p>
+
+    <dl class="status-grid status-grid--4" aria-label="Australia (NEM) grid snapshot">
+      <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Spot price</dt><dd>A$<span id="stat-price">-</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">-</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">-</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
+    </dl>
+    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Loading live data from the Open Electricity API…</p>
+
+    <section class="panel" aria-labelledby="mix-heading">
+      <h2 id="mix-heading">Generation mix right now</h2>
+      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Loading live data…</p>
+      <div class="panel-grid panel-grid--2">
+        <table class="mix">
+          <caption class="visually-hidden">Australia (NEM) generation by source</caption>
+          <thead>
+            <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
+          </thead>
+          <tbody id="mix-tbody">
+          </tbody>
+        </table>
+        <div>
+          <div class="chart-wrap is-loading"><canvas id="mix-donut" role="img" aria-label="Donut chart of Australia NEM generation mix by source"></canvas></div>
+          <ul class="chart-legend" id="mix-donut-legend"></ul>
+          <p class="chart-caption" id="mix-donut-caption">Rooftop solar isn't included - see <a href="#au-sources">data sources</a> for why.</p>
+        </div>
+      </div>
+      <div class="chart-wrap is-loading" style="height:220px;margin-top:1.5rem;">
+        <canvas id="mix-bar" role="img" aria-label="Bar chart comparing Australia NEM generation by source"></canvas>
+      </div>
+      <p class="chart-caption">Generation by source right now, ranked highest to lowest.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="stack-heading">
+      <h2 id="stack-heading">Generation mix over the last 24 hours</h2>
+      <div class="chart-wrap is-loading" style="height:300px;">
+        <canvas id="mix-stack" role="img" aria-label="Stacked area chart of fossil, renewable and other generation over the last 24 hours"></canvas>
+      </div>
+      <ul class="chart-legend" id="mix-stack-legend" style="justify-content:center;"></ul>
+      <p class="chart-caption" id="mix-stack-caption">Fossil (coal, gas, distillate), renewable (wind, solar, hydro, bioenergy) and other (pumped hydro, battery discharge), from the Open Electricity API.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="history-heading">
+      <h2 id="history-heading">History</h2>
+      <p class="chart-caption">Choose a time range to see real recorded demand, generation and spot price over time, from the Open Electricity API.</p>
+
+      <div class="range-tabs" role="tablist" data-tablist aria-label="Time range">
+        <button role="tab" id="tab-day" aria-controls="panel-day" aria-selected="true" tabindex="0" data-range="day">Day</button>
+        <button role="tab" id="tab-week" aria-controls="panel-week" aria-selected="false" tabindex="-1" data-range="week">Week</button>
+        <button role="tab" id="tab-month" aria-controls="panel-month" aria-selected="false" tabindex="-1" data-range="month">Month</button>
+        <button role="tab" id="tab-season" aria-controls="panel-season" aria-selected="false" tabindex="-1" data-range="season">Season</button>
+        <button role="tab" id="tab-year" aria-controls="panel-year" aria-selected="false" tabindex="-1" data-range="year">Year</button>
+        <button role="tab" id="tab-5year" aria-controls="panel-5year" aria-selected="false" tabindex="-1" data-range="5year">5 years</button>
+        <button role="tab" id="tab-10year" aria-controls="panel-10year" aria-selected="false" tabindex="-1" data-range="10year">10 years</button>
+      </div>
+
+      <template id="range-panel-template">
+        <div class="range-panel chart-grid">
+          <div class="chart-card"><h3>Demand</h3><div class="chart-wrap is-loading"><canvas data-metric="demand"></canvas></div></div>
+          <div class="chart-card"><h3>Generation</h3><div class="chart-wrap is-loading"><canvas data-metric="generation"></canvas></div></div>
+          <div class="chart-card"><h3>Spot price</h3><div class="chart-wrap is-loading"><canvas data-metric="price"></canvas></div></div>
+        </div>
+      </template>
+
+      <div id="panel-day" role="tabpanel" aria-labelledby="tab-day" tabindex="0"></div>
+      <div id="panel-week" role="tabpanel" aria-labelledby="tab-week" tabindex="0" hidden></div>
+      <div id="panel-month" role="tabpanel" aria-labelledby="tab-month" tabindex="0" hidden></div>
+      <div id="panel-season" role="tabpanel" aria-labelledby="tab-season" tabindex="0" hidden></div>
+      <div id="panel-year" role="tabpanel" aria-labelledby="tab-year" tabindex="0" hidden></div>
+      <div id="panel-5year" role="tabpanel" aria-labelledby="tab-5year" tabindex="0" hidden></div>
+      <div id="panel-10year" role="tabpanel" aria-labelledby="tab-10year" tabindex="0" hidden></div>
+    </section>
+
+    <section class="panel" aria-labelledby="about-heading">
+      <h2 id="about-heading">About the National Electricity Market</h2>
+      <p>AEMO operates the NEM as a single interconnected wholesale market spanning five separate physical grids (New South Wales including the ACT, Queensland, Victoria, South Australia and Tasmania, the last linked in via the Basslink and Marinus Link subsea cables), each setting its own regional 5-minute spot price that can diverge sharply from its neighbours' during congestion. Western Australia runs its own entirely separate, much smaller market (the WEM, around the South West Interconnected System) and the Northern Territory isn't part of either - neither is covered by this page.</p>
+      <p>Coal - a mix of black coal in NSW/QLD and brown coal (lignite) in Victoria - still supplies the single largest share of NEM generation, though several major coal plants have closed or announced closure dates through the early 2030s. Australia has no nuclear power at all (a moratorium has been in place since 1998), and wind and utility-scale solar have grown to a substantial share of generation - on top of which a very large amount of rooftop solar sits behind the meter, invisible to this page's wholesale-market figures (see <a href="#au-sources">data sources</a>). The NEM is also home to some of the world's largest grid-scale batteries, including the Hornsdale Power Reserve in South Australia and the Victorian Big Battery.</p>
+      <p>Australia has no electrical interconnection with Great Britain at all - it's included on this site purely for cross-country comparison via the Comparisons page.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="records-heading">
+      <h2 id="records-heading">Context</h2>
+      <div class="panel-grid panel-grid--2">
+        <ul class="records-list">
+          <li><span>Nuclear power</span><strong>Banned nationally since a 1998 moratorium - none in the generation mix</strong></li>
+          <li><span>Rooftop solar</span><strong>Among the highest per-capita uptake in the world - not captured in this page's wholesale-only figures</strong></li>
+          <li><span>Grid-scale batteries</span><strong>Hornsdale Power Reserve (SA) and the Victorian Big Battery are among the world's largest</strong></li>
+          <li><span>Coal retirements</span><strong>Several major NEM coal plants have announced closure dates through the early 2030s</strong></li>
+        </ul>
+        <div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of approximate wind and utility-scale solar share of NEM generation, 2015 to 2025"></canvas></div>
+          <p class="chart-caption">Approximate wind + utility-scale solar share of NEM generation, roughly every five years - rooftop solar isn't included (see data sources).</p>
+        </div>
+      </div>
+      <p class="chart-caption">Figures are approximate, gathered from public AEMO and Open Electricity/OpenNEM reporting rather than a long-run historical feed. Last checked: 19 September 2026.</p>
+    </section>
+
+    <section class="panel" id="au-sources" aria-labelledby="au-sources-heading">
+      <h2 id="au-sources-heading">Data sources for Australia</h2>
+      <p>The Elexon Insights Solution, NESO Data Portal and Carbon Intensity API that power the Great Britain pages are GB-specific and don't cover Australia at all. This page uses one source only: the <a href="https://openelectricity.org.au/">Open Electricity API</a> (formerly OpenNEM), which powers demand, spot price, the generation mix (including the 24-hour stack and this page's History section) above and below, all for AEMO's National Electricity Market.</p>
+      <p>Scope and limitations, worth knowing before comparing this page to others on the site:</p>
+      <ul>
+        <li><strong>NEM only - not all of Australia.</strong> Western Australia's WEM and the Northern Territory's separate systems aren't covered at all; every figure on this page is NSW+QLD+VIC+SA+TAS combined.</li>
+        <li><strong>No single "NEM price".</strong> Each of the five regions sets its own 5-minute spot price. The "Spot price" stat above is a demand-weighted average across all five (so NSW and Victoria, the largest loads, influence it more than Tasmania or South Australia) - not an official AEMO published figure.</li>
+        <li><strong>Rooftop solar isn't in the generation mix.</strong> Open Electricity's facility-level feed covers AEMO-scheduled and semi-scheduled generators, not the millions of individual rooftop solar systems behind the meter - those show up as reduced demand, not as a "solar" line in the mix table.</li>
+        <li><strong>Battery charging is excluded from the generation total.</strong> A battery drawing power to charge is a load, not generation - it isn't counted in the demand-vs-generation totals or the mix table/donut above, only battery discharge is.</li>
+      </ul>
+      <p><strong>Licence:</strong> Open Electricity's data is published under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> (non-commercial use, with attribution) - a stricter term than every other source this site uses, all of which are free for any use. See <a href="data-sources.html">the sitewide data sources page</a> for how this compares to the other pages, and <a href="about.html">About</a> for the full licence disclosure.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p style="margin-top:.5rem;">Demand, spot price and generation mix are live from the <a href="https://openelectricity.org.au/">Open Electricity API</a>, used under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> (non-commercial, with attribution).</p>
+    <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with AEMO, Open Electricity or the Australian government</span></p>
+  </div>
+</footer>
+
+<script src="../assets/app.js"></script>
+<script src="../assets/data.js"></script>
+<script>
+(function () {
+  const METRICS = {
+    demand:     { label: "Demand",     unit: "GW",       color: "#1d6fe0" },
+    generation: { label: "Generation", unit: "GW",       color: "#0a6e5c" },
+    price:      { label: "Spot price", unit: "AUD/MWh",  color: "#d98e04" },
+  };
+
+  const template = document.getElementById("range-panel-template");
+  const drawn = {};
+
+  async function drawRange(range) {
+    if (drawn[range]) return;
+    drawn[range] = true;
+    const host = document.getElementById("panel-" + range);
+    host.appendChild(template.content.cloneNode(true));
+
+    const canvases = Array.from(host.querySelectorAll("canvas[data-metric]"));
+    const seriesList = await Promise.all(canvases.map((c) => window.GridData.fetchAustraliaSeries(c.dataset.metric, range)));
+    canvases.forEach((canvas, i) => {
+      const cfg = METRICS[canvas.dataset.metric];
+      const series = seriesList[i];
+      if (series && series.values.length) {
+        GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit });
+      } else {
+        GridPreview.showChartError(canvas, "Not enough recorded history yet for this range.");
+      }
+    });
+  }
+
+  drawRange("day");
+  document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
+
+  // Generation mix grouping - mirrors api/australia_series.php's metric=mix
+  // SQL and assets/data.js's AUSTRALIA_FUEL_LABELS. Bespoke renderer (not
+  // the shared GridPreview.renderPsrMixSection, which is hardcoded to
+  // ENTSO-E's own PSR codes/colours) - same approach as pages/usa.html's
+  // renderUsaMix. battery_charging is never passed in here at all (see
+  // api/australia_current.php's docblock) - it's a draw, not generation.
+  const AU_MIX_GROUPS = [
+    { key: "fossil", label: "Fossil fuels", color: "var(--fossil)", codes: ["coal", "gas", "distillate"] },
+    { key: "renewable", label: "Renewables", color: "var(--renewable)", codes: ["wind", "solar", "hydro", "bioenergy"] },
+    { key: "other", label: "Other & storage", color: "var(--storage)", codes: ["pumps", "battery_discharging"] },
+  ];
+  const AU_FUEL_COLORS = {
+    coal: "#4a4a4a", gas: "#8a5a3c", distillate: "#5c4b3c",
+    wind: "#2fa876", solar: "#e0a800", hydro: "#2a8fbd", bioenergy: "#6b8f3c",
+    pumps: "#3f8fa0", battery_discharging: "#9a5ac9",
+  };
+
+  function renderAuMix(mixMw, isLive) {
+    const codes = Object.keys(mixMw || {}).filter((c) => mixMw[c] != null && mixMw[c] > 0).sort((a, b) => mixMw[b] - mixMw[a]);
+    const tbody = document.getElementById("mix-tbody");
+    const statusCaption = document.getElementById("mix-status-caption");
+    const donutCaption = document.getElementById("mix-donut-caption");
+
+    if (!codes.length) {
+      GridPreview.showNoMixData({
+        tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+        donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
+      });
+      return;
+    }
+
+    const totalMw = codes.reduce((sum, c) => sum + mixMw[c], 0);
+    const gw = (mw) => (mw / 1000).toFixed(2);
+    const pct = (mw) => totalMw > 0 ? (mw / totalMw * 100).toFixed(1) : "0.0";
+    const labelFor = (c) => (window.GridData.AUSTRALIA_FUEL_LABELS && window.GridData.AUSTRALIA_FUEL_LABELS[c]) || c;
+
+    if (tbody) {
+      tbody.innerHTML = "";
+      AU_MIX_GROUPS.forEach((group) => {
+        const groupCodes = codes.filter((c) => group.codes.includes(c));
+        const groupMw = groupCodes.reduce((sum, c) => sum + mixMw[c], 0);
+        if (groupMw <= 0) return;
+        const groupRow = document.createElement("tr");
+        groupRow.className = "group-row";
+        groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${group.color}"></span>${group.label}</th><td class="num">${gw(groupMw)}</td><td class="num">${pct(groupMw)}</td>`;
+        tbody.appendChild(groupRow);
+        groupCodes.forEach((c) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${labelFor(c)}</td><td class="num">${gw(mixMw[c])}</td><td class="num">${pct(mixMw[c])}</td>`;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    const donutCanvas = document.getElementById("mix-donut");
+    if (donutCanvas) {
+      donutCanvas.closest(".chart-wrap").classList.remove("is-loading");
+      const labels = codes.map(labelFor);
+      const values = codes.map((c) => mixMw[c] / 1000);
+      const colors = codes.map((c) => AU_FUEL_COLORS[c] || "#7a7a7a");
+      GridPreview.renderDonutChart(donutCanvas, labels, values, colors, {
+        legendTarget: "mix-donut-legend", unit: "GW", centerLabel: gw(totalMw) + "GW", centerSub: "generated",
+      });
+      const barCanvas = document.getElementById("mix-bar");
+      if (barCanvas) {
+        barCanvas.closest(".chart-wrap").classList.remove("is-loading");
+        GridPreview.renderBarChart(barCanvas, labels, values, colors, { unit: "GW" });
+      }
+    }
+    if (donutCaption) donutCaption.textContent = `Generation ${gw(totalMw)}GW, live from the Open Electricity API. Rooftop solar isn't included - see data sources.`;
+    if (statusCaption) statusCaption.textContent = isLive ? "Live from the Open Electricity API." : "Showing the last recorded reading.";
+  }
+
+  // Demand, generation, spot price and the mix are all live from Open
+  // Electricity (see api/australia_current.php) - there's no illustrative
+  // fallback here at all (unlike the ENTSO-E country pages): with no key
+  // configured or no data yet, every stat simply stays at "-"/"Not
+  // available" rather than showing a fabricated number, same convention as
+  // pages/usa.html.
+  async function initAuStatusStrip() {
+    const caption = document.getElementById("stat-caption");
+    const banner = document.getElementById("au-status-banner");
+    const asOfEl = document.getElementById("stat-time");
+    const liveKeys = ["demand", "generation", "price"];
+    const sparkColors = { demand: "#1d6fe0", generation: "#0a6e5c", price: "#d98e04" };
+
+    function renderAu(current, isCached) {
+      const setStat = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      setStat("stat-demand", current.demand_mw != null ? (current.demand_mw / 1000).toFixed(1) : "-");
+      setStat("stat-generation", current.generation_mw != null ? (current.generation_mw / 1000).toFixed(1) : "-");
+      setStat("stat-price", current.price_aud_mwh != null ? current.price_aud_mwh.toFixed(2) : "-");
+      // Reference range: a rough typical NEM-wide low-to-peak demand window
+      // (not an official AEMO threshold - see GridPreview.bandFromRange's
+      // own docblock).
+      GridPreview.setStatBand("stat-demand-band", GridPreview.bandFromRange(current.demand_mw != null ? current.demand_mw / 1000 : null, 18, 34), " relative to the NEM's typical demand range (rough guide, not an official banding)");
+      GridPreview.setStatBand("stat-generation-band", GridPreview.bandFromRange(current.generation_mw != null ? current.generation_mw / 1000 : null, 17, 33), " relative to the NEM's typical generation range (rough guide, not an official banding)");
+
+      if (asOfEl) {
+        asOfEl.innerHTML = isCached ? GridPreview.formatShowingHtml(current.ts) : GridPreview.formatAsOfHtml(current.ts);
+        asOfEl.classList.remove("is-loading-text");
+      }
+      if (banner) {
+        banner.className = "data-status-banner";
+        banner.innerHTML = isCached
+          ? '<span class="dot" aria-hidden="true"></span>Showing the last successfully loaded figures - refreshing…'
+          : '<span class="dot" aria-hidden="true"></span>Demand, spot price &amp; the mix are live from Open Electricity' + (current.stale ? " (running later than usual right now)" : "");
+      }
+      if (caption) {
+        caption.textContent = isCached
+          ? "Showing the last successfully loaded figures while this page fetches the latest data."
+          : "Live demand, generation and a demand-weighted average spot price across the NEM's five regions, from the Open Electricity API" +
+            (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
+      }
+      renderAuMix(current.mix_mw, !isCached);
+    }
+
+    const { usedCache, promise } = GridPreview.withCachedFallback(
+      "australia-current",
+      () => (window.GridData ? window.GridData.fetchAustraliaCurrent() : Promise.resolve(null)),
+      renderAu
+    );
+    const current = await promise;
+
+    if (!current) {
+      if (!usedCache) {
+        if (asOfEl) { asOfEl.textContent = "Not available"; asOfEl.classList.remove("is-loading-text"); }
+        if (banner) {
+          banner.className = "data-status-banner";
+          banner.innerHTML = '<span class="dot" aria-hidden="true"></span>No live data yet on this install';
+        }
+        if (caption) caption.textContent = "No live data has been recorded on this install yet - see data sources for how to add an API key.";
+        liveKeys.forEach((key) => GridPreview.showChartError(document.getElementById("spark-" + key), "Not available"));
+        renderAuMix({}, false);
+      }
+      return;
+    }
+
+    // Fetch all three sparklines' series in parallel rather than one at a
+    // time - each is a separate api/australia_series.php round trip, and
+    // awaiting them sequentially in a loop meant the page waited for three
+    // full network round trips back-to-back instead of the slowest one
+    // (same reasoning as pages/ireland.html's initIeStatusStrip).
+    const auSeriesList = await Promise.all(liveKeys.map((key) => window.GridData.fetchAustraliaSeries(key, "3hour")));
+    liveKeys.forEach((key, i) => {
+      const canvas = document.getElementById("spark-" + key);
+      if (!canvas) return;
+      const series = auSeriesList[i];
+      if (series && series.values.length) {
+        GridPreview.renderSparkline(canvas, series.values, sparkColors[key]);
+      } else {
+        GridPreview.showChartError(canvas, null);
+      }
+    });
+  }
+
+  initAuStatusStrip();
+
+  (async function () {
+    const canvas = document.getElementById("mix-stack");
+    if (!canvas || !window.GridData) return;
+    const mix = await window.GridData.fetchAustraliaMixSeries("day");
+    canvas.closest(".chart-wrap").classList.remove("is-loading");
+    if (!mix) {
+      GridPreview.showChartError(canvas, "Not enough recorded history yet for the last 24 hours.");
+      return;
+    }
+    GridPreview.renderStackedAreaChart(canvas, mix.times, mix.labels, [
+      { name: "Fossil fuels", color: "#8a5a3c", values: mix.fossil },
+      { name: "Renewables", color: "#1f9d5a", values: mix.renewable },
+      { name: "Other & storage", color: "#9a5ac9", values: mix.other },
+    ], { unit: "GW", legendTarget: "mix-stack-legend" });
+  })();
+
+  GridPreview.renderBarChart(
+    document.getElementById("records-bar"),
+    ["2015", "2020", "2025"],
+    [6, 15, 27],
+    "#2fa876",
+    { unit: "%", horizontal: false, thickness: 40 }
+  );
+})();
+</script>
+</body>
+</html>

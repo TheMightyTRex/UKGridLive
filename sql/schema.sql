@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS notable_moments (
 -- are empty or stale, so a healthy log here is what "it's working" looks like.
 CREATE TABLE IF NOT EXISTS ingest_log (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  source VARCHAR(20) NOT NULL COMMENT 'ELEXON, CARBON_INTENSITY, NESO, EIRGRID, EIA, ENTSOE, IESO, WEATHER, CONSTRAINTS, NOTABLE_MOMENTS, or REFRESH (an on-demand-refresh crash before it reached a specific source - see includes/refresh.log)',
+  source VARCHAR(20) NOT NULL COMMENT 'ELEXON, CARBON_INTENSITY, NESO, EIRGRID, EIA, ENTSOE, IESO, OPENELECTRICITY, WEATHER, CONSTRAINTS, NOTABLE_MOMENTS, or REFRESH (an on-demand-refresh crash before it reached a specific source - see includes/refresh.log)',
   ran_at DATETIME NOT NULL,
   status VARCHAR(10) NOT NULL COMMENT 'OK or ERROR',
   rows_written INT NOT NULL DEFAULT 0,
@@ -351,5 +351,62 @@ CREATE TABLE IF NOT EXISTS readings_ca_generation (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_ts_cat (ts, category),
+  KEY idx_ts (ts)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------------
+-- Australia (AEMO's National Electricity Market - NSW, QLD, VIC, SA, TAS;
+-- does NOT include Western Australia's separate WEM market). Source: the
+-- Open Electricity API (formerly OpenNEM), api.openelectricity.org.au/v4 -
+-- see includes/config.php.example's openelectricity_api_key/base and
+-- includes/ingest.php's ukgrid_ingest_openelectricity(). Requires a free
+-- API key, like EIA above; unlike EIA, its "power"/"market" endpoints were
+-- actually queried live (with a working key) while building this
+-- integration, so the response shapes below are confirmed, not guessed.
+--
+-- IMPORTANT - data licence: Open Electricity's data is CC BY-NC 4.0
+-- (non-commercial use only, with attribution), stricter than every other
+-- source in this file - see pages/about.html and pages/data-sources.html
+-- for the attribution text this site shows.
+-- ---------------------------------------------------------------------------
+
+-- NEM-wide demand, summed across all five regions (NSW1/QLD1/VIC1/SA1/TAS1).
+CREATE TABLE IF NOT EXISTS readings_au_demand (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ts DATETIME NOT NULL COMMENT 'UTC',
+  mw DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_ts (ts),
+  KEY idx_ts (ts)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- One row per (ts, category). category is an Open Electricity
+-- "fueltech_group" code (coal, gas, wind, solar, hydro, distillate,
+-- bioenergy, pumps, battery_charging, battery_discharging - see
+-- ukgrid_ingest_openelectricity()'s comments for the full list and how
+-- charging vs discharging is handled), NEM-wide (not per-region).
+CREATE TABLE IF NOT EXISTS readings_au_generation (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ts DATETIME NOT NULL COMMENT 'UTC',
+  category VARCHAR(20) NOT NULL COMMENT 'Open Electricity fueltech_group code, e.g. coal, wind, battery_discharging',
+  mw DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_ts_cat (ts, category),
+  KEY idx_ts (ts)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Demand-weighted average spot price across the five NEM regions (each
+-- region sets its own price - there's no single official "NEM price" - see
+-- ukgrid_ingest_openelectricity()'s comments for the weighting formula).
+-- AUD/MWh as published, not converted to GBP or USD.
+CREATE TABLE IF NOT EXISTS readings_au_price (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ts DATETIME NOT NULL COMMENT 'UTC',
+  price_aud_mwh DECIMAL(9,3) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_ts (ts),
   KEY idx_ts (ts)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

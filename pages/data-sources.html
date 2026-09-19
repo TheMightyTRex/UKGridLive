@@ -106,6 +106,7 @@
           <li><a href="americas-interconnects.html">Interconnections</a></li>
         </ul>
       </li>
+      <li><a href="australia.html">Australia</a></li>
       <li><a href="comparisons.html">Comparisons</a></li>
       <li><a href="data-sources.html" aria-current="page">Sources</a></li>
       <li><a href="about.html">About</a></li>
@@ -123,7 +124,7 @@
 
     <section class="hero">
       <h1>Sources</h1>
-      <p>UK Grid: Live+ combines three public APIs to build a full picture of Great Britain's electricity grid, plus EirGrid's Smart Grid Dashboard for Ireland, the EIA API for the USA, IESO for Ontario (Canada), and the ENTSO-E Transparency Platform for eleven more European countries. Nothing here is proprietary - the GB feeds are the same ones that power Kate Morley's original <a href="https://grid.iamkate.com/">National Grid: Live</a>.</p>
+      <p>UK Grid: Live+ combines three public APIs to build a full picture of Great Britain's electricity grid, plus EirGrid's Smart Grid Dashboard for Ireland, the EIA API for the USA, IESO for Ontario (Canada), the Open Electricity API for Australia's National Electricity Market, and the ENTSO-E Transparency Platform for eleven more European countries. Nothing here is proprietary - the GB feeds are the same ones that power Kate Morley's original <a href="https://grid.iamkate.com/">National Grid: Live</a>.</p>
       <div class="callout">
         <span class="callout__icon" aria-hidden="true">i</span>
         <p>Numbers here occasionally differ from grid.iamkate.com, even though the sources match. <a href="about.html#why-differ">See why on the About page →</a></p>
@@ -134,7 +135,7 @@
       </div>
       <div class="callout">
         <span class="callout__icon" aria-hidden="true">i</span>
-        <p>Canada and South America have also been added, but at different stages: Ontario (Canada) has a working live feed via IESO; Brazil, Argentina, Chile and Colombia are informational pages only, with no live data wired up yet. See the Canada and South America sections below.</p>
+        <p>Canada, Australia and South America have also been added, but at different stages: Ontario (Canada) has a working live feed via IESO, and Australia's National Electricity Market has a working live feed via the Open Electricity API; Brazil, Argentina, Chile and Colombia are informational pages only, with no live data wired up yet. See the Canada, Australia and South America sections below.</p>
       </div>
     </section>
 
@@ -371,9 +372,30 @@
       <p>The <a href="americas-interconnects.html">Interconnections page</a> is a reference page, not a live dashboard - it has no stats and calls no API. It summarises publicly documented facts about how North and South American grids are (and aren't) electrically linked to each other, sourced from operator and industry publications rather than any single feed; see the page itself for its own source list. Nothing on that page, or on any Americas page, is electrically connected to Great Britain's grid - these countries are tracked purely so the <a href="comparisons.html">Comparisons page</a> has more to compare.</p>
     </section>
 
+    <section class="panel" aria-labelledby="australia-sources-heading" style="margin-top:1.25rem;">
+      <h2 id="australia-sources-heading" style="font-size:1.05rem;margin-bottom:0;">Australia</h2>
+      <p>The <a href="australia.html">Australia page</a> covers AEMO's National Electricity Market (NEM) only - New South Wales, Queensland, Victoria, South Australia and Tasmania. It does not cover Western Australia (a separate market, the WEM) or the Northern Territory. Demand, a demand-weighted average spot price across the NEM's five regions, the generation mix, the 24-hour mix chart and the History section are all live.</p>
+    </section>
+
+    <div class="panel-grid panel-grid--3" style="margin-top:1.25rem;">
+      <section class="panel source-card" aria-labelledby="src-openelectricity">
+        <div class="source-card__head">
+          <span class="source-card__icon" aria-hidden="true">OE</span>
+          <h2 id="src-openelectricity"><a href="https://openelectricity.org.au/">Open Electricity API</a></h2>
+        </div>
+        <p>Formerly OpenNEM - a free, well-documented REST API covering AEMO's National Electricity Market: 5-minute generation by facility/fuel technology, regional spot price and regional demand. Requires a free account and API key.</p>
+        <div class="source-card__meta">
+          <span>JSON</span>
+          <span>5 min</span>
+          <span>Free, needs a key</span>
+        </div>
+        <p style="font-size:.9rem;color:var(--text-muted);">Used for: the Australia page's demand, spot price, generation mix, 24-hour mix chart and History section. Requires the site operator's own free API key (see includes/config.php.example) - shows no live data until one is set and ingestion has run. <strong>Licence: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></strong> (non-commercial use, with attribution) - stricter than every other source on this site, all of which are free for any use, including commercial. See <a href="about.html">About</a> for the full disclosure.</p>
+      </section>
+    </div>
+
     <section class="panel" aria-labelledby="attribution-heading" style="margin-top:1.25rem;">
       <h2 id="attribution-heading">Full attribution statement</h2>
-      <p>Shown in the footer of every Great Britain-focused page on this site - every other country page (Ireland, USA, Canada, and all eleven European pages) cites its own sources instead, in its own footer:</p>
+      <p>Shown in the footer of every Great Britain-focused page on this site - every other country page (Ireland, USA, Canada, Australia, and all eleven European pages) cites its own sources instead, in its own footer:</p>
       <blockquote style="margin:0;padding:.9rem 1.1rem;border-left:3px solid var(--accent);background:var(--bg-inset);border-radius:0 8px 8px 0;">
         The data comes from the <a href="https://bmrs.elexon.co.uk/">Elexon Insights Solution</a>, the <a href="https://www.neso.energy/data-portal">National Energy System Operator Data Portal</a>, and the <a href="https://carbonintensity.org.uk/">Carbon Intensity API</a> (a project by the National Energy System Operator and the University Of Oxford Department Of Computer Science). <a href="https://www.elexon.co.uk/data/balancing-mechanism-reporting-agent/copyright-licence-bmrs-data/">Elexon's licence</a> requires the following statement: Contains BMRS data © Elexon Limited copyright and database right 2026.
       </blockquote>
