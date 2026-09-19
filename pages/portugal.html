@@ -302,8 +302,8 @@
 
   const SPARK_METRICS = {
     price:      { base: 78,   amp: 55, color: "#d98e04", min: -30, max: 260 },
-    demand:     { base: 54.2, amp: 12, color: "#1d6fe0", min: 32,  max: 102 },
-    generation: { base: 58.6, amp: 12, color: "#0a6e5c", min: 35,  max: 108 },
+    demand:     { base: 8.5,  amp: 2.5, color: "#1d6fe0", min: 5,   max: 12 },
+    generation: { base: 9.0,  amp: 2.5, color: "#0a6e5c", min: 5,   max: 12.5 },
   };
   const SPARK_KEYS = Object.keys(SPARK_METRICS);
 
@@ -339,8 +339,8 @@
       // Reference range: a rough typical low-to-peak demand window for this
       // grid (not an official published threshold - see
       // GridPreview.bandFromRange's own docblock). 35-85GW here.
-      GridPreview.setStatBand("stat-demand-band", GridPreview.bandFromRange(current.demand_mw != null ? current.demand_mw / 1000 : null, 35, 85), " relative to this grid's typical demand range (rough guide, not an official banding)");
-      GridPreview.setStatBand("stat-generation-band", GridPreview.bandFromRange(current.generation_mw != null ? current.generation_mw / 1000 : null, 35, 85), " relative to this grid's typical generation range (rough guide, not an official banding)");
+      GridPreview.setStatBand("stat-demand-band", GridPreview.bandFromRange(current.demand_mw != null ? current.demand_mw / 1000 : null, 4.5, 10), " relative to this grid's typical demand range (rough guide, not an official banding)");
+      GridPreview.setStatBand("stat-generation-band", GridPreview.bandFromRange(current.generation_mw != null ? current.generation_mw / 1000 : null, 4.5, 10), " relative to this grid's typical generation range (rough guide, not an official banding)");
       if (current.price_eur_mwh != null) setStat("stat-price", current.price_eur_mwh.toFixed(2));
 
       if (asOfEl) {
