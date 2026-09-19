@@ -111,6 +111,32 @@ return [
       'PL' => ['domain' => '10YPL-AREA-----S', 'label' => 'Poland', 'fetch' => ['price', 'generation', 'demand']],
     ],
 
+    // RESERVED for the planned Australia page - not consumed by any code
+    // yet (no cron/fetch_openelectricity.php or ukgrid_ingest_*() reads
+    // this key at the time of writing), so filling it in doesn't activate
+    // anything on its own. Documented here now so the slot exists in the
+    // usual place once that integration lands.
+    //
+    // Powers Australia's National Electricity Market (NEM) demand,
+    // generation-by-fuel and price data, via the Open Electricity API
+    // (formerly OpenNEM). Like eia_api_key above, this is NOT keyless -
+    // register a free account at https://platform.openelectricity.org.au/sign-up
+    // (instant, self-serve - first/last name, email, password, or
+    // continue with GitHub/Google; no approval wait like ENTSO-E) and
+    // generate a key from that account's dashboard, then paste it below.
+    // IMPORTANT - data licence: unless the Open Electricity API says
+    // otherwise for a specific endpoint, its data is CC BY-NC 4.0
+    // (non-commercial use only, with attribution) - a stricter term than
+    // every other source in this file, all of which are free for any use.
+    // Read https://openelectricity.org.au (their full licence page) before
+    // relying on this if ukgridlive.info ever carries ads, a paid tier, or
+    // any other commercial element - CC BY-NC 4.0 may not permit that
+    // without a separate commercial licence from Open Electricity. See
+    // pages/about.html and pages/data-sources.html for the attribution
+    // text this site shows alongside any Australia figures.
+    'openelectricity_api_key' => 'CHANGE-ME',
+    'openelectricity_base'    => 'https://api.openelectricity.org.au/v4',
+
     // Powers the "Wind speed & cloud cover" card on the History page.
     // Open-Meteo is free and keyless - nothing to fill in. weather_lat/lon
     // default to a point in central England as a single representative GB

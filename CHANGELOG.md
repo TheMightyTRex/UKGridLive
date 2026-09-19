@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-19 (Australia groundwork)
+
+### Added
+
+- Reserved `openelectricity_api_key`/`openelectricity_base` config slots in `includes/config.php.example` for the planned Australia (NEM) page, sourced from the Open Electricity API (formerly OpenNEM). Clearly marked as not yet consumed by any ingestion code - filling the key in doesn't activate anything yet, it just gives the setting its eventual home.
+- Documented Open Electricity's CC BY-NC 4.0 (non-commercial) data licence in `pages/about.html` (both the "Source code" section and the footer) - the one source under consideration for this site with a use restriction beyond simple attribution, worth flagging ahead of building on it.
+
 ## 2026-09-19 (charts stuck on loading)
 
 ### Fixed
