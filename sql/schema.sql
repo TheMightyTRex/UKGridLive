@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS readings_us_generation (
 CREATE TABLE IF NOT EXISTS readings_entsoe_demand (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   ts DATETIME NOT NULL COMMENT 'UTC',
-  country_code VARCHAR(4) NOT NULL COMMENT 'IE, FR, NL, BE, NO, or DK - see entsoe_countries in includes/config.php.example',
+  country_code VARCHAR(4) NOT NULL COMMENT 'Whichever ENTSO-E bidding zones are configured - see entsoe_countries in includes/config.php.example',
   mw DECIMAL(10,2) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),

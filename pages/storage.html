@@ -92,6 +92,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -130,8 +131,8 @@
     </section>
 
     <dl class="status-grid" aria-label="Current storage status" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><dt>Current output</dt><dd id="storage-output-stat" aria-live="polite">0.79GW</dd></div>
-      <div class="stat"><dt>Share of generation</dt><dd id="storage-share-stat" aria-live="polite">2.7%</dd></div>
+      <div class="stat"><dt>Current output</dt><dd id="storage-output-stat" aria-live="polite" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Share of generation</dt><dd id="storage-share-stat" aria-live="polite" class="is-loading-text">Loading live data…</dd></div>
     </dl>
 
     <section class="panel">
@@ -149,7 +150,7 @@
         <caption class="visually-hidden">Storage generation by source</caption>
         <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
         <tbody>
-            <tr><td>Pumped hydro</td><td class="num">0.79</td><td class="num">2.7</td></tr>
+            <tr><td>Pumped hydro</td><td class="num" id="row-pumped-gw">-</td><td class="num" id="row-pumped-pct">-</td></tr>
             <tr><td>Battery</td><td class="num" id="battery-gw" aria-live="polite">-</td><td class="num" id="battery-pct" aria-live="polite">-</td></tr>
         </tbody>
       </table>
@@ -278,8 +279,15 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  // Battery charge/discharge toggle
-  const PUMPED_GW = 0.79, PUMPED_PCT = 2.7, TOTAL_GENERATION_GW = 28.7;
+  // Battery charge/discharge toggle. PUMPED_GW/PUMPED_PCT/TOTAL_GENERATION_GW
+  // used to be a fixed, hand-typed snapshot with no indication it wasn't
+  // live - now null until the live api/current.php fetch below resolves,
+  // so "Current output"/"Share of generation" (and the Breakdown table's
+  // Pumped hydro row) show "No data available" rather than a number that
+  // could only ever go stale. The battery figure itself stays a labelled
+  // preview (see this toggle's own caption) - there's no live per-battery
+  // reading in Elexon's fuel-type feed to wire it to.
+  let PUMPED_GW = null, PUMPED_PCT = null, TOTAL_GENERATION_GW = null;
   const toggle = document.getElementById("battery-toggle");
   const batteryPanel = document.getElementById("battery-panel");
   const batteryGw = document.getElementById("battery-gw");
@@ -297,13 +305,15 @@
   }
 
   function updateBattery(on) {
+    const haveLive = PUMPED_GW != null && PUMPED_PCT != null && TOTAL_GENERATION_GW != null;
     if (on) {
       const batteryNow = -0.18; // placeholder: currently net charging
       batteryGw.textContent = batteryNow.toFixed(2);
-      batteryPct.textContent = ((batteryNow / TOTAL_GENERATION_GW) * 100).toFixed(1);
-      const combined = PUMPED_GW + batteryNow;
-      outputStat.textContent = combined.toFixed(2) + "GW";
-      shareStat.textContent = (PUMPED_PCT + (batteryNow / TOTAL_GENERATION_GW) * 100).toFixed(1) + "%";
+      batteryPct.textContent = haveLive ? ((batteryNow / TOTAL_GENERATION_GW) * 100).toFixed(1) : "-";
+      outputStat.textContent = haveLive ? (PUMPED_GW + batteryNow).toFixed(2) + "GW" : "No data available";
+      outputStat.classList.remove("is-loading-text");
+      shareStat.textContent = haveLive ? (PUMPED_PCT + (batteryNow / TOTAL_GENERATION_GW) * 100).toFixed(1) + "%" : "No data available";
+      shareStat.classList.remove("is-loading-text");
       batteryPanel.hidden = false;
       if (!batteryDrawn) { drawBatteryChart(); batteryDrawn = true; }
       noteDefault.hidden = true;
@@ -311,16 +321,34 @@
     } else {
       batteryGw.textContent = "-";
       batteryPct.textContent = "-";
-      outputStat.textContent = PUMPED_GW.toFixed(2) + "GW";
-      shareStat.textContent = PUMPED_PCT.toFixed(1) + "%";
+      outputStat.textContent = haveLive ? PUMPED_GW.toFixed(2) + "GW" : "No data available";
+      outputStat.classList.remove("is-loading-text");
+      shareStat.textContent = haveLive ? PUMPED_PCT.toFixed(1) + "%" : "No data available";
+      shareStat.classList.remove("is-loading-text");
       batteryPanel.hidden = true;
       noteDefault.hidden = false;
       noteExpanded.hidden = true;
     }
+    const pumpedGwEl = document.getElementById("row-pumped-gw");
+    const pumpedPctEl = document.getElementById("row-pumped-pct");
+    if (pumpedGwEl) pumpedGwEl.textContent = haveLive ? PUMPED_GW.toFixed(2) : "-";
+    if (pumpedPctEl) pumpedPctEl.textContent = haveLive ? PUMPED_PCT.toFixed(1) : "-";
   }
 
   toggle.addEventListener("change", () => updateBattery(toggle.checked));
   updateBattery(false);
+
+  (async function initLivePumpedStorage() {
+    if (!window.GridData) return;
+    const current = await window.GridData.fetchCurrent();
+    if (!current) return;
+    const summary = window.GridData.summarizeGeneration(current.generation);
+    if (!summary.totalGenMw) return;
+    PUMPED_GW = summary.storageMw / 1000;
+    PUMPED_PCT = summary.storageMw / summary.totalGenMw * 100;
+    TOTAL_GENERATION_GW = summary.totalGenMw / 1000;
+    updateBattery(toggle.checked);
+  })();
 })();
 </script>
 </body>

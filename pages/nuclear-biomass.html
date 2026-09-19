@@ -92,6 +92,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -130,8 +131,8 @@
     </section>
 
     <dl class="status-grid" aria-label="Current nuclear & biomass status" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><dt>Current output</dt><dd>6.38GW</dd></div>
-      <div class="stat"><dt>Share of generation</dt><dd>22.1%</dd></div>
+      <div class="stat"><dt>Current output</dt><dd id="stat-output" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Share of generation</dt><dd id="stat-share" class="is-loading-text">Loading live data…</dd></div>
     </dl>
 
     <section class="panel">
@@ -139,9 +140,9 @@
       <table class="mix">
         <caption class="visually-hidden">Nuclear & biomass generation by source</caption>
         <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
-        <tbody>
-            <tr><td>Nuclear</td><td class="num">3.86</td><td class="num">13.4</td></tr>
-            <tr><td>Biomass</td><td class="num">2.52</td><td class="num">8.7</td></tr>
+        <tbody id="mix-tbody">
+            <tr><td>Nuclear</td><td class="num" id="row-nuclear-gw">-</td><td class="num" id="row-nuclear-pct">-</td></tr>
+            <tr><td>Biomass</td><td class="num" id="row-biomass-gw">-</td><td class="num" id="row-biomass-pct">-</td></tr>
         </tbody>
       </table>
     </section>
@@ -222,6 +223,42 @@
   const ranges = ["day", "week", "month", "season", "year", "5year", "10year"];
   const template = document.getElementById("range-panel-template");
   const drawn = {};
+
+  // "Current output" / "Share of generation" and the Breakdown table used
+  // to be a fixed, hand-typed snapshot with no indication it wasn't live -
+  // fixed to pull the same live api/current.php feed the homepage uses.
+  (async function initCurrentOutput() {
+    const outputEl = document.getElementById("stat-output");
+    const shareEl = document.getElementById("stat-share");
+    const setRow = (gwId, pctId, gw, pct) => {
+      const gwEl = document.getElementById(gwId), pctEl = document.getElementById(pctId);
+      if (gwEl) gwEl.textContent = gw;
+      if (pctEl) pctEl.textContent = pct;
+    };
+    const rows = ["nuclear", "biomass"];
+    function showNoData() {
+      if (outputEl) { outputEl.textContent = "No data available"; outputEl.classList.remove("is-loading-text"); }
+      if (shareEl) { shareEl.textContent = "No data available"; shareEl.classList.remove("is-loading-text"); }
+      rows.forEach((r) => setRow("row-" + r + "-gw", "row-" + r + "-pct", "-", "-"));
+    }
+    if (!window.GridData) { showNoData(); return; }
+    const current = await window.GridData.fetchCurrent();
+    if (!current) { showNoData(); return; }
+    const summary = window.GridData.summarizeGeneration(current.generation);
+    const bySource = summary.bySource || {};
+    // "Other" (a small catch-all fuel code) is folded into biomass here
+    // rather than given a third row - the table has always had just these
+    // two, and Other is normally negligible.
+    const nuclearMw = bySource.Nuclear || 0;
+    const biomassMw = (bySource.Biomass || 0) + (bySource.Other || 0);
+    const totalMw = summary.totalGenMw;
+    if (!totalMw) { showNoData(); return; }
+    const combinedMw = nuclearMw + biomassMw;
+    if (outputEl) { outputEl.textContent = (combinedMw / 1000).toFixed(2) + "GW"; outputEl.classList.remove("is-loading-text"); }
+    if (shareEl) { shareEl.textContent = (combinedMw / totalMw * 100).toFixed(1) + "%"; shareEl.classList.remove("is-loading-text"); }
+    setRow("row-nuclear-gw", "row-nuclear-pct", (nuclearMw / 1000).toFixed(2), (nuclearMw / totalMw * 100).toFixed(1));
+    setRow("row-biomass-gw", "row-biomass-pct", (biomassMw / 1000).toFixed(2), (biomassMw / totalMw * 100).toFixed(1));
+  })();
 
   function drawRange(range) {
     if (drawn[range]) return;

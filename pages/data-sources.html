@@ -91,6 +91,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -122,14 +123,14 @@
 
     <section class="hero">
       <h1>Sources</h1>
-      <p>UK Grid: Live+ combines three public APIs to build a full picture of Great Britain's electricity grid, plus EirGrid's Smart Grid Dashboard for Ireland, the EIA API for the USA, IESO for Ontario (Canada), and the ENTSO-E Transparency Platform for ten more European countries. Nothing here is proprietary - the GB feeds are the same ones that power Kate Morley's original <a href="https://grid.iamkate.com/">National Grid: Live</a>.</p>
+      <p>UK Grid: Live+ combines three public APIs to build a full picture of Great Britain's electricity grid, plus EirGrid's Smart Grid Dashboard for Ireland, the EIA API for the USA, IESO for Ontario (Canada), and the ENTSO-E Transparency Platform for eleven more European countries. Nothing here is proprietary - the GB feeds are the same ones that power Kate Morley's original <a href="https://grid.iamkate.com/">National Grid: Live</a>.</p>
       <div class="callout">
         <span class="callout__icon" aria-hidden="true">i</span>
         <p>Numbers here occasionally differ from grid.iamkate.com, even though the sources match. <a href="about.html#why-differ">See why on the About page →</a></p>
       </div>
       <div class="callout">
         <span class="callout__icon" aria-hidden="true">i</span>
-        <p>API access with the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a>, the pan-European grid data hub, has been granted and is now wired up - it powers the Ireland page's SEM price and generation-mix figures, plus ten standalone country pages: five for Great Britain's direct electrical interconnectors (France, Netherlands, Belgium, Norway and Denmark), and five more added purely for cross-country comparison, with no electrical link to GB (Germany, Spain, Italy, Sweden and Portugal). See the country sections below for exactly what's live on each.</p>
+        <p>API access with the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a>, the pan-European grid data hub, has been granted and is now wired up - it powers the Ireland page's SEM price and generation-mix figures, plus eleven standalone country pages: five for Great Britain's direct electrical interconnectors (France, Netherlands, Belgium, Norway and Denmark), and six more added purely for cross-country comparison, with no electrical link to GB (Germany, Spain, Italy, Sweden, Portugal and Poland). See the country sections below for exactly what's live on each.</p>
       </div>
       <div class="callout">
         <span class="callout__icon" aria-hidden="true">i</span>
@@ -294,8 +295,8 @@
     </div>
 
     <section class="panel" aria-labelledby="europe-sources-heading2" style="margin-top:1.25rem;">
-      <h2 id="europe-sources-heading2" style="font-size:1.05rem;margin-bottom:0;">Europe (ten countries, via ENTSO-E)</h2>
-      <p>All ten of these pages are powered by the single ENTSO-E source below rather than ten separate integrations. The first five sit at the far end of one of Great Britain's direct electrical interconnectors; the other five have no electrical link to GB at all and are included purely so the <a href="comparisons.html">Comparisons page</a> has more to compare against:</p>
+      <h2 id="europe-sources-heading2" style="font-size:1.05rem;margin-bottom:0;">Europe (eleven countries, via ENTSO-E)</h2>
+      <p>All eleven of these pages are powered by the single ENTSO-E source below rather than eleven separate integrations. The first five sit at the far end of one of Great Britain's direct electrical interconnectors; the other six have no electrical link to GB at all and are included purely so the <a href="comparisons.html">Comparisons page</a> has more to compare against:</p>
       <p style="font-weight:600;margin-bottom:.25rem;">GB-interconnected:</p>
       <ul>
         <li><strong><a href="france.html">France</a></strong> (IFA / IFA2 / ElecLink) - demand, generation, day-ahead price, generation mix, 24-hour mix chart and History all live.</li>
@@ -311,8 +312,9 @@
         <li><strong><a href="italy.html">Italy</a></strong> - demand, generation, day-ahead price, generation mix, 24-hour mix chart and History all live.</li>
         <li><strong><a href="sweden.html">Sweden (SE3)</a></strong> - demand, generation, day-ahead price, generation mix, 24-hour mix chart and History all live.</li>
         <li><strong><a href="portugal.html">Portugal</a></strong> - demand, generation, day-ahead price, generation mix, 24-hour mix chart and History all live.</li>
+        <li><strong><a href="poland.html">Poland</a></strong> - demand, generation, day-ahead price, generation mix, 24-hour mix chart and History all live.</li>
       </ul>
-      <p>Emissions intensity and GB-specific interconnector flow aren't published by ENTSO-E for any of these bidding zones, so rather than show a permanently illustrative placeholder for either, none of these ten pages show them at all.</p>
+      <p>Emissions intensity and GB-specific interconnector flow aren't published by ENTSO-E for any of these bidding zones, so rather than show a permanently illustrative placeholder for either, none of these eleven pages show them at all.</p>
     </section>
 
     <div class="panel-grid panel-grid--3" style="margin-top:1.25rem;">
@@ -327,7 +329,7 @@
           <span>Load/generation: ~1-3hr lag. Price: daily</span>
           <span>Free, registration + email approval required</span>
         </div>
-        <p style="font-size:.9rem;color:var(--text-muted);">Used for: all ten European country pages' demand, generation, price, mix, 24-hour mix chart and History, plus Ireland's SEM price and generation-mix gap-fill (see the Ireland section above). Requires the site operator's own free API token, obtained through a short registration-plus-email process - shows "not enough recorded history yet" rather than a placeholder figure on every page above if one isn't set or ingestion hasn't run yet.</p>
+        <p style="font-size:.9rem;color:var(--text-muted);">Used for: all eleven European country pages' demand, generation, price, mix, 24-hour mix chart and History, plus Ireland's SEM price and generation-mix gap-fill (see the Ireland section above). Requires the site operator's own free API token, obtained through a short registration-plus-email process - shows "not enough recorded history yet" rather than a placeholder figure on every page above if one isn't set or ingestion hasn't run yet.</p>
       </section>
     </div>
 
@@ -371,7 +373,7 @@
 
     <section class="panel" aria-labelledby="attribution-heading" style="margin-top:1.25rem;">
       <h2 id="attribution-heading">Full attribution statement</h2>
-      <p>Shown in the footer of every Great Britain-focused page on this site - every other country page (Ireland, USA, Canada, and all ten European pages) cites its own sources instead, in its own footer:</p>
+      <p>Shown in the footer of every Great Britain-focused page on this site - every other country page (Ireland, USA, Canada, and all eleven European pages) cites its own sources instead, in its own footer:</p>
       <blockquote style="margin:0;padding:.9rem 1.1rem;border-left:3px solid var(--accent);background:var(--bg-inset);border-radius:0 8px 8px 0;">
         The data comes from the <a href="https://bmrs.elexon.co.uk/">Elexon Insights Solution</a>, the <a href="https://www.neso.energy/data-portal">National Energy System Operator Data Portal</a>, and the <a href="https://carbonintensity.org.uk/">Carbon Intensity API</a> (a project by the National Energy System Operator and the University Of Oxford Department Of Computer Science). <a href="https://www.elexon.co.uk/data/balancing-mechanism-reporting-agent/copyright-licence-bmrs-data/">Elexon's licence</a> requires the following statement: Contains BMRS data © Elexon Limited copyright and database right 2026.
       </blockquote>

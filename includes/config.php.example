@@ -98,7 +98,7 @@ return [
       // The six above are all physically interconnected to GB (Ireland via
       // Moyle/EWIC, France via IFA/IFA2/ElecLink, Netherlands via BritNed,
       // Belgium via Nemo Link, Norway via North Sea Link, Denmark via
-      // Viking Link). The five below are not GB-interconnected - they're
+      // Viking Link). The six below are not GB-interconnected - they're
       // included purely for cross-country comparison (pages/comparisons.html,
       // the "any country vs any country" Energy sources tab) since ENTSO-E
       // covers them on the same terms as everything above. See
@@ -108,6 +108,7 @@ return [
       'IT' => ['domain' => '10YIT-GRTN-----B', 'label' => 'Italy', 'fetch' => ['price', 'generation', 'demand']],
       'SE' => ['domain' => '10Y1001A1001A46L', 'label' => 'Sweden (SE3)', 'fetch' => ['price', 'generation', 'demand']],
       'PT' => ['domain' => '10YPT-REN------W', 'label' => 'Portugal', 'fetch' => ['price', 'generation', 'demand']],
+      'PL' => ['domain' => '10YPL-AREA-----S', 'label' => 'Poland', 'fetch' => ['price', 'generation', 'demand']],
     ],
 
     // Powers the "Wind speed & cloud cover" card on the History page.
@@ -164,17 +165,17 @@ return [
     // installs that HAVE, this is what makes the USA and
     // France/Netherlands/Belgium/Norway/Denmark/Ireland-SEM-price pages
     // work with zero cron access at all - see includes/refresh.php's
-    // ENTSOE case: on-demand refreshes are capped to ONE of the 6
+    // ENTSOE case: on-demand refreshes are capped to ONE of the 12
     // configured countries per trigger (staleness-first, not config order),
     // so every call - including the very first, before anything's ever
     // been fetched - stays down to at most 3 requests rather than
-    // potentially all 17 at once. 240 minutes for EIA matches its own
+    // potentially all 35 at once. 240 minutes for EIA matches its own
     // ~1-day publication lag. 20 for ENTSOE is shorter than you might
     // expect for a source that only updates every 1-3 hours - that's
-    // deliberate: since each trigger only refreshes ONE of the 6 countries,
-    // a 20-minute interval means roughly one full rotation through all 6
-    // every ~2 hours, keeping each individual country reasonably close to
-    // ENTSO-E's own publication cadence rather than the 6-hour-plus cycle a
+    // deliberate: since each trigger only refreshes ONE of the 12 countries,
+    // a 20-minute interval means roughly one full rotation through all 12
+    // every ~4 hours, keeping each individual country reasonably close to
+    // ENTSO-E's own publication cadence rather than the much longer cycle a
     // longer interval would produce.
     // WEATHER (Open-Meteo) and CONSTRAINTS (NESO's constraint-breakdown
     // dataset) are both included here so their pages' panels work with
@@ -208,8 +209,8 @@ return [
     // timeout only ever has to cover a small, predictable worst case - at
     // 6s that's at most ~18 seconds even on a completely cold start, well
     // within any shared host's default page-load execution limit. (An
-    // earlier version of this let a cold-start refresh attempt all 6
-    // countries - up to 17 requests - in one go, which could exceed a
+    // earlier version of this let a cold-start refresh attempt all 12
+    // countries - up to 35 requests - in one go, which could exceed a
     // typical ~30s default execution limit and get killed partway through,
     // silently favouring whichever countries are listed first in
     // entsoe_countries over the rest - that's why the cap exists now.) The

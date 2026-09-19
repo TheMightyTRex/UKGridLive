@@ -148,7 +148,7 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
                 ukgrid_ingest_ieso($pdo, $config, $timeoutSeconds);
                 break;
             case 'ENTSOE':
-                // Skip any of the 6 configured countries that already have
+                // Skip any of the 12 configured countries that already have
                 // data newer than this source's own interval, AND cap this
                 // call to just the single most-overdue country - keeps
                 // every on-demand refresh cheap (at most 3 requests, ~18s

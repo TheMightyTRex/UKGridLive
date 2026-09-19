@@ -91,6 +91,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -361,7 +362,7 @@
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
 
-      if (current.mix_mw) {
+      { // always call - renderPsrMixSection now shows "No data available" itself when mix_mw is missing/empty
         GridPreview.renderPsrMixSection(current.mix_mw, {
           tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
           donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
@@ -382,8 +383,24 @@
 
     if (!current) {
       if (!usedCache) {
-        if (asOfEl) { asOfEl.textContent = "Illustrative"; asOfEl.classList.remove("is-loading-text"); }
-        liveKeys.forEach(drawMockSparkline);
+        // No cache and the live fetch failed outright - show an honest
+        // "no data" state throughout rather than leaving the illustrative
+        // placeholder numbers on screen looking like they might be current.
+        if (asOfEl) { asOfEl.textContent = "-"; asOfEl.classList.remove("is-loading-text"); }
+        liveKeys.forEach((key) => GridPreview.showStatError("stat-" + key));
+        liveKeys.forEach((key) => {
+          const spark = document.getElementById("spark-" + key);
+          if (spark) GridPreview.showChartError(spark, null);
+        });
+        if (banner) {
+          banner.className = "data-status-banner has-error";
+          banner.innerHTML = '<span class="dot" aria-hidden="true"></span>No data available';
+        }
+        if (caption) caption.textContent = "No data available - see data sources below.";
+        GridPreview.showNoMixData({
+          tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+          donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
+        });
       }
       return;
     }
@@ -401,25 +418,31 @@
       if (series && series.values.length) {
         GridPreview.renderSparkline(canvas, series.values, SPARK_METRICS[key].color);
       } else {
-        drawMockSparkline(key);
+        GridPreview.showChartError(canvas, null);
       }
     });
   }
 
   initCountryStatusStrip();
 
-  (function () {
+  (async function () {
+    // Unlike every other ENTSO-E country page, this chart was never wired
+    // to window.GridData.fetchCountryMixSeries and always drew random
+    // placeholder data regardless of whether live history existed - fixed
+    // to match e.g. pages/germany.html's equivalent block.
     const canvas = document.getElementById("mix-stack");
-    const nuclear = GridPreview.buildSeries("day", 33, 3, 22, { min: 28, max: 38, cycles: 1 });
-    const hydro = GridPreview.buildSeries("day", 9, 5, 33, { min: 3, max: 18, cycles: 2 }).values;
-    const windSolar = GridPreview.buildSeries("day", 7, 5, 44, { min: 1, max: 16, cycles: 2 }).values;
-    const fossil = GridPreview.buildSeries("day", 8, 4, 55, { min: 3, max: 15, cycles: 2 }).values;
-
-    GridPreview.renderStackedAreaChart(canvas, nuclear.times, nuclear.labels, [
-      { name: "Nuclear", color: "#6a5acd", values: nuclear.values },
-      { name: "Hydro", color: "#2a8fbd", values: hydro },
-      { name: "Wind & solar", color: "#2fa876", values: windSolar },
-      { name: "Fossil fuels", color: "#8a5a3c", values: fossil },
+    if (!canvas || !window.GridData) return;
+    const mix = await window.GridData.fetchCountryMixSeries("NL", "day");
+    canvas.closest(".chart-wrap").classList.remove("is-loading");
+    if (!mix) {
+      GridPreview.showChartError(canvas, "Not enough recorded history yet for the last 24 hours.");
+      return;
+    }
+    GridPreview.renderStackedAreaChart(canvas, mix.times, mix.labels, [
+      { name: "Renewables", color: "#1f9d5a", values: mix.renewable },
+      { name: "Nuclear", color: "#6a5acd", values: mix.nuclear },
+      { name: "Fossil fuels", color: "#8a5a3c", values: mix.fossil },
+      { name: "Other", color: "#6b5847", values: mix.other },
     ], { unit: "GW", legendTarget: "mix-stack-legend" });
   })();
 

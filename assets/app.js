@@ -1732,15 +1732,48 @@
   window.GridPreview.renderDonutChart = renderDonutChart;
 
   /**
+   * Replaces a "generation mix right now" section's table/donut/bar with an
+   * explicit "No data available" state, rather than leaving old illustrative
+   * numbers on screen looking like they might be current. Shared by
+   * renderPsrMixSection below and by callers that already know up front
+   * they have nothing to show (e.g. a totally failed fetch with no cache).
+   */
+  function showNoMixData(opts, message) {
+    const msg = message || "No data available";
+    const tbody = document.getElementById(opts.tbodyId);
+    if (tbody) {
+      const colCount = tbody.closest("table") ? tbody.closest("table").querySelectorAll("thead th").length : 3;
+      tbody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">${msg}</td></tr>`;
+    }
+    const donutCanvas = document.getElementById(opts.donutId);
+    if (donutCanvas) showChartError(donutCanvas, msg);
+    const barCanvas = document.getElementById(opts.barId);
+    if (barCanvas) showChartError(barCanvas, msg);
+    if (opts.legendId) {
+      const legend = document.getElementById(opts.legendId);
+      if (legend) legend.innerHTML = "";
+    }
+    if (opts.donutCaptionId) {
+      const el = document.getElementById(opts.donutCaptionId);
+      if (el) el.textContent = msg + ".";
+    }
+    if (opts.statusCaptionId) {
+      const el = document.getElementById(opts.statusCaptionId);
+      if (el) el.textContent = msg + " - see data sources below.";
+    }
+  }
+  window.GridPreview.showNoMixData = showNoMixData;
+
+  /**
    * Rebuilds a "generation mix right now" section (grouped table + donut +
    * bar) from a live ENTSO-E psrType -> MW breakdown (see
    * assets/data.js's summarizeEntsoeMix()) - shared by pages/ireland.html
    * and every ENTSO-E-sourced country page (France, Netherlands, Belgium,
-   * Norway, Denmark) so this logic exists exactly once rather than once
-   * per page. Leaves the page's existing illustrative markup completely
-   * untouched (and returns false) if there's nothing usable to render,
-   * which is what callers should treat as "keep the illustrative fallback
-   * that's already in the HTML".
+   * Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal) so this logic
+   * exists exactly once rather than once per page. Replaces the page's
+   * markup with an explicit "No data available" state (via showNoMixData
+   * above) rather than leaving old illustrative numbers in place, if
+   * there's nothing usable to render.
    *
    * opts:
    *   tbodyId, donutId, legendId, barId  - element IDs (required)
@@ -1750,9 +1783,9 @@
    *   extraLine                          - { label, mw, color } - one additional row/wedge appended after the psrType groups, e.g. Ireland's EirGrid-sourced GB interconnection figure (optional)
    */
   function renderPsrMixSection(mixMw, opts) {
-    if (!window.GridData || typeof window.GridData.summarizeEntsoeMix !== "function") return false;
-    const summary = window.GridData.summarizeEntsoeMix(mixMw);
-    if (!summary.entries.length) return false;
+    if (!window.GridData || typeof window.GridData.summarizeEntsoeMix !== "function") { showNoMixData(opts); return false; }
+    const summary = window.GridData.summarizeEntsoeMix(mixMw || {});
+    if (!summary.entries.length) { showNoMixData(opts); return false; }
 
     const tbody = document.getElementById(opts.tbodyId);
     if (!tbody) return false;

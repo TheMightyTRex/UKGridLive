@@ -403,12 +403,22 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   .nav-toggle { display: inline-flex; }
   .site-nav .wrap {
     flex-wrap: wrap;
+    align-items: flex-start;
     padding-top: .5rem;
     padding-bottom: .5rem;
   }
   .site-nav ul#site-nav-list {
     display: none;
     flex-direction: column;
+    /* The desktop rule's `flex: 1` (flex-basis: 0%) otherwise wins over
+       `width: 100%` for sizing a flex item, so this never actually wrapped
+       onto its own full-width line below the hamburger button - it sat
+       squeezed onto the same row instead, and with flex-direction: column
+       making it much taller than the button, the wrap's align-items:
+       center then centered the button vertically next to that whole
+       column instead of pinning it to the top. flex-basis: 100% forces
+       the wrap, which fixes both problems at once. */
+    flex: 1 1 100%;
     width: 100%;
     gap: 0;
     order: 3;

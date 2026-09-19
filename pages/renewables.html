@@ -92,6 +92,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -130,8 +131,8 @@
     </section>
 
     <dl class="status-grid" aria-label="Current renewables status" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><dt>Current output</dt><dd>14.73GW</dd></div>
-      <div class="stat"><dt>Share of generation</dt><dd>51.0%</dd></div>
+      <div class="stat"><dt>Current output</dt><dd id="stat-output" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Share of generation</dt><dd id="stat-share" class="is-loading-text">Loading live data…</dd></div>
     </dl>
 
     <section class="panel">
@@ -139,10 +140,10 @@
       <table class="mix">
         <caption class="visually-hidden">Renewables generation by source</caption>
         <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
-        <tbody>
-            <tr><td>Wind</td><td class="num">10.33</td><td class="num">35.8</td></tr>
-            <tr><td>Solar</td><td class="num">4.19</td><td class="num">14.5</td></tr>
-            <tr><td>Hydro</td><td class="num">0.21</td><td class="num">0.7</td></tr>
+        <tbody id="mix-tbody">
+            <tr><td>Wind</td><td class="num" id="row-wind-gw">-</td><td class="num" id="row-wind-pct">-</td></tr>
+            <tr><td>Solar</td><td class="num" id="row-solar-gw">-</td><td class="num" id="row-solar-pct">-</td></tr>
+            <tr><td>Hydro</td><td class="num" id="row-hydro-gw">-</td><td class="num" id="row-hydro-pct">-</td></tr>
         </tbody>
       </table>
     </section>
@@ -247,6 +248,41 @@
   const ranges = ["day", "week", "month", "season", "year", "5year", "10year"];
   const template = document.getElementById("range-panel-template");
   const drawn = {};
+
+  // "Current output" / "Share of generation" and the Breakdown table used
+  // to be a fixed, hand-typed snapshot with no indication it wasn't live -
+  // fixed to pull the same live api/current.php feed the homepage uses.
+  (async function initCurrentOutput() {
+    const outputEl = document.getElementById("stat-output");
+    const shareEl = document.getElementById("stat-share");
+    const setRow = (gwId, pctId, gw, pct) => {
+      const gwEl = document.getElementById(gwId), pctEl = document.getElementById(pctId);
+      if (gwEl) gwEl.textContent = gw;
+      if (pctEl) pctEl.textContent = pct;
+    };
+    const rows = ["wind", "solar", "hydro"];
+    function showNoData() {
+      if (outputEl) { outputEl.textContent = "No data available"; outputEl.classList.remove("is-loading-text"); }
+      if (shareEl) { shareEl.textContent = "No data available"; shareEl.classList.remove("is-loading-text"); }
+      rows.forEach((r) => setRow("row-" + r + "-gw", "row-" + r + "-pct", "-", "-"));
+    }
+    if (!window.GridData) { showNoData(); return; }
+    const current = await window.GridData.fetchCurrent();
+    if (!current) { showNoData(); return; }
+    const summary = window.GridData.summarizeGeneration(current.generation);
+    const bySource = summary.bySource || {};
+    const windMw = (bySource.Wind || 0) + (bySource["Wind (embedded)"] || 0);
+    const solarMw = bySource.Solar || 0;
+    const hydroMw = bySource.Hydro || 0;
+    const totalMw = summary.totalGenMw;
+    if (!totalMw) { showNoData(); return; }
+    const renewableMw = windMw + solarMw + hydroMw;
+    if (outputEl) { outputEl.textContent = (renewableMw / 1000).toFixed(2) + "GW"; outputEl.classList.remove("is-loading-text"); }
+    if (shareEl) { shareEl.textContent = (renewableMw / totalMw * 100).toFixed(1) + "%"; shareEl.classList.remove("is-loading-text"); }
+    setRow("row-wind-gw", "row-wind-pct", (windMw / 1000).toFixed(2), (windMw / totalMw * 100).toFixed(1));
+    setRow("row-solar-gw", "row-solar-pct", (solarMw / 1000).toFixed(2), (solarMw / totalMw * 100).toFixed(1));
+    setRow("row-hydro-gw", "row-hydro-pct", (hydroMw / 1000).toFixed(2), (hydroMw / totalMw * 100).toFixed(1));
+  })();
 
   function drawRange(range) {
     if (drawn[range]) return;

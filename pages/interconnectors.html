@@ -92,6 +92,7 @@
           <li><a href="italy.html">Italy</a></li>
           <li><a href="sweden.html">Sweden (SE3)</a></li>
           <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -130,8 +131,8 @@
     </section>
 
     <dl class="status-grid" aria-label="Current interconnectors status" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><dt>Current output</dt><dd>0.20GW</dd></div>
-      <div class="stat"><dt>Share of demand</dt><dd>0.7%</dd></div>
+      <div class="stat"><dt>Current output</dt><dd id="stat-output" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Share of demand</dt><dd id="stat-share" class="is-loading-text">Loading live data…</dd></div>
     </dl>
 
     <section class="panel">
@@ -139,13 +140,13 @@
       <table class="mix">
         <caption class="visually-hidden">Interconnectors generation by source</caption>
         <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
-        <tbody>
-            <tr><td>Belgium</td><td class="num">−0.38</td><td class="num">−1.3</td></tr>
-            <tr><td>Denmark</td><td class="num">−1.29</td><td class="num">−4.5</td></tr>
-            <tr><td>France</td><td class="num">2.41</td><td class="num">8.3</td></tr>
-            <tr><td>Ireland</td><td class="num">−0.91</td><td class="num">−3.1</td></tr>
-            <tr><td>Netherlands</td><td class="num">−0.94</td><td class="num">−3.3</td></tr>
-            <tr><td>Norway</td><td class="num">1.31</td><td class="num">4.5</td></tr>
+        <tbody id="mix-tbody">
+            <tr><td>Belgium</td><td class="num" id="row-belgium-gw">-</td><td class="num" id="row-belgium-pct">-</td></tr>
+            <tr><td>Denmark</td><td class="num" id="row-denmark-gw">-</td><td class="num" id="row-denmark-pct">-</td></tr>
+            <tr><td>France</td><td class="num" id="row-france-gw">-</td><td class="num" id="row-france-pct">-</td></tr>
+            <tr><td>Ireland</td><td class="num" id="row-ireland-gw">-</td><td class="num" id="row-ireland-pct">-</td></tr>
+            <tr><td>Netherlands</td><td class="num" id="row-netherlands-gw">-</td><td class="num" id="row-netherlands-pct">-</td></tr>
+            <tr><td>Norway</td><td class="num" id="row-norway-gw">-</td><td class="num" id="row-norway-pct">-</td></tr>
         </tbody>
       </table>
     </section>
@@ -395,6 +396,54 @@
 (function () {
   const template = document.getElementById("range-panel-template");
   const drawn = {};
+
+  // "Current output" / "Share of demand" and the per-country Breakdown
+  // table used to be a fixed, hand-typed snapshot with no indication it
+  // wasn't live - fixed to pull the same live api/current.php feed the
+  // homepage uses (window.GridData.summarizeGeneration's byInterconnector
+  // breakdown), grouping individual cables by the country they connect to,
+  // the same grouping this table has always shown.
+  const INTERCONNECTOR_COUNTRY = {
+    "IFA (France)": "france", "ElecLink (France)": "france", "IFA2 (France)": "france",
+    "Moyle (N. Ireland)": "ireland", "EWIC (Ireland)": "ireland", "Greenlink (Ireland)": "ireland",
+    "BritNed (Netherlands)": "netherlands",
+    "Nemo Link (Belgium)": "belgium",
+    "North Sea Link (Norway)": "norway",
+    "Viking Link (Denmark)": "denmark",
+  };
+  const COUNTRIES = ["belgium", "denmark", "france", "ireland", "netherlands", "norway"];
+
+  (async function initCurrentOutput() {
+    const outputEl = document.getElementById("stat-output");
+    const shareEl = document.getElementById("stat-share");
+    const setRow = (country, gw, pct) => {
+      const gwEl = document.getElementById("row-" + country + "-gw"), pctEl = document.getElementById("row-" + country + "-pct");
+      if (gwEl) gwEl.textContent = gw;
+      if (pctEl) pctEl.textContent = pct;
+    };
+    function showNoData() {
+      if (outputEl) { outputEl.textContent = "No data available"; outputEl.classList.remove("is-loading-text"); }
+      if (shareEl) { shareEl.textContent = "No data available"; shareEl.classList.remove("is-loading-text"); }
+      COUNTRIES.forEach((c) => setRow(c, "-", "-"));
+    }
+    if (!window.GridData) { showNoData(); return; }
+    const current = await window.GridData.fetchCurrent();
+    if (!current || current.demand_mw == null) { showNoData(); return; }
+    const summary = window.GridData.summarizeGeneration(current.generation);
+    const byInterconnector = summary.byInterconnector || {};
+    const byCountryMw = {};
+    COUNTRIES.forEach((c) => { byCountryMw[c] = 0; });
+    Object.keys(byInterconnector).forEach((label) => {
+      const country = INTERCONNECTOR_COUNTRY[label];
+      if (country) byCountryMw[country] += byInterconnector[label];
+    });
+    const demandMw = current.demand_mw;
+    const gw = (mw) => (mw / 1000).toFixed(2);
+    const pct = (mw) => (mw / demandMw * 100).toFixed(1);
+    if (outputEl) { outputEl.textContent = gw(summary.interconnectorMw) + "GW"; outputEl.classList.remove("is-loading-text"); }
+    if (shareEl) { shareEl.textContent = pct(summary.interconnectorMw) + "%"; shareEl.classList.remove("is-loading-text"); }
+    COUNTRIES.forEach((c) => setRow(c, gw(byCountryMw[c]), pct(byCountryMw[c])));
+  })();
 
   // Real data: 'transfers' is api/series.php's net interconnector flow
   // (positive = importing), 'demand' is GB transmission demand - both

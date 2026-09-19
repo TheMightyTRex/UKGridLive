@@ -1241,7 +1241,7 @@ function ukgrid_entsoe_country_latest_ts(PDO $pdo, string $countryCode): int
 /**
  * $skipFresherThanMinutes: if > 0, a country whose own data is already
  * newer than this many minutes is left out of this run entirely, rather
- * than always considering all 6 configured countries.
+ * than always considering all 12 configured countries.
  *
  * $maxCountriesPerRun: if > 0, caps how many of the (not-skipped) countries
  * actually get fetched THIS call, prioritising whichever have gone longest
@@ -1255,13 +1255,13 @@ function ukgrid_entsoe_country_latest_ts(PDO $pdo, string $countryCode): int
  * anything has ever been fetched. $skipFresherThanMinutes alone isn't
  * enough to guarantee that: on a cold start (or after a long outage) every
  * country is equally overdue, so nothing gets skipped and this would still
- * attempt the full 17 requests in one go. That's exactly what caused this
+ * attempt the full 35 requests in one go. That's exactly what caused this
  * page's countries to stay illustrative even after cron/fetch_entsoe.php
  * was fixed - on-demand refresh has no cron script's set_time_limit()
  * override, so PHP's default execution limit (commonly ~30s on shared
- * hosting for a normal web request) could still kill a 17-request cold-start
+ * hosting for a normal web request) could still kill a 35-request cold-start
  * run partway through, silently favouring whichever countries happen to be
- * listed first in entsoe_countries (Ireland, France) over the rest.
+ * listed first in entsoe_countries over the rest.
  * $maxCountriesPerRun=1 caps every on-demand call - cold start included -
  * to at most 3 requests, and staleness-based ordering (rather than config
  * order) means repeated triggers naturally rotate through every country
@@ -1276,7 +1276,7 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
 {
     $token = trim((string) ($config['sources']['entsoe_api_token'] ?? ''));
     if ($token === '' || $token === 'CHANGE-ME') {
-        ukgrid_log_ingest('ENTSOE', 'OK', 0, 'entsoe_api_token not set - skipping (Ireland\'s SEM price/mix and all ten ENTSO-E country pages - France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal - stay on illustrative/no data until you add one, see includes/config.php.example).');
+        ukgrid_log_ingest('ENTSOE', 'OK', 0, 'entsoe_api_token not set - skipping (Ireland\'s SEM price/mix and all eleven other ENTSO-E country pages - France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal, Poland - stay on illustrative/no data until you add one, see includes/config.php.example).');
         return ['rows' => 0, 'errors' => []];
     }
 
@@ -1341,7 +1341,7 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
             // gap: several sequential requests to the same host back-to-
             // back risks looking like abuse even though ENTSO-E's stated
             // limit (400 req/min) is generous - this whole function makes
-            // at most 18 requests (6 countries x 3 kinds) per run either way.
+            // at most 35 requests (12 countries, up to 3 kinds each) per run either way.
             if (!$isFirstRequest) {
                 usleep(200000);
             }

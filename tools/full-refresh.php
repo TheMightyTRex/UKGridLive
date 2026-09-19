@@ -17,7 +17,7 @@
  *
  * DESIGN NOTE: this used to run everything inside one single PHP request.
  * On real shared hosting that was unreliable - a full run (ENTSO-E alone
- * can be up to 17 sequential requests across 6 countries) can take several
+ * can be up to 35 sequential requests across 12 countries) can take several
  * minutes, and many hosts enforce a hard request/process timeout at the
  * web-server or FastCGI/LiteSpeed level that a PHP-side set_time_limit()
  * call CANNOT override (that's a PHP-only setting; the server's own
@@ -157,7 +157,7 @@ $configWarnings = [];
 
 $entsoeToken = trim((string) ($config['sources']['entsoe_api_token'] ?? ''));
 if ($entsoeToken === '' || $entsoeToken === 'CHANGE-ME') {
-    $configWarnings[] = "entsoe_api_token isn't set (still 'CHANGE-ME' or blank) in includes/config.php - Ireland's SEM price/mix and all ten ENTSO-E country pages (France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal) will show no live data until you add one. Free to get, but needs registration plus an email approval step - see includes/config.php.example.";
+    $configWarnings[] = "entsoe_api_token isn't set (still 'CHANGE-ME' or blank) in includes/config.php - Ireland's SEM price/mix and all eleven other ENTSO-E country pages (France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal, Poland) will show no live data until you add one. Free to get, but needs registration plus an email approval step - see includes/config.php.example.";
 }
 $eiaKey = trim((string) ($config['sources']['eia_api_key'] ?? ''));
 if ($eiaKey === '' || $eiaKey === 'CHANGE-ME') {
