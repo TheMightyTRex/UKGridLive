@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-19 (charts stuck on loading)
+
+### Fixed
+
+- **Live History-section charts across most of the site rendered real data underneath a permanent loading shimmer.** `assets/style.css`'s `.chart-wrap.is-loading::before` skeleton animation is only meant to show before a chart has anything to draw, but nothing ever removed the `is-loading` class on a *successful* render - only `GridPreview.showChartError()` cleared it, on the failure path. Checked directly on the live site: Belgium's Day-tab charts (demand/generation/price), France's price chart, all five of Ireland's History charts, and both of `comparisons.html`'s charts were confirmed stuck this way; `pages/eu.html` too. The actual data was there and correctly drawn (confirmed via a direct `renderLineChart()` test) - it was just permanently hidden under the shimmer overlay, which looks indistinguishable from "still loading" to a visitor. Root-caused to one shared function: every chart type (`renderLineChart`, `renderBarChart`, `renderStackedAreaChart`, `renderSparkline`, `renderDonutChart`) funnels through `assets/app.js`'s internal `registerChart()`, so the fix removes `is-loading` there once, right after a chart's first successful draw - covering every chart on every page in one place rather than requiring each page's own success-path code to remember it individually. GB's own `history.html` and the five GB category pages happened not to hit this (their code already cleared the class by hand), which is why it wasn't caught in the previous audit's per-page checks - this time it was found by loading the real, currently-deployed site rather than only exercising the local no-backend failure path.
+
 ## 2026-09-19 (no-illustrative-data pass, mobile menu, Poland)
 
 ### Fixed
