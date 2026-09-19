@@ -402,6 +402,20 @@
 
   function registerChart(canvas, draw) {
     draw();
+    // Every render*Chart function funnels through here, so this is the one
+    // place that reliably clears the "is-loading" shimmer skeleton
+    // (assets/style.css's .chart-wrap.is-loading::before) once a chart has
+    // actually drawn something. Individual pages' success paths only ever
+    // called the equivalent of this by hand in some places (e.g. the
+    // 24-hour mix-stack charts) and not others (every History-section
+    // line chart drawn via drawRange()) - the omission meant those charts
+    // rendered real data underneath a shimmer overlay that never went
+    // away, i.e. they looked permanently stuck loading even though the
+    // data was right there. showChartError() already did this on the
+    // failure path; this mirrors it for every success path in one spot
+    // instead of requiring every call site to remember it individually.
+    const wrap = canvas.closest(".chart-wrap");
+    if (wrap) wrap.classList.remove("is-loading");
     chartRegistry.push({ canvas, draw });
   }
 
