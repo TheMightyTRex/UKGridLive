@@ -159,6 +159,10 @@
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
           <span data-copy-label aria-live="polite">Copy as text</span>
         </button>
+        <button type="button" class="copy-btn" data-csv-table="mix-table" data-csv-title="mix-table">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span data-copy-label aria-live="polite">Download CSV</span>
+        </button>
         <button type="button" class="copy-btn" id="snapshot-btn">
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           <span id="snapshot-btn-label" aria-live="polite">Download snapshot (PNG)</span>
@@ -259,40 +263,80 @@
       </div>
 
       <div id="rpanel-wind" role="tabpanel" aria-labelledby="rtab-wind" tabindex="0">
-        <ul class="records-list">
+        <ul class="records-list" id="records-list-wind">
           <li><span>Highest wind generation ever</span><strong>23,880MW - 25 March 2026</strong></li>
           <li><span>Wind curtailed, Q1 2026</span><strong>3.6TWh (11% of potential output), due to transmission constraints</strong></li>
           <li><span>Previous record</span><strong>23,825MW - 5 Dec 2025, 5:30pm</strong></li>
         </ul>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-copy-list="records-list-wind" data-copy-title="Wind records - UK Grid: Live+">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span data-copy-label aria-live="polite">Copy as text</span>
+          </button>
+          <button type="button" class="copy-btn" data-csv-list="records-list-wind" data-csv-title="records-list-wind">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span data-copy-label aria-live="polite">Download CSV</span>
+          </button>
+        </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-wind" role="img" aria-label="Bar chart of the two most recent wind generation records"></canvas></div>
         <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a>, reported by <a href="https://www.edie.net/uk-soars-past-wind-power-generation-record-for-second-time-in-two-months/">Edie</a>, March 2026. Last checked: 4 September 2026.</p>
       </div>
 
       <div id="rpanel-solar" role="tabpanel" aria-labelledby="rtab-solar" tabindex="0" hidden>
-        <ul class="records-list">
+        <ul class="records-list" id="records-list-solar">
           <li><span>Highest solar generation ever</span><strong>15,427MW - 12 July 2026, late morning</strong></li>
           <li><span>Solar's share of the mix at that moment</span><strong>44%</strong></li>
           <li><span>First time above 9.5GW</span><strong>May 2019</strong></li>
         </ul>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-copy-list="records-list-solar" data-copy-title="Solar records - UK Grid: Live+">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span data-copy-label aria-live="polite">Copy as text</span>
+          </button>
+          <button type="button" class="copy-btn" data-csv-list="records-list-solar" data-csv-title="records-list-solar">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span data-copy-label aria-live="polite">Download CSV</span>
+          </button>
+        </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-solar" role="img" aria-label="Bar chart of solar generation records rising from 9.55GW in 2019 to 15.4GW in 2026"></canvas></div>
         <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a>, reported by <a href="https://www.solarpowerportal.co.uk/solar-installations/summer-sun-boosted-uk-s-solar-generation-record-in-july">Solar Power Portal</a>, July 2026. Last checked: 4 September 2026.</p>
       </div>
 
       <div id="rpanel-emissions" role="tabpanel" aria-labelledby="rtab-emissions" tabindex="0" hidden>
-        <ul class="records-list">
+        <ul class="records-list" id="records-list-emissions">
           <li><span>Record lowest carbon intensity</span><strong>39g/kWh - Easter Monday 2021</strong></li>
           <li><span>Near-record low</span><strong>89g/kWh - 23 May 2026</strong></li>
           <li><span>Average intensity, 2012 vs 2025</span><strong>~500g → &lt;150g</strong></li>
         </ul>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-copy-list="records-list-emissions" data-copy-title="Emissions records - UK Grid: Live+">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span data-copy-label aria-live="polite">Copy as text</span>
+          </button>
+          <button type="button" class="copy-btn" data-csv-list="records-list-emissions" data-csv-title="records-list-emissions">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span data-copy-label aria-live="polite">Download CSV</span>
+          </button>
+        </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-emissions" role="img" aria-label="Bar chart of carbon intensity falling from around 500 grams per kilowatt hour in 2012 to under 150 in 2025"></canvas></div>
         <p class="chart-caption">Source: <a href="https://www.carbonintensity.org.uk/">Carbon Intensity API</a> and NESO decarbonisation reporting. Last checked: 4 September 2026.</p>
       </div>
 
       <div id="rpanel-demand" role="tabpanel" aria-labelledby="rtab-demand" tabindex="0" hidden>
-        <ul class="records-list">
+        <ul class="records-list" id="records-list-demand">
           <li><span>Winter 2025/26 peak demand</span><strong>47.32GW - 5 Jan 2026</strong></li>
           <li><span>Winter 2025/26 operating margin</span><strong>6.1GW (10.0%) - highest since 2019/20</strong></li>
         </ul>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-copy-list="records-list-demand" data-copy-title="Demand records - UK Grid: Live+">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span data-copy-label aria-live="polite">Copy as text</span>
+          </button>
+          <button type="button" class="copy-btn" data-csv-list="records-list-demand" data-csv-title="records-list-demand">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span data-copy-label aria-live="polite">Download CSV</span>
+          </button>
+        </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-demand" role="img" aria-label="Bar chart contrasting a typical summer demand trough with the winter 2025/26 peak"></canvas></div>
         <p class="chart-caption">Source: <a href="https://www.neso.energy/neso-sets-out-expectations-strongest-winter-electricity-margins-six-years">NESO Winter Outlook 2025/26</a>. The "summer low" bar is a rough comparison, not a specific sourced figure. Last checked: 4 September 2026.</p>
       </div>
@@ -302,6 +346,16 @@
       <h2 id="moments-heading">Notable moments</h2>
       <p class="chart-caption" id="moments-caption">Loading…</p>
       <ul class="records-list" id="moments-list" hidden></ul>
+      <p class="download-row" id="moments-download-row" hidden>
+        <button type="button" class="copy-btn" data-copy-list="moments-list" data-copy-title="Notable moments - UK Grid: Live+">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+          <span data-copy-label aria-live="polite">Copy as text</span>
+        </button>
+        <button type="button" class="copy-btn" data-csv-list="moments-list" data-csv-title="notable-moments">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span data-copy-label aria-live="polite">Download CSV</span>
+        </button>
+      </p>
       <p class="chart-caption" id="moments-unavailable" hidden>Not available</p>
     </section>
 
@@ -472,6 +526,7 @@
       const colors = window.GridData.colorsFor(sortedLabels);
       GridPreview.renderDonutChart(donutSourceCanvas, sortedLabels, values, colors, {
         legendTarget: "mix-donut-source-legend", unit: "GW", centerLabel: gw(summary.totalGenMw) + "GW", centerSub: "generation",
+        exportTitle: "Generation mix right now - by source - UK Grid: Live+",
       });
     }
     const srcCaption = document.getElementById("mix-donut-source-caption");
@@ -485,6 +540,7 @@
       donutCategoryCanvas.closest(".chart-wrap").classList.remove("is-loading");
       GridPreview.renderDonutChart(donutCategoryCanvas, categoryLabels, categoryValues, categoryColors, {
         legendTarget: "mix-donut-category-legend", unit: "GW", centerLabel: gw(totalMw) + "GW", centerSub: "demand",
+        exportTitle: "Generation mix right now - by category - UK Grid: Live+",
       });
     }
     const catCaption = document.getElementById("mix-donut-category-caption");
@@ -857,12 +913,14 @@
     const listEl = document.getElementById("moments-list");
     const captionEl = document.getElementById("moments-caption");
     const unavailableEl = document.getElementById("moments-unavailable");
+    const downloadRowEl = document.getElementById("moments-download-row");
     if (!window.GridData) return;
 
     const data = await window.GridData.fetchNotableMoments();
     if (!data) {
       if (captionEl) captionEl.hidden = true;
       if (unavailableEl) unavailableEl.hidden = false;
+      if (downloadRowEl) downloadRowEl.hidden = true;
       return;
     }
 
@@ -887,6 +945,7 @@
       });
     }
     if (unavailableEl) unavailableEl.hidden = true;
+    if (downloadRowEl) downloadRowEl.hidden = !(data.moments && data.moments.length);
   }
 
   initNotableMoments();

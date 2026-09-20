@@ -40,6 +40,14 @@
  * same season last year instead of the one in progress now. Used by the
  * History page's "compare seasons" checkbox. Clamped to [-10, 0].
  *
+ * period_offset (optional, meaningful for any range OTHER than season):
+ * shifts that range's whole rolling window back by this many whole
+ * window-lengths - e.g. range=week&period_offset=-1 returns the 7-day
+ * window immediately before the current one ("last week") rather than the
+ * window ending now. Used by pages/comparisons.html's Time periods tab for
+ * its "Last week"/"2 weeks ago"/"Last month" compare-against options.
+ * Clamped to [-52, 0].
+ *
  * Buckets with no data are simply omitted rather than padded with zeroes -
  * the frontend (assets/data.js) draws whatever real points exist and falls
  * back to illustrative mock data only if there are none at all, so a
@@ -81,8 +89,21 @@ if ($range === 'season') {
     $from = gmdate('Y-m-d H:i:s', $bounds['start']);
     $to = gmdate('Y-m-d H:i:s', $bounds['end']);
 } else {
-    $from = gmdate('Y-m-d H:i:s', time() - $cfg['points'] * $bucket);
-    $to = gmdate('Y-m-d H:i:s');
+    // period_offset: shifts this range's whole rolling window back this many
+    // whole window-lengths - e.g. range=week&period_offset=-1 returns the
+    // 7-day window immediately before the current one ("last week") rather
+    // than the one ending now, period_offset=-2 the one before that ("2
+    // weeks ago"). Same idea as season_offset above, generalised to any
+    // range rather than just the calendar-anchored season - used by
+    // pages/comparisons.html's Time periods tab. Clamped to a sane bound
+    // (52 windows back) since this walks back by a whole window each step,
+    // not a fixed calendar unit - 52 weeks is already a year, far more than
+    // that tab exposes in its UI.
+    $periodOffset = isset($_GET['period_offset']) ? (int) $_GET['period_offset'] : 0;
+    $periodOffset = max(-52, min(0, $periodOffset));
+    $windowSeconds = $cfg['points'] * $bucket;
+    $to = gmdate('Y-m-d H:i:s', time() + $periodOffset * $windowSeconds);
+    $from = gmdate('Y-m-d H:i:s', time() + $periodOffset * $windowSeconds - $windowSeconds);
 }
 
 $pdo = ukgrid_db();

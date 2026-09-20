@@ -67,11 +67,19 @@
   /** Historical series for one metric+range, shaped like GridPreview.buildSeries's return value.
       seasonOffset (optional): only meaningful when range === "season" - shifts
       the season back this many whole years, e.g. -1 for "the same season last
-      year". Used by the History page's "compare seasons" checkbox. */
-  async function fetchSeries(metric, range, apiBase, seasonOffset) {
+      year". Used by the History page's "compare seasons" checkbox.
+      periodOffset (optional): meaningful for any OTHER range (week, month,
+      etc) - shifts that range's whole rolling window back this many whole
+      window-lengths, e.g. periodOffset=-1 with range="week" returns the
+      7-day window immediately before the current one ("last week"),
+      periodOffset=-2 the one before that ("2 weeks ago"). Used by
+      pages/comparisons.html's Time periods tab "Compare against" options
+      that aren't season-based. */
+  async function fetchSeries(metric, range, apiBase, seasonOffset, periodOffset) {
     try {
       let url = (apiBase || DEFAULT_API_BASE) + "series.php?metric=" + encodeURIComponent(metric) + "&range=" + encodeURIComponent(range);
       if (range === "season" && seasonOffset) url += "&season_offset=" + encodeURIComponent(seasonOffset);
+      if (range !== "season" && periodOffset) url += "&period_offset=" + encodeURIComponent(periodOffset);
       const data = await fetchJSON(url);
       if (!data.points || !data.points.length) return null;
       const cfg = (window.GridPreview && window.GridPreview.RANGE_CONFIG[range]) || { fmt: "date" };
