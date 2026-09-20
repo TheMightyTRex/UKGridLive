@@ -199,32 +199,48 @@
       <h3 style="margin-top:1.5rem;">Mounting type examples</h3>
       <div class="ps-placement-grid" id="ps-mounting-grid">
         <div class="ps-placement-card" data-mounting-card="ground_frame">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M8 52h48" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/><path d="M16 52 26 30h20l6 22" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="18" y="14" width="30" height="18" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2" transform="rotate(-16 33 23)"/></svg>
+          <svg viewBox="0 0 64 64" fill="none"><rect x="8" y="50" width="48" height="6" rx="2" fill="var(--border)"/><path d="M20 50 26 30M44 50 38 30" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="14" y="12" width="36" height="20" rx="2" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2" transform="rotate(-20 32 22)"/></svg>
           <strong>Outside (Ground Frame)</strong>
-          <span>Freestanding angled frame on the ground - no building fixing needed</span>
+          <span>Side view: freestanding angled frame on the ground - no building fixing needed</span>
         </div>
         <div class="ps-placement-card" data-mounting-card="balcony">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M8 20v34M56 20v34" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/><path d="M8 30h48" stroke="currentColor" stroke-width="2.4"/><rect x="12" y="32" width="40" height="20" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <svg viewBox="0 0 64 64" fill="none"><rect x="4" y="30" width="56" height="6" rx="2" fill="var(--border)"/><rect x="6" y="42" width="4" height="14" fill="var(--border)"/><rect x="54" y="42" width="4" height="14" fill="var(--border)"/><rect x="22" y="6" width="20" height="30" rx="2" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/><path d="M22 30h-5M42 30h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           <strong>Outside (Balcony)</strong>
-          <span>Bracket clamped to the balcony rail, panel typically vertical</span>
+          <span>Side view: bracket clamped to the balcony rail, panel typically vertical</span>
         </div>
         <div class="ps-placement-card" data-mounting-card="wall_hang">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M6 8v48" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/><path d="M6 22h10M6 40h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="18" y="18" width="34" height="30" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <svg viewBox="0 0 64 64" fill="none"><rect x="6" y="4" width="8" height="56" fill="var(--border)"/><path d="M14 16h10M14 44h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="24" y="10" width="20" height="42" rx="2" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
           <strong>Outside (Wall / Hang on outside of Balcony)</strong>
-          <span>Hung on brackets from the outer face of a balcony or wall, panel vertical</span>
+          <span>Side view: hung on brackets clear of the wall/balcony face, panel vertical</span>
         </div>
         <div class="ps-placement-card" data-mounting-card="wall_mount">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M6 6v52" stroke="var(--border)" stroke-width="5" stroke-linecap="round"/><path d="M6 24h8M6 44h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="16" y="14" width="34" height="36" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <svg viewBox="0 0 64 64" fill="none"><rect x="6" y="4" width="8" height="56" fill="var(--border)"/><path d="M14 20h4M14 44h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="18" y="10" width="20" height="42" rx="2" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2" transform="rotate(-8 28 31)"/></svg>
           <strong>Outside Wall mount</strong>
-          <span>Fixed directly to an exterior wall face, bracket-mounted vertical or slightly angled</span>
+          <span>Side view: fixed close to an exterior wall face, vertical or slightly angled</span>
+        </div>
+        <div class="ps-placement-card" data-mounting-card="indoor_flat">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="26" y="4" width="4" height="56" fill="var(--border)"/><rect x="30" y="10" width="22" height="44" rx="2" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <strong>Indoors (flat against window)</strong>
+          <span>Side view: windowsill or hung flat against the glass, south-facing - see the note below</span>
+        </div>
+        <div class="ps-placement-card" data-mounting-card="indoor_tilted">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M6 54 32 8 58 54" stroke="var(--border)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="22" width="26" height="16" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2" transform="rotate(-28 31 30)"/></svg>
+          <strong>Indoors (tilted behind window)</strong>
+          <span>Side view: e.g. a conservatory roof or skylight, south-facing - see the note below</span>
         </div>
       </div>
-      <p class="chart-caption">Mounting type is illustrative only - it doesn't change the generation estimate itself. What actually affects output is the facing and orientation you choose above, since a ground frame, a balcony rail, a wall-hang and a wall mount can each be set up tilted or vertical. See <a href="plugin-solar-mounting.html">Mounting</a> for planning/fixing rules for each type.</p>
+      <p class="chart-caption">Mounting type is illustrative only for the four outdoor options - it doesn't change the generation estimate itself, since a ground frame, a balcony rail, a wall-hang and a wall mount can each be set up tilted or vertical (the facing and orientation you choose above are what actually affect output). See <a href="plugin-solar-mounting.html">Mounting</a> for planning/fixing rules for each type. The two indoor options work differently - see below.</p>
+
+      <div class="ps-warning" role="note" id="ps-indoor-callout" hidden>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <p><strong>This figure is an estimate, and depends heavily on your window.</strong> Indoor placement isn't really what a registered 800W plug-in kit is designed for. This estimate assumes a south-facing window and an average glass-transmission loss - but the real loss varies a lot by glass type: roughly 10-15% for older single glazing hit square-on, versus 40-50%+ for modern Low-E ("Low-Emissivity") double glazing, which most UK homes have had fitted since the early 2010s and which is specifically coated to reflect the near-infrared light solar cells rely on. Facing and orientation are ignored while an indoor option is selected, since these figures already bake both in. See <a href="plugin-solar-considerations.html#placement-heading">Best panel placement</a> for the full sourcing and caveats.</p>
+      </div>
 
       <div class="ps-ring-diagram" id="ps-working-card" style="margin-top:1.25rem;">
         <h3 style="margin-top:0;">How your placement factor is worked out</h3>
-        <p style="margin:0 0 .5rem;font-size:.95rem;"><span id="ps-work-facing-label">-</span> (<strong id="ps-work-facing-factor">-</strong>) &times; <span id="ps-work-orientation-label">-</span> (<strong id="ps-work-orientation-factor">-</strong>) = <strong id="ps-work-combined">-</strong></p>
-        <p class="chart-caption" style="margin:0;">This combined factor is what the calculator multiplies your estimated generation by, relative to the best case this dataset assumes (south-facing, tilted ~30-40°, factor 1.00). Mounting type doesn't feature in this multiplication - see the note above.</p>
+        <p id="ps-work-formula" style="margin:0 0 .5rem;font-size:.95rem;">-</p>
+        <p style="margin:0 0 .5rem;font-size:.95rem;">Combined placement factor: <strong id="ps-work-combined">-</strong></p>
+        <p class="chart-caption" id="ps-work-caption" style="margin:0;">This combined factor is what the calculator multiplies your estimated generation by, relative to the best case this dataset assumes (south-facing, tilted ~30-40°, factor 1.00). Mounting type doesn't feature in this multiplication - see the note above.</p>
       </div>
     </section>
 
@@ -316,7 +332,23 @@
 
     <section class="panel" aria-labelledby="placement-note-heading">
       <h2 id="placement-note-heading">About the placement options</h2>
-      <p>South-facing and tilted ~30-40° is the best-case baseline this calculator's location data already assumes - a factor of 1.00. Facing away from south (east, west or north) and standing the panel vertically instead of tilting it each reduce that baseline; the two factors are multiplied together, and the "How your placement factor is worked out" card above shows exactly how for your current choices. East and west are treated the same, since there's no sourced UK dataset splitting them apart. This calculator's picker covers outdoor mounting only - for the separate, lower-output case of an indoor panel placed behind a window, see the placement figures and caveats on <a href="plugin-solar-considerations.html">Considerations</a>.</p>
+      <p>South-facing and tilted ~30-40° is the best-case baseline this calculator's location data already assumes - a factor of 1.00. Facing away from south (east, west or north) and standing the panel vertically instead of tilting it each reduce that baseline; the two factors are multiplied together, and the "How your placement factor is worked out" card above shows exactly how for your current choices. East and west are treated the same, since there's no sourced UK dataset splitting them apart. Choosing one of the two indoor mounting options (flat against a window, or tilted behind glass) works differently: it overrides the facing/orientation multiplication with its own fixed, illustrative estimate instead, since those figures already assume a south-facing window and bake in an estimated glass-transmission loss - see the callout that appears above when you pick one, and <a href="plugin-solar-considerations.html">Considerations</a> for the full sourcing.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="baseload-heading">
+      <h2 id="baseload-heading">Working out your base load</h2>
+      <p>"Base load" here means your home's minimum, always-on electricity draw - the fridge-freezer, the router, standby electronics, a boiler's controls - the stuff that's pulling power 24 hours a day regardless of who's home or what they're doing. It matters for this calculator because generation up to that level is assumed to be almost always used instantly (something is nearly always drawing at least that much), while generation above it depends on active use, which the occupancy setting controls separately.</p>
+      <h3>The accurate way: read it off a smart meter</h3>
+      <p>If you have a smart meter, this is worth doing properly rather than guessing. Check your in-home display or supplier's app for half-hourly (or more frequent) usage, and look at the overnight window - roughly midnight to 5am, when nothing should be actively running. Find the <strong>lowest</strong> reading in that window on a normal night, not the average - that floor value is your base load. If your display shows kW directly, multiply by 1,000 to get watts for the field above; if it only shows kWh for a half-hour period, divide by 0.5 to get the equivalent kW, then multiply by 1,000.</p>
+      <h3>Rough guide if you don't have one</h3>
+      <p>Without a smart meter, typical whole-home base load in UK properties tends to fall into a broad range by size - useful as a sanity check, not a substitute for measuring your own:</p>
+      <ul class="ps-fact-list" id="baseload-size-list">
+        <li><span>Small flat (1 bed)</span><strong>Roughly 100-200W continuous</strong></li>
+        <li><span>Mid-terrace house (3 bed)</span><strong>Roughly 200-350W continuous</strong></li>
+        <li><span>Larger detached (4+ bed)</span><strong>Roughly 300-500W continuous</strong></li>
+      </ul>
+      <p>Or add up individual always-on devices if you'd rather build the figure from the ground up. A fridge-freezer is usually rated around 400W on its nameplate, but that's the compressor's running power, not a constant draw - it cycles on and off, so averaged across a full day a typical fridge-freezer works out much lower, commonly somewhere in the 25-60W range depending on the model and how old it is. A WiFi router typically draws somewhere between 2W and 20W, averaging around 6W. Beyond that, most homes have a scattering of small standby loads (a set-top box, a games console left on standby, phone chargers left plugged in, a boiler's control electronics, an alarm system) that are each individually tiny - often well under a couple of watts apiece - but can add up to a noticeable chunk of the total.</p>
+      <p class="chart-caption">Sources: <a href="https://homeenergymodel.co.uk/base-load-energy-explained-reduce-costs-under-new-uk-rules/">Home Energy Model: Base load energy explained</a> - the overnight-reading method and the by-property-size base-load ranges. <a href="https://powerni.co.uk/help/energy-guides/which-appliances-use-the-most-electricity/">Power NI: Which appliances use the most electricity?</a> - fridge-freezer and router wattage figures. <a href="https://www.citizensadvice.org.uk/consumer/energy/energy-supply/your-energy-meter/using-the-energy-monitor-for-your-smart-meter/">Citizens Advice: Using your smart meter's in-home display</a> - how to read your own display. These are general industry guides, not a measurement of your specific home - your own smart meter reading, where available, is always more accurate than any of the ranges above.</p>
     </section>
 
     <section class="panel" aria-labelledby="ps-sources-heading">
@@ -360,11 +392,10 @@
   var orientationSelect = document.getElementById("ps-orientation");
   var mountingSelect = document.getElementById("ps-mounting");
   var mountingCards = Array.prototype.slice.call(document.querySelectorAll("[data-mounting-card]"));
-  var workFacingLabel = document.getElementById("ps-work-facing-label");
-  var workFacingFactor = document.getElementById("ps-work-facing-factor");
-  var workOrientationLabel = document.getElementById("ps-work-orientation-label");
-  var workOrientationFactor = document.getElementById("ps-work-orientation-factor");
   var workCombined = document.getElementById("ps-work-combined");
+  var workFormula = document.getElementById("ps-work-formula");
+  var workCaption = document.getElementById("ps-work-caption");
+  var indoorCallout = document.getElementById("ps-indoor-callout");
   var panelInput = document.getElementById("ps-panel-w");
   var panelOut = document.getElementById("ps-panel-w-out");
   var baseloadInput = document.getElementById("ps-baseload");
@@ -475,19 +506,32 @@
     var facingId = facingSelect.value;
     var orientationId = orientationSelect.value;
     var mountingId = mountingSelect.value;
-    var placementFactor = DATA.computePlacementFactor(facingId, orientationId);
+    var mounting = DATA.getMounting(mountingId);
+    var isIndoor = mounting.indoorFactor != null;
+    var placementFactor = isIndoor ? mounting.indoorFactor : DATA.computePlacementFactor(facingId, orientationId);
     var baseLoadW = parseFloat(baseloadInput.value) || 0;
     var occupancyFactor = parseFloat(occupancySelect.value) || 0.5;
     var cost = parseFloat(costInput.value) || 0;
 
+    // Facing/orientation don't apply to the two indoor mounting options
+    // (their factor is fixed and already assumes south-facing) - grey the
+    // two dropdowns out and show the "depends on your window" callout.
+    facingSelect.disabled = isIndoor;
+    orientationSelect.disabled = isIndoor;
+    indoorCallout.hidden = !isIndoor;
+
     // "How your placement factor is worked out" card - kept in sync with
-    // the facing/orientation dropdowns above.
-    var facing = DATA.getFacing(facingId);
-    var orientation = DATA.getOrientation(orientationId);
-    workFacingLabel.textContent = facing.label;
-    workFacingFactor.textContent = facing.factor.toFixed(2);
-    workOrientationLabel.textContent = orientation.label;
-    workOrientationFactor.textContent = orientation.factor.toFixed(2);
+    // the facing/orientation dropdowns above, or replaced with the fixed
+    // indoor figure when an indoor mounting option is selected.
+    if (isIndoor) {
+      workFormula.textContent = mounting.label + " - fixed estimate, not built from facing x orientation";
+      workCaption.textContent = "Facing and orientation are ignored for this mounting type - the figure above already assumes a south-facing window and an average glass-transmission loss. See the callout above for why this is only a rough estimate.";
+    } else {
+      var facing = DATA.getFacing(facingId);
+      var orientation = DATA.getOrientation(orientationId);
+      workFormula.innerHTML = facing.label + ' (<strong>' + facing.factor.toFixed(2) + '</strong>) &times; ' + orientation.label + ' (<strong>' + orientation.factor.toFixed(2) + '</strong>)';
+      workCaption.textContent = "This combined factor is what the calculator multiplies your estimated generation by, relative to the best case this dataset assumes (south-facing, tilted ~30-40°, factor 1.00). Mounting type doesn't feature in this multiplication - see the note above.";
+    }
     workCombined.textContent = placementFactor.toFixed(2) + " (" + Math.round(placementFactor * 100) + "% of best case)";
 
     // Highlight the selected mounting-type example card.
