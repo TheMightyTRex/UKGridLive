@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plug-in solar energy calculator - UK Grid: Live+</title>
+<meta name="description" content="Estimate plug-in solar generation and savings by location, season, panel placement and household base load, month by month across the year, compared against Ofgem's price cap and Octopus's Flexible tariff, with an equipment-cost payback estimate.">
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//www.ukgridlive.info/stat/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head>
+<body>
+<div class="preview-banner">BETA PREVIEW: UK Grid: Live+ is in testing. <a href="data-sources.html">See data sources →</a></div>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="site-head">
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="color:var(--accent)">
+        <path d="M24 7 38.7 15.5 38.7 32.5 24 41 9.3 32.5 9.3 15.5Z" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path d="M25 13 16 25h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/>
+        <circle class="brand__mark-pulse" cx="38.5" cy="9.5" r="7" fill="var(--accent)"/>
+        <path d="M35.3 9.5h6.4M38.5 6.3v6.4" stroke="var(--accent-contrast)" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <span class="brand__name">UK&nbsp;Grid: <em>Live+</em></span>
+      <span class="brand__tagline">Great Britain's electricity grid, live and over time</span>
+    </a>
+    <div class="header-controls">
+      <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span data-theme-label>Auto mode</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="site-nav" aria-label="Main">
+  <div class="wrap">
+    <ul id="site-nav-list" data-nav-list>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-ps-btn" aria-expanded="false" aria-controls="navgroup-ps" data-nav-group data-active="true">
+          Plug-in Solar
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-ps">
+          <li><a href="plugin-solar.html">What is plug-in solar</a></li>
+          <li><a href="plugin-solar-safety.html">Safety</a></li>
+          <li><a href="plugin-solar-battery.html">Battery power</a></li>
+          <li><a href="plugin-solar-considerations.html">Considerations</a></li>
+          <li><a href="plugin-solar-mounting.html">Mounting</a></li>
+          <li><a href="plugin-solar-registration.html">Registration</a></li>
+          <li><a href="plugin-solar-calculator.html" aria-current="page">Energy calculator</a></li>
+          <li><a href="plugin-solar-certification.html">Certification</a></li>
+        </ul>
+      </li>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-uk-btn" aria-expanded="false" aria-controls="navgroup-uk" data-nav-group>
+          Great Britain
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-uk">
+          <li><a href="../index.html">GB: Overview</a></li>
+          <li><a href="fossil-fuels.html">GB: Fossil fuels</a></li>
+          <li><a href="renewables.html">GB: Renewables</a></li>
+          <li><a href="nuclear-biomass.html">GB: Nuclear &amp; biomass</a></li>
+          <li><a href="interconnectors.html">GB: Interconnectors</a></li>
+          <li><a href="storage.html">GB: Storage</a></li>
+          <li><a href="history.html">GB: History</a></li>
+          <li><a href="electricity-prices.html">GB: Prices</a></li>
+          <li><a href="price-history.html">GB: Historic prices</a></li>
+          <li><a href="renewables-plans.html">2030 GB plans</a></li>
+        </ul>
+      </li>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-europe-btn" aria-expanded="false" aria-controls="navgroup-europe" data-nav-group>
+          Europe
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-europe">
+          <li><a href="ireland.html">Ireland</a></li>
+          <li><a href="france.html">France</a></li>
+          <li><a href="nl.html">Netherlands</a></li>
+          <li><a href="belgium.html">Belgium</a></li>
+          <li><a href="norway.html">Norway (NO2)</a></li>
+          <li><a href="denmark.html">Denmark (DK1)</a></li>
+          <li><a href="germany.html">Germany</a></li>
+          <li><a href="spain.html">Spain</a></li>
+          <li><a href="italy.html">Italy</a></li>
+          <li><a href="sweden.html">Sweden (SE3)</a></li>
+          <li><a href="portugal.html">Portugal</a></li>
+          <li><a href="poland.html">Poland</a></li>
+        </ul>
+      </li>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-americas-btn" aria-expanded="false" aria-controls="navgroup-americas" data-nav-group>
+          Americas
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-americas">
+          <li><a href="usa.html">USA</a></li>
+          <li><a href="canada.html">Canada</a></li>
+          <li><a href="south-america.html">South America</a></li>
+          <li><a href="americas-interconnects.html">Interconnections</a></li>
+        </ul>
+      </li>
+      <li><a href="australia.html">Australia</a></li>
+      <li><a href="comparisons.html">Comparisons</a></li>
+      <li><a href="data-sources.html">Sources</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
+      <span class="nav-toggle__icon" aria-hidden="true"></span>
+      <span class="visually-hidden" data-nav-toggle-label>Menu</span>
+    </button>
+  </div>
+</nav>
+</div>
+
+<main id="main">
+  <div class="wrap">
+
+    <section class="hero">
+      <div class="type-hero">
+        <span class="type-hero__swatch" style="background:var(--solar)"></span>
+        <h1>Energy calculator</h1>
+      </div>
+      <p>Estimate what a plug-in solar kit could generate and save you, month by month across the year, based on your location, the season, which way the panels face, your household's background power use, and what the kit costs. This is a modelling tool, not a quote - see the formula notes under each section for exactly what it does and doesn't account for.</p>
+      <nav class="ps-subnav" aria-label="Plug-in Solar section pages">
+        <a href="plugin-solar.html">What is it</a>
+        <a href="plugin-solar-safety.html">Safety</a>
+        <a href="plugin-solar-battery.html">Battery power</a>
+        <a href="plugin-solar-considerations.html">Considerations</a>
+        <a href="plugin-solar-mounting.html">Mounting</a>
+        <a href="plugin-solar-registration.html">Registration</a>
+        <a href="plugin-solar-calculator.html" aria-current="page">Energy calculator</a>
+        <a href="plugin-solar-certification.html">Certification</a>
+      </nav>
+    </section>
+
+    <section class="panel" aria-labelledby="calc-heading">
+      <h2 id="calc-heading">Your setup</h2>
+      <div class="compare-picker" style="align-items:flex-start;">
+        <label>Location
+          <select id="ps-city"></select>
+        </label>
+        <label>Panel capacity (W)
+          <input type="range" id="ps-panel-w" min="300" max="2000" step="10" value="800" style="width:160px;vertical-align:middle;">
+          <strong id="ps-panel-w-out" style="min-width:4.5em;display:inline-block;">800W</strong>
+        </label>
+        <label>Panel placement
+          <select id="ps-placement"></select>
+        </label>
+        <label>Household base load (W) - always-on draw
+          <input type="number" id="ps-baseload" min="0" max="1000" step="10" value="200">
+        </label>
+        <label>How much are you home in daylight hours?
+          <select id="ps-occupancy">
+            <option value="0.75">Home most of the day</option>
+            <option value="0.50" selected>Mixed - evenings and weekends</option>
+            <option value="0.35">Out most weekdays</option>
+          </select>
+        </label>
+        <label>Kit cost (£, if self-installing)
+          <input type="number" id="ps-cost" min="0" max="5000" step="10" value="600">
+        </label>
+      </div>
+      <p class="chart-caption">Base load is a rough always-on estimate (fridge-freezer, router, standby devices) pre-filled at a typical UK figure - edit it to match your own home if you know it (e.g. from a smart meter's overnight reading). Generation up to this level is assumed to be almost always used instantly; generation above it depends on whether someone's actually home and using extra power, which is what the occupancy setting above controls.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="results-heading">
+      <h2 id="results-heading">Estimated results</h2>
+      <dl class="status-grid" aria-label="Estimated plug-in solar savings" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat"><dt>Annual generation</dt><dd id="ps-out-generation">-</dd></div>
+        <div class="stat"><dt>Annual usable</dt><dd id="ps-out-usable">-</dd></div>
+        <div class="stat"><dt>Saving vs Ofgem cap</dt><dd id="ps-out-saving-ofgem">-</dd></div>
+        <div class="stat"><dt>Saving vs Octopus Flexible</dt><dd id="ps-out-saving-octopus">-</dd></div>
+      </dl>
+      <dl class="status-grid" aria-label="Payback" style="grid-template-columns:repeat(2,1fr);margin-top:.75rem;">
+        <div class="stat"><dt>Simple payback (Ofgem cap)</dt><dd id="ps-out-payback-ofgem">-</dd></div>
+        <div class="stat"><dt>Simple payback (Octopus Flexible)</dt><dd id="ps-out-payback-octopus">-</dd></div>
+      </dl>
+
+      <div class="chart-wrap" style="height:240px;margin-top:1rem;"><canvas id="ps-monthly-chart" role="img" aria-label="Estimated monthly generation and usable generation"></canvas></div>
+      <p class="chart-caption">Bars show estimated generation each month; the darker portion is the share estimated as actually usable (self-consumed) rather than lost.</p>
+
+      <table style="width:100%;border-collapse:collapse;margin-top:1rem;font-size:.85rem;" id="ps-monthly-table">
+        <thead><tr><th style="text-align:left;padding:.35rem;">Month</th><th style="text-align:right;padding:.35rem;">Generation (kWh)</th><th style="text-align:right;padding:.35rem;">Usable (kWh)</th><th style="text-align:right;padding:.35rem;">Saving vs Ofgem cap</th></tr></thead>
+        <tbody id="ps-monthly-tbody"></tbody>
+      </table>
+      <p class="download-row">
+        <button type="button" class="copy-btn" data-csv-table="ps-monthly-table" data-csv-title="plugin-solar-monthly-estimate">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span data-copy-label aria-live="polite">Download CSV</span>
+        </button>
+      </p>
+
+      <p class="chart-caption" id="ps-formula-note">How this is calculated: panel capacity is capped at the 800W/800VA inverter limit, with capacity above that derated to 45% (representing the extra low/medium-irradiance capture an oversized array gets - see the worked explanation on <a href="plugin-solar-considerations.html">Considerations</a>), then multiplied by your location's month-by-month solar irradiance (kWh/m²/day) and an industry-standard 0.80 performance ratio, then by your panel placement factor. The usable share splits generation into "up to your base load" (assumed ~95% self-consumed, since something is almost always drawing that much) and "above your base load" (only counted as used at the rate set by your daylight-occupancy answer). Savings are shown against both Ofgem's Great Britain-average price cap and Octopus Energy's Flexible tariff, since actual unit rates vary by supplier and region. This does not model shading, an export tariff, a battery, or your own home's actual tariff.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="sun-heading">
+      <h2 id="sun-heading">Sun hours at this location</h2>
+      <div class="ps-sunbar-wrap">
+        <div class="ps-sunbar" id="ps-sunbar" aria-hidden="true"></div>
+        <div class="ps-sunbar-labels"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
+      </div>
+      <p class="chart-caption" id="ps-sun-caption">Monthly average solar irradiance (kWh/m²/day, "peak sun hours") for the selected location.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="oversize-note-heading">
+      <h2 id="oversize-note-heading">Why a bigger panel can be worth it even though output is capped</h2>
+      <p>The inverter never passes more than 800W into your home, no matter how many watts of panel you connect - but a bigger array reaches that 800W ceiling in weaker light, holding it for longer through the morning, evening, and cloudier days, rather than only briefly around solar noon on a clear day. That's why the calculator still shows higher generation as you move the panel-capacity slider up, even past 800W. See <a href="plugin-solar-considerations.html">Considerations</a> for the full worked-example table.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="placement-note-heading">
+      <h2 id="placement-note-heading">About the placement options</h2>
+      <p>"South-facing, tilted" is the best-case baseline this calculator's location data already assumes. Every other placement - vertical mounting, east/west, north, and the two indoor/behind-glass options - is a multiplier below that baseline. The two window options include an estimated glass-transmission loss on top of the orientation loss; see <a href="plugin-solar-considerations.html">Considerations</a> for the full explanation, the research this is based on, and why indoor placement isn't really what a registered 800W kit is designed for in the first place.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="ps-sources-heading">
+      <h2 id="ps-sources-heading">Sources</h2>
+      <ul style="font-size:.9rem;color:var(--text-muted);">
+        <li><a href="https://sunhours.app/uk-solar-hours-by-region">sunhours.app: UK solar hours by region</a> - the monthly irradiance dataset behind this calculator (20-year, 2001-2020 satellite climatology).</li>
+        <li><a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges">Ofgem: Energy price cap unit rates and standing charges</a> - the Ofgem comparison price.</li>
+        <li><a href="https://octopus.energy/smart/flexible-octopus/">Octopus Energy: Flexible Octopus tariff</a> and <a href="https://developer.octopus.energy/">Octopus Energy developer API</a> - the Octopus comparison price. Octopus's product/rates API (api.octopus.energy) is genuinely public and keyless; this page currently uses a manually checked, dated snapshot of the Flexible Octopus unit rate rather than a live per-visit fetch - see the CHANGELOG for this release for why, and <a href="https://www.octopus.energy/">octopus.energy</a> for your own region's actual current rate.</li>
+        <li><a href="https://www.sunsave.energy/solar-panels-advice/system-size/output">Sunsave: How much electricity do solar panels produce?</a> - UK regional yield cross-reference.</li>
+      </ul>
+      <p style="font-size:.85rem;color:var(--text-muted);">This is a modelling tool, not a quote or financial advice. Real generation depends on shading, weather variability year to year, and your exact panel/inverter model; real savings depend on your own tariff, which may not match either comparison price shown.</p>
+    </section>
+
+    <section class="ps-gov-links panel" aria-labelledby="gov-links-heading">
+      <h3 id="gov-links-heading">Government &amp; official sources</h3>
+      <ul>
+        <li><span class="crown">🇬🇧</span><a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges">Ofgem: Energy price cap unit rates and standing charges</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a></li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="footer-attribution">The data comes from the <a href="https://bmrs.elexon.co.uk/">Elexon Insights Solution</a>, the <a href="https://www.neso.energy/data-portal">National Energy System Operator Data Portal</a>, and the <a href="https://carbonintensity.org.uk/">Carbon Intensity API</a> (a project by the National Energy System Operator and the University Of Oxford Department Of Computer Science). <a href="https://www.elexon.co.uk/data/balancing-mechanism-reporting-agent/copyright-licence-bmrs-data/">Elexon's licence</a> requires the following statement: Contains BMRS data © Elexon Limited copyright and database right 2026.</p>
+    <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with HM Government, Ofgem, the ENA or any retailer named above</span></p>
+  </div>
+</footer>
+
+<script src="../assets/plugin-solar-data.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var DATA = window.UKGL_PLUGIN_SOLAR;
+  if (!DATA) { return; }
+
+  var citySelect = document.getElementById("ps-city");
+  var placementSelect = document.getElementById("ps-placement");
+  var panelInput = document.getElementById("ps-panel-w");
+  var panelOut = document.getElementById("ps-panel-w-out");
+  var baseloadInput = document.getElementById("ps-baseload");
+  var occupancySelect = document.getElementById("ps-occupancy");
+  var costInput = document.getElementById("ps-cost");
+
+  var genOut = document.getElementById("ps-out-generation");
+  var usableOut = document.getElementById("ps-out-usable");
+  var savingOfgemOut = document.getElementById("ps-out-saving-ofgem");
+  var savingOctopusOut = document.getElementById("ps-out-saving-octopus");
+  var paybackOfgemOut = document.getElementById("ps-out-payback-ofgem");
+  var paybackOctopusOut = document.getElementById("ps-out-payback-octopus");
+  var tbody = document.getElementById("ps-monthly-tbody");
+  var sunbarWrap = document.getElementById("ps-sunbar");
+  var sunCaption = document.getElementById("ps-sun-caption");
+
+  // Populate the location and placement dropdowns from the shared dataset.
+  DATA.CITIES.forEach(function (c) {
+    var opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.label;
+    if (c.id === "london") { opt.selected = true; }
+    citySelect.appendChild(opt);
+  });
+  DATA.PLACEMENT_FACTORS.forEach(function (p) {
+    var opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = p.label;
+    if (p.id === "south_vert") { opt.selected = true; }
+    placementSelect.appendChild(opt);
+  });
+  baseloadInput.value = DATA.BASE_LOAD_DEFAULT_W;
+
+  var chartInstanceDrawn = false;
+
+  function formatPayback(cost, annualSaving) {
+    if (!(annualSaving > 0) || !(cost > 0)) { return "-"; }
+    var years = cost / annualSaving;
+    return years < 100 ? years.toFixed(1) + " years" : "50+ years";
+  }
+
+  function calculate() {
+    var panelW = parseFloat(panelInput.value) || 0;
+    panelOut.textContent = panelW + "W";
+    var cityId = citySelect.value;
+    var placementId = placementSelect.value;
+    var baseLoadW = parseFloat(baseloadInput.value) || 0;
+    var occupancyFactor = parseFloat(occupancySelect.value) || 0.5;
+    var cost = parseFloat(costInput.value) || 0;
+
+    var months = DATA.computeMonthly(panelW, cityId, placementId, baseLoadW, occupancyFactor);
+
+    var annualGenKwh = 0, annualUsableKwh = 0;
+    months.forEach(function (m) { annualGenKwh += m.generationKwh; annualUsableKwh += m.usableKwh; });
+
+    var savingOfgem = annualUsableKwh * DATA.PRICES.ofgem_cap_gbp_per_kwh;
+    var savingOctopus = annualUsableKwh * DATA.PRICES.octopus_flexible_gbp_per_kwh;
+
+    genOut.textContent = annualGenKwh.toFixed(0) + " kWh/yr";
+    usableOut.textContent = annualUsableKwh.toFixed(0) + " kWh/yr";
+    savingOfgemOut.textContent = "£" + savingOfgem.toFixed(0) + "/yr";
+    savingOctopusOut.textContent = "£" + savingOctopus.toFixed(0) + "/yr";
+    paybackOfgemOut.textContent = formatPayback(cost, savingOfgem);
+    paybackOctopusOut.textContent = formatPayback(cost, savingOctopus);
+
+    // Monthly table
+    tbody.innerHTML = "";
+    months.forEach(function (m) {
+      var tr = document.createElement("tr");
+      var monthSaving = m.usableKwh * DATA.PRICES.ofgem_cap_gbp_per_kwh;
+      tr.innerHTML =
+        '<td style="padding:.35rem;border-top:1px solid var(--border);">' + m.label + '</td>' +
+        '<td style="padding:.35rem;border-top:1px solid var(--border);text-align:right;">' + m.generationKwh.toFixed(1) + '</td>' +
+        '<td style="padding:.35rem;border-top:1px solid var(--border);text-align:right;">' + m.usableKwh.toFixed(1) + '</td>' +
+        '<td style="padding:.35rem;border-top:1px solid var(--border);text-align:right;">£' + monthSaving.toFixed(2) + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Monthly bar chart via the site's shared chart helper, if available.
+    var canvas = document.getElementById("ps-monthly-chart");
+    if (canvas && window.GridPreview && typeof window.GridPreview.renderBarChart === "function") {
+      window.GridPreview.renderBarChart(
+        canvas,
+        months.map(function (m) { return m.label; }),
+        months.map(function (m) { return m.generationKwh; }),
+        "#e0a800",
+        { unit: "kWh", horizontal: false }
+      );
+    }
+
+    // Sun-hours strip for the selected city
+    var city = DATA.getCity(cityId);
+    var profile = null;
+    // Recover the raw monthly irradiance profile for the sunbar (kept
+    // separate from computeMonthly's derived kWh output on purpose, so the
+    // strip always shows the underlying climate data, not the user's own
+    // panel/placement choices).
+    var profiles = {
+      cornwall:[0.82,1.61,2.80,4.47,5.43,5.81,5.36,4.56,3.47,1.96,1.04,0.65],
+      south_coast:[0.85,1.59,2.87,4.58,5.53,6.00,5.79,4.80,3.57,1.98,1.03,0.67],
+      london:[0.84,1.51,2.64,4.04,4.87,5.30,5.09,4.19,3.23,1.85,0.99,0.66],
+      bristol_sw:[0.80,1.49,2.66,4.11,5.02,5.32,5.04,4.16,3.22,1.81,0.96,0.62],
+      east_anglia:[0.75,1.45,2.62,4.10,4.93,5.16,4.99,4.19,3.18,1.81,0.92,0.60],
+      midlands:[0.77,1.48,2.60,3.98,4.91,5.13,4.99,4.11,3.12,1.78,0.95,0.63],
+      nw_england:[0.64,1.33,2.52,3.93,4.90,5.05,4.81,4.01,2.89,1.60,0.79,0.49],
+      yorkshire:[0.68,1.37,2.47,3.83,4.77,4.84,4.77,3.92,2.94,1.66,0.84,0.54],
+      ne_england:[0.62,1.26,2.37,3.74,4.73,4.73,4.62,3.78,2.81,1.53,0.76,0.46],
+      edinburgh:[0.55,1.20,2.25,3.66,4.70,4.57,4.40,3.65,2.64,1.46,0.71,0.40],
+      glasgow:[0.50,1.19,2.32,3.77,4.77,4.75,4.49,3.67,2.60,1.42,0.67,0.37],
+      aberdeen:[0.44,1.10,2.15,3.59,4.63,4.53,4.43,3.52,2.51,1.34,0.58,0.30],
+      highlands:[0.38,0.98,2.01,3.43,4.46,4.35,4.10,3.33,2.36,1.26,0.53,0.26]
+    };
+    profile = profiles[city.profile] || profiles.london;
+    sunbarWrap.innerHTML = "";
+    var maxIrr = Math.max.apply(null, profile);
+    profile.forEach(function (v, i) {
+      var bar = document.createElement("div");
+      bar.style.height = Math.max(4, (v / maxIrr) * 100) + "%";
+      bar.style.animationDelay = (i * 0.04) + "s";
+      bar.title = v.toFixed(2) + " kWh/m²/day";
+      sunbarWrap.appendChild(bar);
+    });
+    sunCaption.textContent = "Monthly average solar irradiance for " + city.label.replace(" (estimated - see note)", "") +
+      (city.estimated ? " - estimated using Newcastle upon Tyne's climate data as the nearest latitude match; Northern Ireland isn't covered by the underlying dataset." : "") +
+      " (kWh/m²/day, 20-year satellite average). Source checked " + DATA.PRICES.checked_date + ".";
+  }
+
+  [citySelect, placementSelect, panelInput, baseloadInput, occupancySelect, costInput].forEach(function (el) {
+    el.addEventListener("input", calculate);
+    el.addEventListener("change", calculate);
+  });
+  calculate();
+})();
+</script>
+</body>
+</html>

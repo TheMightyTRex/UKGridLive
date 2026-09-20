@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>About - UK Grid: Live+</title>
-<meta name="description" content="What UK Grid: Live+ is, full credit to Kate Morley's original National Grid: Live, and why the figures on the two sites don't always match.">
+<title>Plug-in solar certification - UK Grid: Live+</title>
+<meta name="description" content="How to check a plug-in solar kit is genuinely compliant: the ENA Type Test Register, how this differs from full MCS certification, and what CE/UKCA marking actually means.">
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/style.css">
 <!-- Matomo -->
 <script>
@@ -57,7 +57,7 @@
   <div class="wrap">
     <ul id="site-nav-list" data-nav-list>
       <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-ps-btn" aria-expanded="false" aria-controls="navgroup-ps" data-nav-group>
+        <button type="button" class="nav-group__toggle" id="navgroup-ps-btn" aria-expanded="false" aria-controls="navgroup-ps" data-nav-group data-active="true">
           Plug-in Solar
           <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -69,7 +69,7 @@
           <li><a href="plugin-solar-mounting.html">Mounting</a></li>
           <li><a href="plugin-solar-registration.html">Registration</a></li>
           <li><a href="plugin-solar-calculator.html">Energy calculator</a></li>
-          <li><a href="plugin-solar-certification.html">Certification</a></li>
+          <li><a href="plugin-solar-certification.html" aria-current="page">Certification</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -125,7 +125,7 @@
       <li><a href="australia.html">Australia</a></li>
       <li><a href="comparisons.html">Comparisons</a></li>
       <li><a href="data-sources.html">Sources</a></li>
-      <li><a href="about.html" aria-current="page">About</a></li>
+      <li><a href="about.html">About</a></li>
     </ul>
     <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
       <span class="nav-toggle__icon" aria-hidden="true"></span>
@@ -139,37 +139,60 @@
   <div class="wrap">
 
     <section class="hero">
-      <h1>About UK Grid: Live+</h1>
-      <p class="credit-line" style="display:block;font-size:.95rem;margin-bottom:.5rem;">A redesign based on <a href="https://iamkate.com/">Kate&nbsp;Morley</a>'s <a href="https://github.com/KateMorley/grid">National Grid: Live</a></p>
-      <p>UK Grid: Live+ takes the concept and data pipeline design of Kate Morley's <a href="https://grid.iamkate.com/">National Grid: Live</a> and rebuilds it with dark mode, longer historical ranges, dedicated pages per energy type, live-wired pages for over a dozen other countries, and a cross-country comparisons tool. It's not affiliated with National Grid plc, NESO, Elexon, EirGrid, or Kate Morley herself.</p>
+      <div class="type-hero">
+        <span class="type-hero__swatch" style="background:var(--solar)"></span>
+        <h1>Certification</h1>
+      </div>
+      <p>"Legal to sell" and "actually compliant with the technical specification" are two different things - the market is brand new, and not every product a retailer lists will necessarily be on the official compliant list. This page explains how to check, and how the plug-in scheme's lighter-touch compliance route differs from full rooftop-solar MCS certification.</p>
+      <nav class="ps-subnav" aria-label="Plug-in Solar section pages">
+        <a href="plugin-solar.html">What is it</a>
+        <a href="plugin-solar-safety.html">Safety</a>
+        <a href="plugin-solar-battery.html">Battery power</a>
+        <a href="plugin-solar-considerations.html">Considerations</a>
+        <a href="plugin-solar-mounting.html">Mounting</a>
+        <a href="plugin-solar-registration.html">Registration</a>
+        <a href="plugin-solar-calculator.html">Energy calculator</a>
+        <a href="plugin-solar-certification.html" aria-current="page">Certification</a>
+      </nav>
     </section>
 
-    <section class="panel" aria-labelledby="source-heading">
-      <h2 id="source-heading">Source code</h2>
-      <p>UK Grid: Live+'s source is public on GitHub at <a href="https://github.com/TheMightyTRex/UKGridLive">github.com/TheMightyTRex/UKGridLive</a> - the frontend, the PHP/MySQL ingestion pipeline, and the deployment guide. There's no separate open-source licence attached to the repository; the only redistribution terms that apply are the ones the data APIs themselves require, such as Elexon's BMRS attribution statement in the footer below (see the <a href="data-sources.html">Sources page</a> for each API's own terms).</p>
-      <p>One source is a step stricter than the rest: the <a href="australia.html">Australia (NEM) page</a>'s grid data comes from the <a href="https://openelectricity.org.au/">Open Electricity API</a> (formerly OpenNEM), whose data is licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> - non-commercial use only, with attribution - rather than the unrestricted or attribution-only terms every other source on this site is used under. See <a href="data-sources.html">the Sources page</a> for the full breakdown of every source and its own terms.</p>
+    <section class="panel" aria-labelledby="register-heading">
+      <h2 id="register-heading">The ENA Type Test Register</h2>
+      <p>Manufacturers submit their plug-in solar products for testing against the DESNZ Interim Product Specification, and compliant models are listed on the Energy Networks Association's Type Test Register. As of this page's last check, that register listed a mix of compliant and non-compliant devices submitted by manufacturers - don't assume a product is compliant just because a retailer markets it as "plug-in solar" or "balcony solar." Always check the specific model against the <a href="https://www.pluginsolarregister.co.uk/">Plug-In Solar Register</a> (an independent tracker of the live ENA register) before buying.</p>
     </section>
 
-    <section class="panel" aria-labelledby="kate-heading">
-      <h2 id="kate-heading">Credit to Kate Morley</h2>
-      <p>UK Grid: Live+ is a redesign built on the concept, data pipeline design, and public-domain groundwork of <strong>National Grid: Live</strong> at <a href="https://grid.iamkate.com/">grid.iamkate.com</a>, created by <a href="https://iamkate.com/">Kate Morley</a>. The original source code is published on <a href="https://github.com/KateMorley/grid">GitHub</a> under the CC0 1.0 Universal licence, meaning Kate has waived copyright to the extent possible under law.</p>
-      <p>This project reuses her choice of data sources and much of the original site's spirit - a concise, accessible, public-facing view of the grid - while adding the features above. If you find this kind of tool useful, consider supporting Kate directly via <a href="https://ko-fi.com/katemorley">Ko-fi</a>, since she covers the hosting costs of the original, far more popular, site.</p>
+    <section class="panel" aria-labelledby="mcs-heading">
+      <h2 id="mcs-heading">How this differs from MCS certification</h2>
+      <p>The Microgeneration Certification Scheme (MCS) is the established UK quality standard for <em>professionally installed</em> renewable energy systems - full rooftop solar PV, heat pumps, and similar. It certifies both the product and the installer, and it's a hard requirement if you want to claim payments under the Smart Export Guarantee (SEG), and often a requirement from mortgage lenders and insurers for larger fixed installations.</p>
+      <p>Plug-in solar deliberately uses a lighter route instead, because there's no installer (you fit it yourself) and no export payment to protect: manufacturer self-declaration against the Interim Product Specification, a listing on the ENA's Type Test Register, and your own registration via myplugin.solar (see <a href="plugin-solar-registration.html">Registration</a>). If you later upgrade to a full rooftop system, that's a different, MCS-governed process entirely - the two schemes don't overlap.</p>
     </section>
 
-    <section class="panel" id="why-differ" aria-labelledby="why-differ-heading">
-      <h2 id="why-differ-heading">Why the numbers differ from grid.iamkate.com</h2>
-      <p>Both sites pull from the same three public GB data feeds - the Elexon Insights Solution, the National Energy System Operator's Data Portal, and the Carbon Intensity API - so most figures should be close. But a few, especially the headline demand figure, can be some way off. Here's why.</p>
+    <section class="panel" aria-labelledby="marks-heading">
+      <h2 id="marks-heading">CE and UKCA marking</h2>
+      <p>Separately from the solar-specific compliance route above, the inverter and panels should carry general product safety marking - UKCA (UK Conformity Assessed) for products placed on the market in Great Britain, and/or CE marking, which remains widely accepted in practice. These marks indicate the manufacturer's declaration against general electrical/electromagnetic safety standards, not the plug-in-solar-specific rules - you need both the general marking AND the Type Test Register listing, not one or the other.</p>
+    </section>
 
-      <h3 style="font-size:1rem;">Demand is calculated differently</h3>
-      <p>grid.iamkate.com doesn't fetch a published demand statistic at all. Its "Demand" figure is calculated in code as <strong>total generation plus net interconnector imports</strong> - an energy-balance figure derived from the same generation data it displays elsewhere on the page. UK Grid: Live+ instead fetches Elexon's own separately-published <strong>Transmission System Demand Outturn</strong> figure directly from the Insights Solution's <code>/demand/outturn</code> endpoint. These are two genuinely different quantities, built from different accounting methods, so they can diverge by a noticeable margin - occasionally a few gigawatts - even when both sites are otherwise in sync. Neither figure is "wrong"; they're just answering a slightly different question.</p>
+    <section class="panel" aria-labelledby="interim-heading">
+      <h2 id="interim-heading">What "Interim" means</h2>
+      <p>DESNZ has deliberately badged its technical document the "Interim Product Specification" (currently v2.0, July 2026) while a longer-term, fuller British or European standard for this product category is developed. That means the detail can still change - always check GOV.UK for the current version rather than assuming this page's summary of it stays accurate indefinitely.</p>
+    </section>
 
-      <h3 style="font-size:1rem;">Different refresh timing</h3>
-      <p>grid.iamkate.com's own update script runs on a five-minute schedule. UK Grid: Live+ refreshes on demand - the first visitor after a source's data goes stale triggers a fresh pull, which in practice lands somewhere in the 15-30 minute range. Comparing the two sites at any single moment can catch them mid-way through different update cycles, especially for fast-moving figures like price and generation mix.</p>
+    <section class="panel" aria-labelledby="ps-sources-heading">
+      <h2 id="ps-sources-heading">Sources</h2>
+      <ul style="font-size:.9rem;color:var(--text-muted);">
+        <li><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ, July 2026).</li>
+        <li><a href="https://www.pluginsolarregister.co.uk/">Plug-In Solar Register</a> - independent tracker of the ENA's live Type Test Register.</li>
+        <li><a href="https://mcscertified.com/">MCS (Microgeneration Certification Scheme)</a> - for comparison with full rooftop solar certification.</li>
+      </ul>
+    </section>
 
-      <h3 style="font-size:1rem;">What matches closely</h3>
-      <p>Generation by fuel type, wholesale price, and carbon intensity use the same underlying sources and broadly the same methodology on both sites, including folding in embedded solar and wind from NESO's data portal and excluding battery storage output from the generation total to avoid double-counting. Small gaps here are almost always down to the refresh-timing difference above, or to NESO retrospectively revising an estimate after publication, rather than a difference in how the number is calculated.</p>
-
-      <p><a href="data-sources.html">See the full sources &amp; methodology page →</a></p>
+    <section class="ps-gov-links panel" aria-labelledby="gov-links-heading">
+      <h3 id="gov-links-heading">Government &amp; official sources</h3>
+      <ul>
+        <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/guidance/using-the-ukca-marking">GOV.UK: Using the UKCA marking</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.ofgem.gov.uk/environmental-and-social-schemes/smart-export-guarantee-seg">Ofgem: Smart Export Guarantee (SEG)</a> - for comparison with full rooftop-solar certification/export</li>
+      </ul>
     </section>
 
   </div>
@@ -178,8 +201,7 @@
 <footer class="site-footer">
   <div class="wrap">
     <p class="footer-attribution">The data comes from the <a href="https://bmrs.elexon.co.uk/">Elexon Insights Solution</a>, the <a href="https://www.neso.energy/data-portal">National Energy System Operator Data Portal</a>, and the <a href="https://carbonintensity.org.uk/">Carbon Intensity API</a> (a project by the National Energy System Operator and the University Of Oxford Department Of Computer Science). <a href="https://www.elexon.co.uk/data/balancing-mechanism-reporting-agent/copyright-licence-bmrs-data/">Elexon's licence</a> requires the following statement: Contains BMRS data © Elexon Limited copyright and database right 2026.</p>
-    <p class="footer-attribution" style="margin-top:.75rem;">The <a href="australia.html">Australia (NEM) page</a>'s grid data comes from the <a href="https://openelectricity.org.au/">Open Electricity API</a>, used under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> (non-commercial, with attribution) - the one source on this site with a use restriction beyond simple attribution.</p>
-    <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with National Grid plc</span></p>
+    <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with HM Government, Ofgem, the ENA or any retailer named above</span></p>
   </div>
 </footer>
 
