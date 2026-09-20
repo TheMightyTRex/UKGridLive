@@ -1748,6 +1748,36 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
 .ps-sunbar-labels { display: flex; gap: 3px; margin-top: .3rem; }
 .ps-sunbar-labels span { flex: 1; text-align: center; font-size: .68rem; color: var(--text-muted); }
 
+/* Results period tabs (Annual / Month / Day) on the Energy calculator. */
+.ps-tabs {
+  display: flex;
+  gap: .4rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.ps-tab-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--text-muted);
+  padding: .6rem .9rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s ease, border-color .15s ease;
+}
+.ps-tab-btn:hover { color: var(--text); }
+.ps-tab-btn[aria-selected="true"] {
+  color: var(--solar);
+  border-bottom-color: var(--solar);
+}
+.ps-tab-panel[hidden] { display: none; }
+.ps-tab-panel { animation: fadeIn .25s ease both; }
+
 @media (max-width: 640px) {
   .ps-subnav { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
   .ps-hero-graphic svg { width: 120px; }

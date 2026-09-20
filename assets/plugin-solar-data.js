@@ -140,6 +140,85 @@
     return PLACEMENT_FACTORS[0];
   }
 
+  function getProfile(cityId) {
+    var city = getCity(cityId);
+    return PROFILES[city.profile] || PROFILES.london;
+  }
+
+  // Meteorological seasons (not astronomical), each mapped to its three
+  // month indices (0 = Jan). A season's "representative day" uses the
+  // average irradiance across its three months.
+  var SEASONS = [
+    { id: "spring", label: "Spring (Mar-May)", months: [2, 3, 4] },
+    { id: "summer", label: "Summer (Jun-Aug)", months: [5, 6, 7] },
+    { id: "autumn", label: "Autumn (Sep-Nov)", months: [8, 9, 10] },
+    { id: "winter", label: "Winter (Dec-Feb)", months: [11, 0, 1] }
+  ];
+
+  // Illustrative day-to-day weather multipliers applied on top of a
+  // season's average irradiance, to show how much a single day can swing
+  // above/below the seasonal norm. These are NOT derived from a specific
+  // measured weather dataset - there's no citable UK source breaking
+  // solar irradiance down by named weather condition - so they're an
+  // illustrative estimate only, clearly labelled as such wherever shown,
+  // consistent with this site's practice of disclosing assumptions rather
+  // than presenting them as measured fact.
+  var WEATHER_CONDITIONS = [
+    { id: "sunny", label: "Sunny / clear sky", factor: 1.60 },
+    { id: "cloudy", label: "Cloudy (broken cloud)", factor: 1.00 },
+    { id: "overcast", label: "Overcast", factor: 0.55 },
+    { id: "wet", label: "Wet / rain", factor: 0.35 },
+    { id: "stormy", label: "Stormy / heavy rain", factor: 0.15 }
+  ];
+
+  function getSeason(id) {
+    var i;
+    for (i = 0; i < SEASONS.length; i++) {
+      if (SEASONS[i].id === id) { return SEASONS[i]; }
+    }
+    return SEASONS[0];
+  }
+
+  function getWeather(id) {
+    var i;
+    for (i = 0; i < WEATHER_CONDITIONS.length; i++) {
+      if (WEATHER_CONDITIONS[i].id === id) { return WEATHER_CONDITIONS[i]; }
+    }
+    return WEATHER_CONDITIONS[1];
+  }
+
+  /**
+   * Single-day model for the calculator's "Day" tab. Takes the same
+   * panel/placement/base-load/occupancy inputs as computeMonthly, plus a
+   * season and a named weather condition, and returns one day's
+   * {generationKwh, usableKwh, irradiance, weatherFactor}.
+   */
+  function computeDay(panelW, cityId, placementId, baseLoadW, occupancyFactor, seasonId, weatherId) {
+    var profile = getProfile(cityId);
+    var season = getSeason(seasonId);
+    var weather = getWeather(weatherId);
+    var placement = getPlacement(placementId);
+
+    var seasonalIrradiance = (profile[season.months[0]] + profile[season.months[1]] + profile[season.months[2]]) / 3;
+    var dayIrradiance = seasonalIrradiance * weather.factor;
+
+    var clippedKw = (Math.min(panelW, 2000, 800) + Math.max(0, Math.min(panelW, 2000) - 800) * 0.45) / 1000;
+    var generationKwh = clippedKw * dayIrradiance * PERFORMANCE_RATIO * placement.factor;
+
+    var baseLoadKwhPerDay = (baseLoadW || 0) * 24 / 1000;
+    var belowBaseload = Math.min(generationKwh, baseLoadKwhPerDay);
+    var aboveBaseload = Math.max(0, generationKwh - baseLoadKwhPerDay);
+    var usableKwh = (belowBaseload * 0.95) + (aboveBaseload * (occupancyFactor != null ? occupancyFactor : 0.5));
+
+    return {
+      generationKwh: generationKwh,
+      usableKwh: usableKwh,
+      irradiance: dayIrradiance,
+      seasonalIrradiance: seasonalIrradiance,
+      weatherFactor: weather.factor
+    };
+  }
+
   /**
    * Core monthly-generation model.
    * panelW: nameplate DC panel capacity in watts (before the 800W inverter cap)
@@ -200,11 +279,17 @@
     MONTH_LABELS: MONTH_LABELS,
     CITIES: CITIES,
     PLACEMENT_FACTORS: PLACEMENT_FACTORS,
+    SEASONS: SEASONS,
+    WEATHER_CONDITIONS: WEATHER_CONDITIONS,
     PRICES: PRICES,
     BASE_LOAD_DEFAULT_W: BASE_LOAD_DEFAULT_W,
     PERFORMANCE_RATIO: PERFORMANCE_RATIO,
     getCity: getCity,
     getPlacement: getPlacement,
-    computeMonthly: computeMonthly
+    getProfile: getProfile,
+    getSeason: getSeason,
+    getWeather: getWeather,
+    computeMonthly: computeMonthly,
+    computeDay: computeDay
   };
 })(window);
