@@ -136,6 +136,18 @@ return [
     'openelectricity_api_key' => 'CHANGE-ME',
     'openelectricity_base'    => 'https://api.openelectricity.org.au/v4',
 
+    // Powers the new "SEM imbalance price" figure on pages/ireland.html -
+    // the all-island (ROI + NI) Single Electricity Market's real,
+    // 5-minute, ex-post settlement price, alongside (not replacing)
+    // EirGrid's demand/generation/wind figures and ENTSO-E's day-ahead
+    // price already used there. See includes/ingest.php's
+    // ukgrid_ingest_semo() and cron/fetch_semo.php. Genuinely keyless and
+    // free, unlike eia_api_key/openelectricity_api_key above - no
+    // registration of any kind needed, so there's nothing to fill in
+    // below unless SEMO ever changes these URLs.
+    'semo_reports_api_base'  => 'https://reports.sem-o.com/api/v1/documents/static-reports',
+    'semo_resource_base'     => 'https://reports.sem-o.com/documents',
+
     // Powers the "Wind speed & cloud cover" card on the History page.
     // Open-Meteo is free and keyless - nothing to fill in. weather_lat/lon
     // default to a point in central England as a single representative GB
@@ -204,7 +216,13 @@ return [
     // longer interval would produce. 15 minutes for OPENELECTRICITY is
     // close to AEMO's own 5-minute dispatch cadence without refreshing on
     // nearly every page load - unlike ENTSOE there's only ever one NEM
-    // market to check, no per-country rotation needed.
+    // market to check, no per-country rotation needed. 15 minutes for SEMO
+    // matches OPENELECTRICITY's reasoning even though SEMO's own imbalance
+    // price updates every 5 minutes - ukgrid_ingest_semo() always fetches
+    // a full hour's overlap regardless of how often it's called, so 15
+    // minutes keeps pages/ireland.html's SEM imbalance price close to
+    // current without an on-demand refresh doing that fetch on nearly
+    // every page load.
     // WEATHER (Open-Meteo) and CONSTRAINTS (NESO's constraint-breakdown
     // dataset) are both included here so their pages' panels work with
     // zero cron access, same as everything else in this list. 60 minutes
@@ -225,6 +243,7 @@ return [
       'IESO' => 30,
       'ENTSOE' => 20,
       'OPENELECTRICITY' => 15,
+      'SEMO' => 15,
       'WEATHER' => 60,
       'CONSTRAINTS' => 1440,
       'NOTABLE_MOMENTS' => 1440,
@@ -256,6 +275,7 @@ return [
       'IESO' => 7, // per-request, not total - ukgrid_ingest_ieso() makes two sequential calls (~14s worst case)
       'ENTSOE' => 6,
       'OPENELECTRICITY' => 8, // per-request, not total - ukgrid_ingest_openelectricity() makes two sequential calls
+      'SEMO' => 6, // per-request, not total - ukgrid_ingest_semo() makes one list call plus up to 12 small XML-file fetches
       'WEATHER' => 8,
       'CONSTRAINTS' => 10, // two sequential CKAN calls (resolve resource, then fetch it) - same shape as NESO above
       'NOTABLE_MOMENTS' => 12, // a handful of MAX()/MIN() queries against this site's own tables, no external call
@@ -296,4 +316,11 @@ return [
   // above; it mainly exists to catch ingestion actually breaking rather
   // than a normal source-side lag.
   'australia_staleness_minutes' => 30,
+
+  // Same idea again, for pages/ireland.html's SEM imbalance price (SEMO -
+  // see api/ireland_current.php and includes/ingest.php's
+  // ukgrid_ingest_semo()). SEMO publishes a new imbalance price roughly
+  // every 5 minutes, published ex-post - close to Australia's own pace, so
+  // this reuses the same tight threshold.
+  'semo_staleness_minutes' => 30,
 ];

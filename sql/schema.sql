@@ -126,6 +126,25 @@ CREATE TABLE IF NOT EXISTS readings_ie_co2 (
   KEY idx_ts (ts)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- SEMO (Single Electricity Market Operator) - the all-island (ROI + NI)
+-- Imbalance Price / System Marginal Price, at 5-minute settlement-period
+-- granularity, ex-post. Genuinely new alongside readings_ie_demand/
+-- readings_ie_generation/readings_ie_co2 (EirGrid) and Ireland's ENTSO-E
+-- day-ahead price: this is real-time settlement pricing, not a forecast or
+-- day-ahead figure. See includes/ingest.php's ukgrid_ingest_semo().
+CREATE TABLE IF NOT EXISTS readings_ie_semo_imbalance (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ts DATETIME NOT NULL COMMENT 'UTC - settlement period start',
+  imbalance_price_eur_mwh DECIMAL(9,2) NOT NULL,
+  net_imbalance_volume_mwh DECIMAL(9,3) DEFAULT NULL,
+  total_unit_availability_mw DECIMAL(9,2) DEFAULT NULL,
+  operating_reserve_requirement_mw DECIMAL(9,2) DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_ts (ts),
+  KEY idx_ts (ts)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ---------------------------------------------------------------------------
 -- USA (EIA-930, lower-48 aggregate - respondent "US48"). Source: the EIA
 -- API v2 (api.eia.gov) - free, but requires an API key, unlike every other

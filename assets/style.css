@@ -960,6 +960,18 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   margin: .35rem 0;
   font-variant-numeric: tabular-nums;
 }
+/* A plain <span>, not a nested <a> - .type-card itself is already the link
+   for the whole card. This exists purely as a visible "you can click this"
+   affordance, added after user feedback that the cards didn't read as
+   clickable on their own. */
+.type-card__cta {
+  display: inline-block;
+  margin-top: .6rem;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.type-card:hover .type-card__cta { text-decoration: underline; }
 
 /* Detail page header badge */
 .type-hero {

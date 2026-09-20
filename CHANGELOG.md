@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (SEMO imbalance price goes live; homepage type-card fix)
+
+### Added
+
+- **SEMO's Imbalance Price Report (`BM-025`) is now integrated as its own independent live source for Ireland**, alongside the existing EirGrid Smart Grid Dashboard and ENTSO-E day-ahead feeds. SEMO (Single Electricity Market Operator, sem-o.com) publishes a genuinely public, keyless JSON+XML "Reports API" that updates roughly every 5 minutes (ex-post, with a 15-30 minute publication lag). This is the SEM's actual settlement/imbalance price, distinct from the day-ahead price already shown via ENTSO-E - the two can and do diverge. New table `readings_ie_semo_imbalance`, new `ukgrid_ingest_semo()` in `includes/ingest.php`, new `cron/fetch_semo.php` cron entry point, wired into `tools/full-refresh.php`'s on-demand refresh, and exposed via two new fields: `api/ireland_current.php` (`semo_imbalance_price_eur_mwh`, `semo_ts`) and `api/ireland_series.php` (`semo_price` metric, EUR/MWh). Follows the site's established "independent source, independent staleness" pattern - SEMO's own `semo_staleness_minutes` config gates its freshness separately from EirGrid's, so one source's outage never masks or is masked by the other's.
+- On `pages/ireland.html`: a new "SEM imbalance price" stat card with its own sparkline, and a new "SEM imbalance price per MWh" chart in the History range panel, sitting alongside the renamed "SEM day-ahead price" (formerly just "SEM price", to disambiguate the two). The `#ie-sources` explainer and the API-issue banner were both updated to describe SEMO as a live source and to explain the day-ahead-vs-imbalance distinction.
+- Because the SEMO Reports API's own `sort_by=PublishTime&order_by=DESC` ordering proved unreliable under testing (two otherwise-identical fetches returned different "most recent" items), `ukgrid_ingest_semo()` re-sorts every batch itself before processing and upserts a full hour of overlapping recent periods each run, so the ingest is correct regardless of API ordering quirks.
+
+### Fixed
+
+- **The homepage's "Explore by energy type" cards (Fossil fuels / Renewables / Nuclear & biomass / Interconnectors / Storage) had zero live-data wiring** - all five values were static hardcoded HTML text with no JavaScript behind them, despite sitting directly below the "Generation mix right now" section that an earlier pass had already fixed to be genuinely live. This is the same "looks live, isn't" class of bug as that earlier fix, just a previously-missed instance of it. Added `id`s to the five value spans and a new `updateTypeCards()` in `index.html`, fed from the same `summarizeGeneration()` output already used elsewhere on the page (`renewableMw`/`interconnectorMw`/`storageMw` reused directly; fossil and nuclear-&-biomass computed fresh from `summary.bySource` using the same label groupings as the page's own mix table). Confirmed via a mocked `summarizeGeneration()` call in a live browser context that the new live figures exactly match the old hardcoded placeholder values, which is strong evidence the old numbers were a frozen one-time snapshot rather than ever being genuinely live.
+
+### Changed
+
+- Added a visible "Read more →" cue to each of the five "Explore by energy type" cards, since the cards are fully clickable but that wasn't obvious. New `.type-card__cta` styling in `assets/style.css`.
+
+### Verification
+
+- `php -l` on every touched PHP file; JS syntax check (`new Function()` on every inline `<script>` block) across all 31 HTML pages; HTML tag-balance check on `index.html` and `pages/ireland.html`.
+- Verified live via WebFetch that SEMO's Reports API and an individual XML resource file are genuinely public and unauthenticated, with real current data.
+- Verified with Playwright: the homepage's no-data state correctly shows "-" for all five type-cards; the "Read more →" cue renders correctly under each card's description.
+
 ## 2026-09-20 (copy/PNG/CSV overhaul, per-capita comparisons)
 
 ### Added

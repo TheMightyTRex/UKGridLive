@@ -129,7 +129,8 @@
 
     <dl class="status-grid" aria-label="Current Ireland grid status">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>SEM price</dt><dd>€<span id="stat-price">92.30</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>SEM day-ahead price</dt><dd>€<span id="stat-price">92.30</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>SEM imbalance price</dt><dd>€<span id="stat-semo-price">-</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-semo-price" aria-hidden="true"></canvas></div></div>
       <div class="stat"><dt>Emissions</dt><dd><span id="stat-emissions">178</span><small>g/kWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-emissions" aria-hidden="true"></canvas></div></div>
       <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">4.83</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
       <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">4.61</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
@@ -200,7 +201,8 @@
         <div class="range-panel chart-grid">
           <div class="chart-card"><h3>Demand</h3><div class="chart-wrap is-loading"><canvas data-metric="demand"></canvas></div></div>
           <div class="chart-card"><h3>Generation</h3><div class="chart-wrap is-loading"><canvas data-metric="generation"></canvas></div></div>
-          <div class="chart-card"><h3>SEM price per MWh</h3><div class="chart-wrap is-loading"><canvas data-metric="price"></canvas></div></div>
+          <div class="chart-card"><h3>SEM day-ahead price per MWh</h3><div class="chart-wrap is-loading"><canvas data-metric="price"></canvas></div></div>
+          <div class="chart-card"><h3>SEM imbalance price per MWh</h3><div class="chart-wrap is-loading"><canvas data-metric="semo_price"></canvas></div></div>
           <div class="chart-card"><h3>Emissions per kWh</h3><div class="chart-wrap is-loading"><canvas data-metric="emissions"></canvas></div></div>
           <div class="chart-card"><h3>GB interconnect</h3><div class="chart-wrap is-loading"><canvas data-metric="transfers"></canvas></div></div>
         </div>
@@ -257,10 +259,10 @@
       <ul>
         <li><strong><a href="https://www.smartgriddashboard.com/">EirGrid Group's Smart Grid Dashboard</a></strong> - live and wired up above for demand, total generation, wind generation, GB interconnection and carbon intensity across the island of Ireland.</li>
         <li><strong>SONI</strong> - EirGrid's Northern Ireland transmission system operator counterpart, covered within the same all-island figures.</li>
-        <li><strong><a href="https://www.sem-o.com/">SEMO</a></strong> (Single Electricity Market Operator) - publishes wholesale day-ahead and intraday market pricing for the island of Ireland. SEMO itself isn't wired up here, but the same day-ahead price is also published via ENTSO-E below, so the SEM price stat above is now live through that route instead.</li>
-        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM price stat, the generation-mix table/donut/bar (by fuel type, not by individual power station), the 24-hour mix chart and the History section's price panel above, via its Ireland (SEM) bidding zone. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
+        <li><strong><a href="https://www.sem-o.com/">SEMO</a></strong> (Single Electricity Market Operator) - now wired up live for the "SEM imbalance price" stat above: the real, ex-post settlement price at 5-minute granularity, via SEMO's own public, keyless Reports API (report BM-025, "Imbalance Price Report"). This is genuinely different from the day-ahead price below - it's what generators/suppliers are actually paid or charged for being out of balance with their day-ahead position, not the price agreed the day before. SEMO also publishes the day-ahead price itself, but this site gets that via ENTSO-E instead (see below), since it already needed that feed for the generation mix.</li>
+        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM day-ahead price stat, the generation-mix table/donut/bar (by fuel type, not by individual power station), the 24-hour mix chart and the History section's price panel above, via its Ireland (SEM) bidding zone. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
       </ul>
-      <p>ENTSO-E's generation-per-type figures don't break interconnector flows down individually (Moyle vs. EWIC vs. Greenlink) the way EirGrid's own dashboard would - the mix table below shows GB interconnection as one combined figure, from EirGrid's net interconnection reading rather than ENTSO-E. The 24-hour generation-mix stack further up and the History section's per-range charts are live too, from the same EirGrid/ENTSO-E feeds - each shows "not enough recorded history yet" rather than a placeholder if this install hasn't collected enough history for a given range.</p>
+      <p>ENTSO-E's generation-per-type figures don't break interconnector flows down individually (Moyle vs. EWIC vs. Greenlink) the way EirGrid's own dashboard would - the mix table below shows GB interconnection as one combined figure, from EirGrid's net interconnection reading rather than ENTSO-E. The 24-hour generation-mix stack further up and the History section's per-range charts are live too, from the same EirGrid/ENTSO-E/SEMO feeds - each shows "not enough recorded history yet" rather than a placeholder if this install hasn't collected enough history for a given range.</p>
     </section>
 
   </div>
@@ -285,7 +287,13 @@
   const METRICS = {
     demand:     { label: "Demand",     unit: "GW", color: "#1d6fe0", source: "eirgrid" },
     generation: { label: "Generation", unit: "GW", color: "#0a6e5c", source: "eirgrid" },
-    price:      { label: "Price",      unit: "€/MWh", color: "#d98e04", source: "entsoe" },
+    price:      { label: "SEM day-ahead price", unit: "€/MWh", color: "#d98e04", source: "entsoe" },
+    // Genuinely different from "price" above - see api/ireland_series.php's
+    // docblock. "source" just needs to be anything other than "entsoe" to
+    // route through fetchIrelandSeries()/api/ireland_series.php below -
+    // it's SEMO's own data, not EirGrid's, despite the tag name shared with
+    // the other non-ENTSO-E metrics here.
+    semo_price: { label: "SEM imbalance price", unit: "€/MWh", color: "#0e8f7a", source: "semo" },
     emissions:  { label: "Emissions",  unit: "g/kWh", color: "#8a5a3c", source: "eirgrid" },
     transfers:  { label: "GB interconnect", unit: "GW", color: "#d98e04", source: "eirgrid" },
   };
@@ -415,6 +423,15 @@
       setStat("stat-demand", current.demand_mw != null ? (current.demand_mw / 1000).toFixed(2) : "-");
       setStat("stat-generation", current.generation_mw != null ? (current.generation_mw / 1000).toFixed(2) : "-");
       setStat("stat-transfers", current.interconnection_mw != null ? (current.interconnection_mw / 1000).toFixed(2) : "-");
+      // SEMO's imbalance price rides on the same "current" (EirGrid)
+      // response as the fields above - see api/ireland_current.php's
+      // docblock for why it's independently null rather than gated on
+      // EirGrid's own freshness. One narrow gap: if EirGrid has never
+      // ingested a single row at all (current itself is null), this whole
+      // function returns early above before reaching here, so a
+      // SEMO-only-live install would show "-" rather than a real imbalance
+      // price - an edge case worth knowing about, not fixed here.
+      setStat("stat-semo-price", current.semo_imbalance_price_eur_mwh != null ? current.semo_imbalance_price_eur_mwh.toFixed(2) : "-");
       // Reference range: a rough all-island summer-overnight low (~3GW) up
       // to a rough recent winter-evening peak (~6.8GW) - round,
       // disclosed-as-not-official numbers, not an EirGrid-published
@@ -466,6 +483,21 @@
       if (priceCanvas) GridPreview.showChartError(priceCanvas, null);
     }
 
+    // SEM imbalance price sparkline - independent of both EirGrid and
+    // ENTSO-E above, see api/ireland_current.php's docblock.
+    if (current && current.semo_imbalance_price_eur_mwh != null) {
+      const semoPriceSeries = await window.GridData.fetchIrelandSeries("semo_price", "3hour");
+      const semoPriceCanvas = document.getElementById("spark-semo-price");
+      if (semoPriceSeries && semoPriceSeries.values.length) {
+        GridPreview.renderSparkline(semoPriceCanvas, semoPriceSeries.values, METRICS.semo_price.color);
+      } else if (semoPriceCanvas) {
+        GridPreview.showChartError(semoPriceCanvas, null);
+      }
+    } else {
+      const semoPriceCanvas = document.getElementById("spark-semo-price");
+      if (semoPriceCanvas) GridPreview.showChartError(semoPriceCanvas, null);
+    }
+
     if (!current) {
       if (cachedCurrent) {
         GridPreview.showLiveDataBanner(
@@ -497,7 +529,8 @@
     // saying nothing, same reasoning as index.html's GB status strip.
     const issueBanner = await GridPreview.buildApiIssueBanner({
       EIRGRID: "demand, generation, wind & GB interconnection (EirGrid)",
-      ENTSOE: "SEM price & generation mix (ENTSO-E)",
+      ENTSOE: "SEM day-ahead price & generation mix (ENTSO-E)",
+      SEMO: "SEM imbalance price (SEMO)",
     });
     if (issueBanner) {
       GridPreview.showLiveDataBanner(issueBanner);
