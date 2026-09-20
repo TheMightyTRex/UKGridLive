@@ -186,7 +186,7 @@
     }
   }
 
-  /** Latest all-island Ireland snapshot: demand/generation/wind/interconnection/emissions. Returns null if unavailable. */
+  /** Latest all-island Ireland snapshot: demand/generation/wind/interconnection/emissions (EirGrid), plus semo_imbalance_price_eur_mwh/semo_ts (SEMO, independently null if that half isn't live - see api/ireland_current.php's docblock). Returns null if unavailable. */
   async function fetchIrelandCurrent(apiBase) {
     try {
       const data = await fetchJSON((apiBase || DEFAULT_API_BASE) + "ireland_current.php");
@@ -197,7 +197,7 @@
     }
   }
 
-  /** Historical series for one Ireland metric+range. Same shape as fetchSeries's return value. No "price" metric - see api/ireland_current.php. */
+  /** Historical series for one Ireland metric+range. Same shape as fetchSeries's return value. metric can be demand/generation/wind/transfers/emissions (EirGrid) or semo_price (SEMO, EUR/MWh) - see api/ireland_series.php. */
   async function fetchIrelandSeries(metric, range, apiBase) {
     try {
       const url = (apiBase || DEFAULT_API_BASE) + "ireland_series.php?metric=" + encodeURIComponent(metric) + "&range=" + encodeURIComponent(range);

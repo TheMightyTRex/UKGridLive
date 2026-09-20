@@ -80,6 +80,7 @@ if (isset($_GET['ajax'])) {
         // more headroom below whatever that ceiling turns out to be.
         'IESO' => static fn () => ukgrid_ingest_ieso($pdo, $config, 8),
         'OPENELECTRICITY' => static fn () => ukgrid_ingest_openelectricity($pdo, $config, 12),
+        'SEMO' => static fn () => ukgrid_ingest_semo($pdo, $config, 15),
         // One country per call: skipFresherThanMinutes=0 so nothing is
         // ever skipped, maxCountriesPerRun=1 so this stays short. The page
         // calls this once per configured country, and staleness-based
@@ -134,7 +135,7 @@ foreach ($countries as $countryCfg) {
 // ENTSOE card at all.
 $entsoeCallCount = max($entsoeCallCount, 1);
 
-$sourceOrder = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY'];
+$sourceOrder = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'SEMO'];
 
 // ---------------------------------------------------------------------
 // Config check - runs on every normal page load, entirely from what's
@@ -184,7 +185,7 @@ if (!empty($missingEntsoeCountries)) {
     $configWarnings[] = 'entsoe_countries in includes/config.php is missing: ' . implode(', ', $missingList) . ' - those pages will stay on illustrative/no data until added. See includes/config.php.example for the exact entries to copy in.';
 }
 
-$expectedOnDemandSources = ['ELEXON', 'CARBON_INTENSITY', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS'];
+$expectedOnDemandSources = ['ELEXON', 'CARBON_INTENSITY', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'SEMO', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS'];
 $intervalsCfg = $config['refresh']['intervals_minutes'] ?? [];
 $timeoutsCfg = $config['refresh']['timeouts_seconds'] ?? [];
 $missingOnDemand = array_unique(array_merge(
@@ -292,7 +293,7 @@ if (empty($config['refresh']['on_demand'])) {
   var ENTSOE_CALLS = <?php echo (int) $entsoeCallCount; ?>;
   var sourceOrder = <?php echo json_encode($sourceOrder); ?>;
 
-  var steps = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'OPENELECTRICITY'];
+  var steps = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'OPENELECTRICITY', 'SEMO'];
   for (var i = 0; i < ENTSOE_CALLS; i++) steps.push('ENTSOE');
 
   // Per-source accumulated result, kept around for the "copy results" button

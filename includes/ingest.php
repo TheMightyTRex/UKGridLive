@@ -1818,3 +1818,173 @@ function ukgrid_ingest_ieso(PDO $pdo, array $config, int $timeoutSeconds = 20): 
     ukgrid_log_ingest('IESO', $status, $rowsWritten, implode('; ', $errors));
     return ['rows' => $rowsWritten, 'errors' => $errors];
 }
+
+/**
+ * SEMO (Single Electricity Market Operator, sem-o.com) - the all-island
+ * (Republic of Ireland + Northern Ireland) wholesale electricity market
+ * operator. Unlike EirGrid's dashboard (demand/generation/wind/GB
+ * interconnection, see ukgrid_ingest_eirgrid()) or ENTSO-E's day-ahead
+ * price (already wired up for pages/ireland.html), this covers something
+ * neither of those gives: real, ex-post settlement pricing at 5-minute
+ * granularity - the Imbalance Price / System Marginal Price, i.e. what
+ * generators/suppliers are actually paid/charged for being out of balance
+ * with their day-ahead position, distinct from the day-ahead price itself.
+ *
+ * SEMO publishes this (and every other market report) through a genuinely
+ * public, keyless JSON+XML "Static/Dynamic Reports" API - confirmed live
+ * during this integration's development: a real, unauthenticated request
+ * against reports.sem-o.com returned real, current data for report
+ * DPuG_ID=BM-025 ("Imbalance Price Report (Imbalance Pricing Period)"),
+ * published roughly every 5 minutes, about 15-30 minutes after each
+ * settlement period ends. Two-step fetch: (1) query the report list for
+ * the most recent BM-025 items, (2) fetch each item's own XML resource
+ * file. Documented at https://www.sem-o.com/sites/semo/files/documents/general-publications/SEMO-Website-Report-API.pdf
+ *
+ * Report XML shape (one <PUB_5MinImbalPrc> element per file, confirmed via
+ * a real fetch of a real, current resource file):
+ *   <OutboundData ... Date="2026-09-20" PublishTime="2026-09-20T12:12:42">
+ *     <PUB_5MinImbalPrc StartTime="2026-09-20T11:50:00" EndTime="2026-09-20T11:55:00"
+ *       NetImbalanceVolume="-30.252" ImbalancePrice="24.26"
+ *       TotalUnitAvailability="9500.327"
+ *       OperatingReserveRequirement="503.964" .../>
+ *   </OutboundData>
+ *
+ * Timestamps in these reports carry no timezone suffix. Treated as UTC
+ * here, matching this codebase's ENTSO-E convention (also unsuffixed
+ * ISO-8601 in its raw XML) and every readings_* table's "ts is always UTC"
+ * rule - this wasn't independently confirmed against SEMO's own written
+ * documentation (their API guide doesn't state a timezone explicitly), so
+ * if ingest_log or pages/ireland.html's SEM imbalance price ever looks
+ * exactly 1 hour off during BST (Ireland is UTC+1 in summer), that's the
+ * first thing to check and fix here.
+ *
+ * The report list's own sort_by=PublishTime&order_by=DESC gave
+ * inconsistent results while this was being built (two otherwise-identical
+ * requests a short time apart returned different "most recent" items) -
+ * rather than trust it, this fetches a 12-item page, re-sorts by
+ * PublishTime client-side, and processes every item from roughly the last
+ * hour (not just the newest one) every run - deliberately small (unlike
+ * e.g. ukgrid_ingest_eia()'s multi-day backfill window) since this can run
+ * from an ordinary on-demand page-load refresh, not just cron, and each
+ * item needs its own separate XML-file fetch rather than one bulk call.
+ * ON DUPLICATE KEY UPDATE makes repeated, overlapping runs safe either way.
+ */
+function ukgrid_ingest_semo(PDO $pdo, array $config, int $timeoutSeconds = 20): array
+{
+    $listBase = rtrim($config['sources']['semo_reports_api_base'] ?? 'https://reports.sem-o.com/api/v1/documents/static-reports', '/');
+    $resourceBase = rtrim($config['sources']['semo_resource_base'] ?? 'https://reports.sem-o.com/documents', '/');
+
+    $errors = [];
+    $rowsWritten = 0;
+    $completedNormally = false;
+    ukgrid_register_partial_progress_safety_net('SEMO', 'the report-list fetch and per-report XML parse', $completedNormally, $rowsWritten, $errors);
+
+    $listUrl = $listBase . '?DPuG_ID=BM-025&page_size=12&sort_by=PublishTime&order_by=DESC';
+    $listData = ukgrid_http_get_json($listUrl, $timeoutSeconds);
+    if ($listData === null) {
+        $completedNormally = true;
+        ukgrid_log_ingest('SEMO', 'ERROR', 0, 'report-list request failed (check semo_reports_api_base is reachable, or see includes/refresh.log for the raw HTTP error).');
+        return ['rows' => 0, 'errors' => ['report-list request failed.']];
+    }
+
+    $items = $listData['items'] ?? null;
+    if (!is_array($items)) {
+        $completedNormally = true;
+        $msg = 'report-list: unexpected response shape - top-level keys seen: ' . implode(', ', array_keys((array) $listData));
+        ukgrid_log_ingest('SEMO', 'ERROR', 0, $msg);
+        return ['rows' => 0, 'errors' => [$msg]];
+    }
+
+    // Re-sort by PublishTime ourselves - see this function's docblock for
+    // why the API's own sort_by/order_by wasn't trusted as-is - and only
+    // keep items from roughly the last 4 hours, so a stale or misordered
+    // response can't silently write ancient history into the table.
+    usort($items, function ($a, $b) {
+        return strcmp((string) ($b['PublishTime'] ?? ''), (string) ($a['PublishTime'] ?? ''));
+    });
+    $cutoff = time() - 3600; // 1 hour - heavy overlap for a source refreshed every 15 minutes, without making an on-demand page-load refresh fetch dozens of small XML files
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO readings_ie_semo_imbalance
+           (ts, imbalance_price_eur_mwh, net_imbalance_volume_mwh, total_unit_availability_mw, operating_reserve_requirement_mw)
+         VALUES (:ts, :price, :niv, :avail, :orr)
+         ON DUPLICATE KEY UPDATE
+           imbalance_price_eur_mwh = VALUES(imbalance_price_eur_mwh),
+           net_imbalance_volume_mwh = VALUES(net_imbalance_volume_mwh),
+           total_unit_availability_mw = VALUES(total_unit_availability_mw),
+           operating_reserve_requirement_mw = VALUES(operating_reserve_requirement_mw)'
+    );
+
+    $resourcesTried = 0;
+    $sampleAttrs = null;
+    foreach ($items as $item) {
+        $publishTime = (string) ($item['PublishTime'] ?? '');
+        $publishTs = $publishTime !== '' ? strtotime($publishTime . ' UTC') : false;
+        if ($publishTs !== false && $publishTs < $cutoff) {
+            break; // sorted descending (by us, above) - everything after this is even older
+        }
+        $resourceName = (string) ($item['ResourceName'] ?? '');
+        if ($resourceName === '') {
+            continue;
+        }
+        $resourcesTried++;
+        if ($resourcesTried > 1) {
+            usleep(200000); // a couple dozen small XML files, not one bulk call - be polite about it
+        }
+
+        $xmlBody = ukgrid_http_get_raw($resourceBase . '/' . rawurlencode($resourceName), $timeoutSeconds);
+        if ($xmlBody === null) {
+            $errors[] = "{$resourceName}: fetch failed.";
+            continue;
+        }
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($xmlBody);
+        if ($xml === false) {
+            libxml_clear_errors();
+            $snippet = trim(preg_replace('/\s+/', ' ', mb_substr($xmlBody, 0, 200)));
+            $errors[] = "{$resourceName}: XML parse failure. Raw response started with: \"{$snippet}\"";
+            continue;
+        }
+
+        foreach ($xml->PUB_5MinImbalPrc as $row) {
+            $attrs = $row->attributes();
+            if ($sampleAttrs === null) {
+                $sampleAttrs = [];
+                foreach ($attrs as $k => $v) {
+                    $sampleAttrs[$k] = (string) $v;
+                }
+            }
+            $startTime = (string) ($attrs['StartTime'] ?? '');
+            $price = (string) ($attrs['ImbalancePrice'] ?? '');
+            if ($startTime === '' || $price === '' || !is_numeric($price)) {
+                continue;
+            }
+            $ts = strtotime($startTime . ' UTC'); // see this function's docblock re: assumed UTC
+            if ($ts === false) {
+                continue;
+            }
+            $niv = (string) ($attrs['NetImbalanceVolume'] ?? '');
+            $avail = (string) ($attrs['TotalUnitAvailability'] ?? '');
+            $orr = (string) ($attrs['OperatingReserveRequirement'] ?? '');
+            $stmt->execute([
+                'ts' => gmdate('Y-m-d H:i:s', $ts),
+                'price' => (float) $price,
+                'niv' => is_numeric($niv) ? (float) $niv : null,
+                'avail' => is_numeric($avail) ? (float) $avail : null,
+                'orr' => is_numeric($orr) ? (float) $orr : null,
+            ]);
+            $rowsWritten++;
+        }
+    }
+
+    if ($resourcesTried === 0) {
+        $errors[] = 'no BM-025 report items found within the last hour in the report list (checked ' . count($items) . ' item(s) total) - either SEMO has a publishing gap, or the DPuG_ID/report code has changed.';
+    } elseif ($rowsWritten === 0) {
+        $errors[] = 'fetched ' . $resourcesTried . ' report file(s) but found no usable PUB_5MinImbalPrc row(s). Attributes seen on the last parsed row: ' . ($sampleAttrs !== null ? json_encode($sampleAttrs) : 'none');
+    }
+
+    $status = $rowsWritten > 0 ? 'OK' : 'ERROR';
+    $completedNormally = true;
+    ukgrid_log_ingest('SEMO', $status, $rowsWritten, implode('; ', $errors));
+    return ['rows' => $rowsWritten, 'errors' => $errors];
+}

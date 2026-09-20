@@ -225,28 +225,33 @@
       <div class="type-grid">
         <a class="type-card" href="pages/fossil-fuels.html" style="border-left-color:var(--fossil)">
           <h3>Fossil fuels</h3>
-          <span class="type-card__value">7.58GW</span>
+          <span class="type-card__value" id="type-value-fossil">7.58GW</span>
           <p>Gas generation, current share and long-term decline since coal's closure.</p>
+          <span class="type-card__cta">Read more →</span>
         </a>
         <a class="type-card" href="pages/renewables.html" style="border-left-color:var(--renewable)">
           <h3>Renewables</h3>
-          <span class="type-card__value">14.73GW</span>
+          <span class="type-card__value" id="type-value-renewables">14.73GW</span>
           <p>Solar, wind and hydro - including embedded generation estimates.</p>
+          <span class="type-card__cta">Read more →</span>
         </a>
         <a class="type-card" href="pages/nuclear-biomass.html" style="border-left-color:var(--other)">
           <h3>Nuclear &amp; biomass</h3>
-          <span class="type-card__value">6.38GW</span>
+          <span class="type-card__value" id="type-value-nuclear-biomass">6.38GW</span>
           <p>Steady baseload generation from nuclear and biomass plants.</p>
+          <span class="type-card__cta">Read more →</span>
         </a>
         <a class="type-card" href="pages/interconnectors.html" style="border-left-color:var(--interconnector)">
           <h3>Interconnectors</h3>
-          <span class="type-card__value">0.20GW</span>
+          <span class="type-card__value" id="type-value-interconnectors">0.20GW</span>
           <p>Imports and exports with Belgium, Denmark, France, Ireland, the Netherlands and Norway.</p>
+          <span class="type-card__cta">Read more →</span>
         </a>
         <a class="type-card" href="pages/storage.html" style="border-left-color:var(--storage)">
           <h3>Storage</h3>
-          <span class="type-card__value">0.79GW</span>
+          <span class="type-card__value" id="type-value-storage">0.79GW</span>
           <p>Pumped hydro and battery storage charging and discharging.</p>
+          <span class="type-card__cta">Read more →</span>
         </a>
       </div>
     </section>
@@ -457,6 +462,32 @@
   // fabricated live one (see that panel's own "planned feature" caption).
   let pumpedGw = null, pumpedPct = null, lastGenGw = null;
 
+  // "Explore by energy type" cards, further down the page - found to still
+  // be showing frozen, never-updated placeholder figures (7.58GW fossil,
+  // 14.73GW renewables, etc, matching this very script's own illustrative
+  // SOURCE_VALUES fallback above) with no live wiring at all, unlike the
+  // "Generation mix right now" section above them, which was fixed in an
+  // earlier pass (see CHANGELOG.md, "no-illustrative-data pass"). Fixed by
+  // computing the same figures renderGbMixSection() already derives for
+  // the mix table/donuts above and writing them in here too, on every
+  // render (success and no-data alike), rather than leaving these five
+  // numbers stuck at whatever they happened to be hand-typed as.
+  function updateTypeCards(values) {
+    const ids = {
+      fossil: "type-value-fossil",
+      renewables: "type-value-renewables",
+      nuclearBiomass: "type-value-nuclear-biomass",
+      interconnectors: "type-value-interconnectors",
+      storage: "type-value-storage",
+    };
+    Object.keys(ids).forEach((key) => {
+      const el = document.getElementById(ids[key]);
+      if (!el) return;
+      const mw = values ? values[key] : null;
+      el.textContent = (mw !== null && mw !== undefined) ? (mw / 1000).toFixed(2) + "GW" : "-";
+    });
+  }
+
   function showNoGbMixData() {
     GridPreview.showNoMixData({ tbodyId: "mix-tbody", donutId: "mix-donut-source", legendId: "mix-donut-source-legend", barId: "mix-bar" });
     GridPreview.showChartError(document.getElementById("mix-donut-category"), "No data available");
@@ -471,6 +502,7 @@
       const el = document.getElementById(id);
       if (el) el.textContent = "-";
     });
+    updateTypeCards(null);
   }
 
   function renderGbMixSection(summary, demandMw) {
@@ -508,6 +540,23 @@
       interRow.innerHTML = `<th scope="row"><span class="swatch" style="background:var(--interconnector)"></span>Interconnectors</th><td class="num">${gw(summary.interconnectorMw)}</td><td class="num">${pct(summary.interconnectorMw)}</td>`;
       tbody.appendChild(interRow);
     }
+
+    // Same per-label grouping as MIX_GROUPS above (Fossil fuels = Gas/Gas
+    // (peaking)/Coal/Oil; Nuclear & biomass = just those two labels, not
+    // MIX_GROUPS' broader "Other sources" bucket, which also includes a
+    // generic "Other" catch-all the type-card doesn't claim to cover).
+    // Renewables reuses summary.renewableMw directly rather than
+    // recomputing - RENEWABLE_FUELS in assets/data.js (WIND/WIND_EMBEDDED/
+    // SOLAR_EMBEDDED/NPSHYD) already matches this group exactly.
+    const fossilMw = ["Gas", "Gas (peaking)", "Coal", "Oil"].reduce((s, l) => s + (bySource[l] || 0), 0);
+    const nuclearBiomassMw = ["Nuclear", "Biomass"].reduce((s, l) => s + (bySource[l] || 0), 0);
+    updateTypeCards({
+      fossil: fossilMw,
+      renewables: summary.renewableMw,
+      nuclearBiomass: nuclearBiomassMw,
+      interconnectors: summary.interconnectorMw,
+      storage: summary.storageMw,
+    });
 
     pumpedGw = summary.storageMw / 1000;
     pumpedPct = totalMw > 0 ? (summary.storageMw / totalMw * 100) : 0;

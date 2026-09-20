@@ -81,6 +81,7 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
         'IESO' => 30,
         'ENTSOE' => 20,
         'OPENELECTRICITY' => 15,
+        'SEMO' => 15,
         'WEATHER' => 60,
         'CONSTRAINTS' => 1440,
         'NOTABLE_MOMENTS' => 1440,
@@ -94,6 +95,7 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
         'IESO' => 7, // per-request, not total - ukgrid_ingest_ieso() makes two sequential calls
         'ENTSOE' => 6, // per-request, not total - see includes/config.php.example
         'OPENELECTRICITY' => 8, // per-request, not total - ukgrid_ingest_openelectricity() makes two sequential calls
+        'SEMO' => 6, // per-request, not total - ukgrid_ingest_semo() makes one list call plus up to 12 small XML-file fetches
         'WEATHER' => 8,
         'CONSTRAINTS' => 10,
         'NOTABLE_MOMENTS' => 12,
@@ -166,6 +168,9 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
                 break;
             case 'OPENELECTRICITY':
                 ukgrid_ingest_openelectricity($pdo, $config, $timeoutSeconds);
+                break;
+            case 'SEMO':
+                ukgrid_ingest_semo($pdo, $config, $timeoutSeconds);
                 break;
             case 'WEATHER':
                 ukgrid_ingest_weather($pdo, $config, $timeoutSeconds);
