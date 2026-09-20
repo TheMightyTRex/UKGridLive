@@ -1696,7 +1696,12 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
 }
 .ps-warning svg { flex: none; width: 24px; height: 24px; color: #c9781f; margin-top: .1rem; }
 .ps-warning p { margin: 0; font-size: .92rem; }
-.ps-warning p:first-child strong:first-child { display: block; margin-bottom: .3rem; font-size: 1rem; }
+/* Bold text inside a warning box stays inline, mid-sentence or not - it's
+   just emphasis, not a heading, so it must never force a line break. (The
+   <p> here is always the second child, after the icon <svg>, so a rule
+   like ".ps-warning p:first-child" would silently never match - don't
+   reintroduce a first-child-based rule without checking that.) */
+.ps-warning strong { font-weight: 700; }
 
 /* Government-links box, appended to most plug-in-solar pages. */
 .ps-gov-links {
