@@ -799,6 +799,28 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
 }
+/* pages/plugin-solar.html's calculator reuses .compare-picker for its own
+   inputs (a range slider and a number field) alongside the selects above -
+   these two rules give them the same border/background theming rather than
+   falling back to unstyled browser defaults. */
+.compare-picker input[type="number"] {
+  font: inherit;
+  font-size: .9rem;
+  color: var(--text);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .3rem .5rem;
+  width: 6em;
+}
+.compare-picker input[type="number"]:focus-visible,
+.compare-picker input[type="range"]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.compare-picker input[type="range"] {
+  accent-color: var(--accent);
+}
 .switch {
   position: relative;
   display: inline-flex;
