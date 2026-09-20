@@ -852,6 +852,106 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   margin-top: .5rem;
 }
 
+/* Real-geography interconnector maps (pages/interconnectors.html,
+   pages/americas-interconnects.html) - country/state outlines are real
+   coastline data (Natural Earth via world-atlas/us-atlas), projected and
+   cropped to the relevant region, not freehand shapes. */
+.interconnector-map, .americas-map {
+  width: 100%;
+  height: auto;
+  max-height: 560px;
+}
+.map-land path {
+  fill: var(--bg-inset);
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+.sa-country path {
+  fill: color-mix(in srgb, var(--interconnector) 14%, var(--bg-inset));
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+.sa-context path {
+  fill: var(--bg-inset);
+  stroke: var(--border);
+  stroke-width: .75;
+  stroke-linejoin: round;
+  opacity: .45;
+}
+.map-country-label text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.map-cable path {
+  fill: none;
+  stroke: var(--interconnector);
+  stroke-width: 2.2;
+  opacity: .9;
+}
+.map-cable-dot circle {
+  fill: var(--interconnector);
+}
+.map-label text, .map-leader-group text {
+  fill: var(--text-muted);
+}
+.map-label-bg {
+  fill: var(--bg-elevated);
+  opacity: .88;
+}
+.map-leader {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.americas-region path {
+  stroke: var(--border);
+  stroke-width: .75;
+  stroke-linejoin: round;
+}
+.americas-region--west { fill: color-mix(in srgb, var(--interconnector) 22%, var(--bg-inset)); }
+.americas-region--east { fill: color-mix(in srgb, var(--accent) 18%, var(--bg-inset)); }
+.americas-region--ercot { fill: color-mix(in srgb, #c0392b 25%, var(--bg-inset)); }
+.americas-region--quebec { fill: color-mix(in srgb, #3d63c9 26%, var(--bg-inset)); }
+.americas-region--mexico { fill: var(--bg-inset); }
+.americas-region--neutral { fill: var(--bg-inset); opacity: .55; }
+.americas-country-label text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.americas-tie path {
+  fill: none;
+  stroke: var(--interconnector);
+  stroke-width: 2.4;
+}
+.americas-tie--inactive {
+  stroke-dasharray: 6 5;
+  opacity: .6;
+}
+.americas-tie-dot circle {
+  fill: var(--interconnector);
+}
+.americas-label-bg {
+  fill: var(--bg-elevated);
+  opacity: .9;
+}
+.americas-label text {
+  fill: var(--text);
+}
+.americas-country-label text {
+  fill: var(--text);
+  font-weight: 700;
+}
+.americas-legend rect {
+  stroke: var(--border);
+  stroke-width: .75;
+}
+.americas-legend text {
+  fill: var(--text-muted);
+}
+
 .period-caption {
   font-size: .85rem;
   color: var(--text-muted);

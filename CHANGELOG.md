@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (Interconnector maps redrawn with real geography)
+
+### Changed
+
+- **All three interconnector maps site-wide are now real-geography maps, not freehand schematic diagrams.** Previously, `pages/interconnectors.html`'s GB map used plain ellipses for every country with arbitrary made-up relative positions, and `pages/americas-interconnects.html`'s two Americas diagrams were abstract labelled boxes with no geography at all. All three are rebuilt from real coastline/border data (Natural Earth 1:50m, via the `world-atlas`, `us-atlas` npm packages and the `click_that_hood` Canada-provinces dataset), Mercator/Albers-projected and cropped to the relevant region with `d3-geo`, then hand-annotated with cable/tie labels:
+  - **GB interconnectors map**: real coastlines for Great Britain, Ireland, France, Belgium, the Netherlands, Denmark and Norway, with each of the nine cables drawn as a curve between its two real landing points (e.g. Sellindge↔Bonningues-lès-Calais for IFA, Blyth↔Kvilldal for North Sea Link) rather than an arbitrary line between two ellipses.
+  - **North America interconnections map**: real US state, Canadian province and Mexico outlines, shaded by interconnection (Western/Eastern/ERCOT/Québec/Mexico, with a legend), with HVDC/back-to-back tie markers placed at their real locations (Rapid City SD, Oklaunion TX, the Québec-New England border, etc.) in place of the old abstract box-and-line diagram.
+  - **South America interconnections map**: real outlines for Colombia, Venezuela, Ecuador, Brazil, Paraguay, Argentina, Uruguay and Chile at their true relative positions and sizes, with Peru/Bolivia/Guyana/Suriname shown greyed-out for visual continuity only (this page still doesn't cover their interconnections), and each dam/tie marked at its real border location (Itaipu, Yacyretá, Garabí, Salto Grande, Andes-Cobos, and the Colombia-Ecuador/Colombia-Venezuela ties).
+- State/province-level interconnection colouring on the North America map is an approximation - the real NERC interconnection boundary cuts across a handful of border states rather than following state lines exactly - and is captioned as such, consistent with this project's standing rule of never overstating precision. Provinces/states this site's sources don't classify (Saskatchewan, Newfoundland and Labrador, the northern territories, Alaska, Hawaii) are shown as explicitly "not classified" rather than guessed into a category.
+- Removed the now-unused `.tie-node`/`.tie-line`/`.tie-label-bg` inline styles from `pages/americas-interconnects.html` (replaced by shared `.americas-*`/`.map-*` classes in `assets/style.css`, also used by the GB map).
+- Updated the captions on all three maps to describe what's now real (coastlines/positions) versus still simplified (cable curves are for legibility, not the true undersea route; tie markers show each corridor's real location, not every individual station).
+
+### Verification
+
+- `node -e` JS-syntax check and an HTML tag-balance check on both edited pages; a plain brace-balance check on `assets/style.css`.
+- Rendered every map with Playwright, in both light and dark theme, against the actual site stylesheet - checked label legibility, that no text overflows the canvas, and that the light/dark `color-mix()` region colours (already an established pattern elsewhere in `assets/style.css`) stay readable in both themes.
+
 ## 2026-09-20 (SEMO imbalance price goes live; homepage type-card fix)
 
 ### Added
