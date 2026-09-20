@@ -1556,3 +1556,199 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   * { animation: none !important; transition: none !important; }
   .panel, .source-card { opacity: 1; }
 }
+
+/* ==========================================================================
+   Plug-in Solar section - hero graphics, sub-nav tiles, warning/gov-link
+   boxes, placement diagrams. Kept in its own block so it's easy to find/
+   maintain as one unit even though it's used across 8 pages.
+   ========================================================================== */
+
+/* Animated hero graphic: a sun with rotating rays behind a tilted panel,
+   used at the top of every plug-in-solar page. Pure CSS/SVG, no images. */
+.ps-hero-graphic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: .75rem 0 .25rem;
+}
+.ps-hero-graphic svg { overflow: visible; }
+.ps-sun-rays {
+  transform-origin: center;
+  animation: ps-rotate 40s linear infinite;
+}
+@keyframes ps-rotate { to { transform: rotate(360deg); } }
+.ps-sun-core { animation: pulse 3.4s ease-in-out infinite; transform-origin: center; }
+.ps-panel-cell {
+  animation: ps-glint 5s ease-in-out infinite;
+}
+.ps-panel-cell:nth-child(2) { animation-delay: .3s; }
+.ps-panel-cell:nth-child(3) { animation-delay: .6s; }
+.ps-panel-cell:nth-child(4) { animation-delay: .9s; }
+@keyframes ps-glint {
+  0%, 85%, 100% { opacity: .55; }
+  92% { opacity: 1; }
+}
+.ps-flow-dot {
+  animation: ps-flow 2.6s linear infinite;
+  offset-rotate: 0deg;
+}
+@keyframes ps-flow {
+  0% { offset-distance: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+/* Cross-page sub-navigation: a row of tiles linking the 8 Plug-in Solar
+   pages, shown near the top of each one so the section reads as a unit. */
+.ps-subnav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: .6rem;
+  margin: 1.25rem 0;
+}
+.ps-subnav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  text-align: center;
+  padding: .75rem .5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 600;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.ps-subnav a:hover, .ps-subnav a:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--solar);
+}
+.ps-subnav a[aria-current="page"] {
+  border-color: var(--solar);
+  background: color-mix(in srgb, var(--solar) 14%, var(--bg-elevated));
+}
+.ps-subnav a svg { width: 22px; height: 22px; color: var(--solar); }
+
+/* Warning callout - used for the multiple-kits / safety warnings. */
+.ps-warning {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .9rem 1rem;
+  margin: 1rem 0;
+  border: 1px solid #c9781f;
+  border-left-width: 5px;
+  border-radius: 8px;
+  background: color-mix(in srgb, #c9781f 10%, var(--bg-elevated));
+}
+.ps-warning svg { flex: none; width: 24px; height: 24px; color: #c9781f; margin-top: .1rem; }
+.ps-warning strong { display: block; margin-bottom: .2rem; }
+.ps-warning p { margin: 0; font-size: .92rem; }
+
+/* Government-links box, appended to most plug-in-solar pages. */
+.ps-gov-links {
+  margin: 1.25rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+}
+.ps-gov-links h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.ps-gov-links ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; }
+.ps-gov-links li { margin-bottom: .35rem; }
+.ps-gov-links .crown { display: inline-block; margin-right: .3rem; }
+
+/* Nation-comparison table (England/Scotland/Wales/NI). */
+.ps-nation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: .75rem;
+  margin: 1rem 0;
+}
+.ps-nation-card {
+  padding: .85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.ps-nation-card h3 {
+  margin: 0 0 .4rem;
+  font-size: .95rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.ps-nation-card p { margin: 0; font-size: .85rem; color: var(--text-muted); }
+.ps-nation-card.is-limited { border-color: #b85e21; }
+.ps-nation-card.is-limited h3 { color: #b85e21; }
+
+/* Placement diagrams (orientation/window mounting illustrations). */
+.ps-placement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.ps-placement-card {
+  padding: .9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  text-align: center;
+}
+.ps-placement-card svg { width: 100%; max-width: 96px; height: auto; margin: 0 auto .5rem; }
+.ps-placement-card strong { display: block; font-size: .85rem; }
+.ps-placement-card span { display: block; font-size: .78rem; color: var(--text-muted); margin-top: .15rem; }
+.ps-placement-card .ps-eff { display:inline-block; margin-top:.4rem; padding:.15rem .5rem; border-radius:999px; background:var(--bg-inset); font-size:.75rem; font-weight:700; color: var(--solar); }
+
+/* Step list (Registration page). */
+.ps-steps { list-style: none; margin: 1rem 0; padding: 0; counter-reset: ps-step; }
+.ps-steps li {
+  position: relative;
+  padding: .25rem 0 1rem 2.6rem;
+  border-left: 2px solid var(--border);
+  margin-left: 1rem;
+}
+.ps-steps li:last-child { border-color: transparent; padding-bottom: 0; }
+.ps-steps li::before {
+  counter-increment: ps-step;
+  content: counter(ps-step);
+  position: absolute;
+  left: -1.1rem;
+  top: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--solar);
+  color: #1a1400;
+  font-weight: 800;
+  font-size: .9rem;
+}
+
+/* Sun-hours seasonal bar strip used on the "What is it" and calculator
+   pages - animated fill-in on first view. */
+.ps-sunbar-wrap { margin: 1rem 0; }
+.ps-sunbar { display: flex; align-items: flex-end; gap: 3px; height: 90px; }
+.ps-sunbar > div {
+  flex: 1;
+  background: linear-gradient(180deg, var(--solar), color-mix(in srgb, var(--solar) 55%, transparent));
+  border-radius: 3px 3px 0 0;
+  animation: ps-grow .8s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes ps-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.ps-sunbar-labels { display: flex; gap: 3px; margin-top: .3rem; }
+.ps-sunbar-labels span { flex: 1; text-align: center; font-size: .68rem; color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .ps-subnav { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+  .ps-hero-graphic svg { width: 120px; }
+}

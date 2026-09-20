@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plug-in solar - UK Grid: Live+</title>
-<meta name="description" content="Plug-in (balcony) solar became legal in Great Britain on 27 August 2026. What the rules actually say, and a calculator estimating what one could save you, using Ofgem's published price cap.">
+<title>What is plug-in solar? - UK Grid: Live+</title>
+<meta name="description" content="Plug-in (balcony) solar became legal in Great Britain on 27 August 2026. What it is, how it differs from full rooftop solar, and where to find the safety, calculator, mounting and registration detail.">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,7 +57,23 @@
   <div class="wrap">
     <ul id="site-nav-list" data-nav-list>
       <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-uk-btn" aria-expanded="false" aria-controls="navgroup-uk" data-nav-group data-active="true">
+        <button type="button" class="nav-group__toggle" id="navgroup-ps-btn" aria-expanded="false" aria-controls="navgroup-ps" data-nav-group data-active="true">
+          Plug-in Solar
+          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="nav-group__menu" id="navgroup-ps">
+          <li><a href="plugin-solar.html" aria-current="page">What is plug-in solar</a></li>
+          <li><a href="plugin-solar-safety.html">Safety</a></li>
+          <li><a href="plugin-solar-battery.html">Battery power</a></li>
+          <li><a href="plugin-solar-considerations.html">Considerations</a></li>
+          <li><a href="plugin-solar-mounting.html">Mounting</a></li>
+          <li><a href="plugin-solar-registration.html">Registration</a></li>
+          <li><a href="plugin-solar-calculator.html">Energy calculator</a></li>
+          <li><a href="plugin-solar-certification.html">Certification</a></li>
+        </ul>
+      </li>
+      <li class="nav-group">
+        <button type="button" class="nav-group__toggle" id="navgroup-uk-btn" aria-expanded="false" aria-controls="navgroup-uk" data-nav-group>
           Great Britain
           <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -72,7 +88,6 @@
           <li><a href="electricity-prices.html">GB: Prices</a></li>
           <li><a href="price-history.html">GB: Historic prices</a></li>
           <li><a href="renewables-plans.html">2030 GB plans</a></li>
-          <li><a href="plugin-solar.html" aria-current="page">Plug-in solar</a></li>
         </ul>
       </li>
       <li class="nav-group">
@@ -128,101 +143,75 @@
         <span class="type-hero__swatch" style="background:var(--solar)"></span>
         <h1>Plug-in solar</h1>
       </div>
-      <p>On <strong>27 August 2026</strong>, small "plug-in" (also called "balcony") solar panel kits became legal to sell and self-install in Great Britain for the first time - a product category already common in Germany, now permitted here under new government rules. This page explains what's actually allowed, and includes a calculator estimating what one might save you, using Ofgem's published price cap rather than any supplier's own marketing numbers.</p>
+      <div class="ps-hero-graphic" aria-hidden="true">
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <g class="ps-sun-rays"><g stroke="var(--solar)" stroke-width="2.4" stroke-linecap="round"><path d="M36 4v8"/><path d="M36 60v8"/><path d="M4 36h8"/><path d="M60 36h8"/><path d="M13 13l5.6 5.6"/><path d="M53.4 53.4 59 59"/><path d="M59 13l-5.6 5.6"/><path d="M18.6 53.4 13 59"/></g></g>
+          <circle class="ps-sun-core" cx="36" cy="36" r="14" fill="var(--solar)"/>
+        </svg>
+        <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
+          <rect x="6" y="46" width="108" height="8" rx="2" fill="var(--border)"/>
+          <g transform="translate(10,10) rotate(-8 50 30)">
+            <rect x="0" y="0" width="100" height="52" rx="4" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/>
+            <rect class="ps-panel-cell" x="6" y="6" width="42" height="18" fill="var(--accent)" opacity=".55"/>
+            <rect class="ps-panel-cell" x="52" y="6" width="42" height="18" fill="var(--accent)" opacity=".55"/>
+            <rect class="ps-panel-cell" x="6" y="28" width="42" height="18" fill="var(--accent)" opacity=".55"/>
+            <rect class="ps-panel-cell" x="52" y="28" width="42" height="18" fill="var(--accent)" opacity=".55"/>
+          </g>
+          <circle class="ps-flow-dot" r="3" fill="var(--solar)" style="offset-path: path('M60 30 C 90 45, 90 55, 108 60');"></circle>
+        </svg>
+      </div>
+      <p>On <strong>27 August 2026</strong>, small "plug-in" (also called "balcony") solar panel kits became legal to sell and self-install in Great Britain for the first time - a product category already common in Germany, now permitted here under new government rules. This is the first of eight pages covering the topic in depth: what it is, safety, adding battery power, things to consider before fitting one, where you're allowed to mount it, how to register it, a detailed energy/savings calculator, and certification. Use the tiles below to jump straight to any of them.</p>
+      <nav class="ps-subnav" aria-label="Plug-in Solar section pages">
+        <a href="plugin-solar.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v2M12 19v2M5 5l1.4 1.4M17.6 17.6 19 19M3 12h2M19 12h2M5 19l1.4-1.4M17.6 6.4 19 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/></svg>What is it</a>
+        <a href="plugin-solar-safety.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Safety</a>
+        <a href="plugin-solar-battery.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="8" width="17" height="8" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M21 10.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Battery power</a>
+        <a href="plugin-solar-considerations.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 15.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Considerations</a>
+        <a href="plugin-solar-mounting.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 20h18M6 20V9l6-4 6 4v11" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Mounting</a>
+        <a href="plugin-solar-registration.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Registration</a>
+        <a href="plugin-solar-calculator.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Energy calculator</a>
+        <a href="plugin-solar-certification.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/><path d="M9 14l-2 7 5-3 5 3-2-7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Certification</a>
+      </nav>
     </section>
 
     <section class="panel" aria-labelledby="what-heading">
       <h2 id="what-heading">What is it?</h2>
-      <p>A plug-in solar kit is one or more small solar panels wired to a "microinverter" that plugs directly into an ordinary wall socket using a standard UK plug - no rewiring, no consumer unit work, and (for a suitable existing installation) no electrician required. While the panels are generating, the power feeds straight into whichever appliances in your home are switched on at that moment - a kettle, a fridge, a TV - reducing how much you import from the grid. There's no export payment mechanism for these small unmetered systems: electricity you generate but don't use at that instant is simply lost, which is why <a href="#calculator-heading">how much time you spend at home during daylight hours matters as much as panel size</a> for how much you'll actually save.</p>
-      <p>This is a distinct, much smaller-scale product from a full rooftop solar PV installation (typically 3-5kW, professionally installed, MCS-certified, often paired with a battery and an export tariff). Plug-in kits are capped at a fraction of that size by design - see the rules below - and are aimed at renters, leaseholders and anyone who wants a small amount of self-generated power without a full installation.</p>
-    </section>
+      <p>A plug-in solar kit is one or more small solar panels wired to a "microinverter" that plugs directly into an ordinary wall socket using a standard UK plug - no rewiring, no consumer unit work, and (for a suitable existing installation) no electrician required. While the panels are generating, the power feeds straight into whichever appliances in your home are switched on at that moment - a kettle, a fridge, a TV - reducing how much you import from the grid. There's no export payment mechanism for these small unmetered systems: electricity you generate but don't use at that instant is simply lost, which is why <a href="plugin-solar-calculator.html">how much time you spend at home during daylight hours matters as much as panel size</a> for how much you'll actually save.</p>
+      <p>This is a distinct, much smaller-scale product from a full rooftop solar PV installation (typically 3-5kW, professionally installed, MCS-certified, often paired with a battery and an export tariff). Plug-in kits are capped at a fraction of that size by design - see <a href="plugin-solar-certification.html">Certification</a> for how the two schemes differ - and are aimed at renters, leaseholders and anyone who wants a small amount of self-generated power without a full installation.</p>
 
-    <section class="panel" aria-labelledby="rules-heading">
-      <h2 id="rules-heading">The rules</h2>
-      <p>The government's regulations (laid in Parliament on 17 July 2026, in force from 27 August 2026) and the accompanying Interim Product Specification set firm technical limits - a compliant kit isn't just "any solar panel you can plug in":</p>
-      <ul class="records-list" id="rules-list">
-        <li><span>Maximum inverter output</span><strong>800VA / 3.5A AC - roughly 800W into your home's circuit, whatever the panels' own rating</strong></li>
-        <li><span>Maximum panel capacity</span><strong>2,000W DC across up to 4 panels (max. 2 in series per string) - oversizing panels beyond the 800W inverter cap is normal and improves low-light output, at the cost of some "clipping" on bright days</strong></li>
-        <li><span>Connection method</span><strong>Directly into a standard socket via the kit's own manufacturer-supplied BS 1363 plug - extension leads, multi-way adaptors, converters and RCD adaptors are all prohibited</strong></li>
-        <li><span>Plug fuse rating</span><strong>Non-rewireable plug, fused at no more than 5A (BS 1362)</strong></li>
-        <li><span>Registration</span><strong>Required via the national myplugin.solar portal, which notifies your electricity network operator on your behalf (the simplified route to the existing G98 network-notification requirement)</strong></li>
-        <li><span>Devices per household</span><strong>One, under the current G98 limit - due to relax to one per individual circuit once G98 itself is formally amended</strong></li>
-        <li><span>Self-install</span><strong>Permitted for a suitable existing installation; professional assessment is recommended for older fuse boards, unidentified circuits, damaged sockets, or panel arrays above 960W</strong></li>
-      </ul>
-      <p class="download-row">
-        <button type="button" class="copy-btn" data-copy-list="rules-list" data-copy-title="Plug-in solar rules - UK Grid: Live+">
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
-          <span data-copy-label aria-live="polite">Copy as text</span>
-        </button>
-        <button type="button" class="copy-btn" data-csv-list="rules-list" data-csv-title="rules-list">
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <span data-copy-label aria-live="polite">Download CSV</span>
-        </button>
-      </p>
-      <p>A handful of things can still stop you fitting one even though the product itself is now legal: renters and leaseholders need their landlord's or freeholder's permission; some buildings (those with certain cladding, or undergoing remediation work) are excluded outright; mounting to bare timber isn't permitted, and cable ties or tape alone aren't an acceptable fixing; and England's permitted development rules limit how far a panel can project from a wall (40cm generally, 20cm near a highway) or a pitched roof (20cm), with a 60cm height limit on a flat roof. Scotland and Wales have their own planning regimes. As of this page's last check, the ENA's own Type Test Register listed a mix of compliant and non-compliant devices submitted by manufacturers - always check a specific kit against the <a href="https://www.pluginsolarregister.co.uk/">live register</a> before buying, rather than trusting a retailer's own compliance claim.</p>
-      <p class="chart-caption">Sources: <a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ, July 2026 government response and Interim Product Specification v2.0); <a href="https://www.pluginsolarregister.co.uk/">Plug-In Solar Register</a> (independent tracker of the live ENA Type Test Register). Last checked: 20 September 2026.</p>
-    </section>
-
-    <section class="panel" aria-labelledby="calculator-heading">
-      <h2 id="calculator-heading">Savings calculator</h2>
-      <p>This gives a rough estimate, not a quote. It uses Ofgem's own published price cap unit rate - not a supplier's tariff or a retailer's marketing figure - and is upfront about the two things that move the answer the most: which way your panels face, and how much of the power you generate you're actually home to use.</p>
-
-      <div class="compare-picker" style="align-items:flex-start;">
-        <label>Panel capacity (W)
-          <input type="range" id="solar-panel-w" min="300" max="2000" step="10" value="800" style="width:160px;vertical-align:middle;">
-          <strong id="solar-panel-w-out" style="min-width:4.5em;display:inline-block;">800W</strong>
-        </label>
-        <label>Which way do they face?
-          <select id="solar-orientation">
-            <option value="1.00">South-facing, tilted (best case)</option>
-            <option value="0.78" selected>South-facing, vertical (typical balcony rail)</option>
-            <option value="0.62">East or west-facing</option>
-            <option value="0.35">North-facing (not recommended)</option>
-          </select>
-        </label>
-        <label>How much are you home in daylight hours?
-          <select id="solar-occupancy">
-            <option value="0.75">Home most of the day</option>
-            <option value="0.50" selected>Mixed - evenings and weekends</option>
-            <option value="0.35">Out most weekdays</option>
-          </select>
-        </label>
-        <label>Kit cost (£, if self-installing)
-          <input type="number" id="solar-cost" min="0" max="5000" step="10" value="600">
-        </label>
+      <div class="ps-warning" role="note">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <p><strong>Don't plug in more than one kit.</strong> The simplified rules cover exactly <strong>one plug-in solar device per household</strong>, registered as a single unit via <a href="https://www.myplugin.solar/">myplugin.solar</a>. A second kit on another socket takes you outside what's been notified and risk-assessed - see <a href="plugin-solar-considerations.html">Considerations</a> and <a href="plugin-solar-registration.html">Registration</a> for the detail.</p>
       </div>
-
-      <dl class="status-grid" aria-label="Estimated plug-in solar savings" style="grid-template-columns:repeat(3,1fr);margin-top:1rem;">
-        <div class="stat"><dt>Estimated generation</dt><dd id="solar-out-generation">-</dd></div>
-        <div class="stat"><dt>Estimated saving</dt><dd id="solar-out-saving">-</dd></div>
-        <div class="stat"><dt>Simple payback</dt><dd id="solar-out-payback">-</dd></div>
-      </dl>
-
-      <p class="chart-caption" id="solar-formula-note">How this is calculated: panel capacity above 800W is derated (inverter "clipping" - the extra panels mostly help on dull days, not by adding to the 800W ceiling on bright ones); the result is multiplied by 900 kWh/kWp/year (a UK-average yield for an unshaded, well-oriented panel - real sites range from roughly 840 in the north of Scotland to over 1,100 on the south coast), then by the orientation factor and the daylight-occupancy factor above, then by Ofgem's Great Britain average price cap electricity unit rate for direct debit customers: <strong>26.32p/kWh (October-December 2026 cap period)</strong>. It does not model shading, an export tariff, a battery, or your own actual tariff, which may not be the price cap.</p>
-      <p class="chart-caption">Sources: <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges">Ofgem: Energy price cap unit rates and standing charges</a>; UK solar yield range from published UK solar generation estimates (see Sources below). Last checked: 20 September 2026.</p>
     </section>
 
-    <section class="panel" aria-labelledby="cost-heading">
-      <h2 id="cost-heading">What kits actually cost</h2>
-      <p>Prices vary a lot depending on whether you self-install or pay for a professional, MCS-certified fit:</p>
-      <ul class="records-list" id="cost-list">
-        <li><span>Self-install kit, ~800W panels</span><strong>Roughly £300-£600</strong></li>
-        <li><span>Professionally installed, single ~400W panel</span><strong>From around £800</strong></li>
-        <li><span>Professionally installed, twin ~800W panels</span><strong>From around £1,400</strong></li>
-      </ul>
-      <p class="chart-caption">These are indicative ranges from retailer/installer pricing pages, not this site's own quotes, and will vary by retailer and kit. See Sources below.</p>
+    <section class="panel" aria-labelledby="sun-heading">
+      <h2 id="sun-heading">How much sun does Great Britain actually get?</h2>
+      <p>The single biggest factor in what a plug-in kit generates isn't the kit at all - it's where in the country you are and what month it is. "Peak sun hours" is the standard way solar output is measured: one peak sun hour equals 1 kWh of solar energy per square metre, roughly what you'd get from an hour of a clear midday sun. Averaged over a full year, Great Britain gets nowhere near the Sahara, but it's also not as bleak as reputation suggests - southern England receives roughly four times as much irradiance in June as it does in December, and the north-south spread across the country is about 28% at the winter low point.</p>
+      <div class="ps-sunbar-wrap">
+        <div class="ps-sunbar" id="ps-sunbar-demo" aria-hidden="true"></div>
+        <div class="ps-sunbar-labels"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
+      </div>
+      <p class="chart-caption">Illustrative monthly solar irradiance for London (kWh/m²/day, 20-year satellite average). Full location-by-location data, for ~20 UK towns and cities, is built into the <a href="plugin-solar-calculator.html">Energy calculator</a>.</p>
+      <p class="chart-caption">Source: <a href="https://sunhours.app/uk-solar-hours-by-region">sunhours.app: UK solar hours by region</a> (20-year, Jan 2001-Dec 2020, satellite-derived irradiance climatology). Last checked: 20 September 2026.</p>
     </section>
 
     <section class="panel" aria-labelledby="ps-sources-heading">
       <h2 id="ps-sources-heading">Sources</h2>
       <ul style="font-size:.9rem;color:var(--text-muted);">
-        <li><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ consultation, government response and Interim Product Specification v2.0, July 2026) - the primary source for the technical limits above.</li>
-        <li><a href="https://www.pluginsolarregister.co.uk/">Plug-In Solar Register</a> - an independent tracker of the ENA's live Type Test Register of compliant/non-compliant devices.</li>
-        <li><a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges">Ofgem: Energy price cap unit rates and standing charges</a> - the calculator's electricity price.</li>
-        <li><a href="https://www.sunsave.energy/solar-panels-advice/system-size/output">Sunsave: How much electricity do solar panels produce?</a> - UK regional solar yield range (kWh/kWp/year).</li>
-        <li><a href="https://www.ecoflow.com/uk/blog/how-much-do-plug-in-solar-panels-cost">EcoFlow: How much do plug-in solar panels cost?</a> and <a href="https://www.pluginsolarcalculator.com/guides/uk-plug-in-solar-rules-confirmed">Plug-In Solar Calculator: UK plug-in solar rules confirmed</a> - kit pricing and rules cross-reference.</li>
+        <li><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ consultation, government response and Interim Product Specification v2.0, July 2026) - the primary source for the technical limits covered across this section.</li>
+        <li><a href="https://sunhours.app/uk-solar-hours-by-region">sunhours.app: UK solar hours by region</a> - the irradiance climatology behind the chart above and the Energy calculator.</li>
+        <li><a href="https://www.sunsave.energy/solar-panels-advice/system-size/output">Sunsave: How much electricity do solar panels produce?</a> - UK regional solar yield cross-reference.</li>
       </ul>
-      <p style="font-size:.85rem;color:var(--text-muted);">This page is informational, not financial or electrical-safety advice. Always check a specific kit against the live ENA register, and get a qualified electrician's opinion if your consumer unit is old, your circuits are unidentified, or anything about your installation looks unusual, before fitting one yourself.</p>
+      <p style="font-size:.85rem;color:var(--text-muted);">This page is informational, not financial or electrical-safety advice. Always check a specific kit against the live ENA register (see <a href="plugin-solar-certification.html">Certification</a>), and get a qualified electrician's opinion if your consumer unit is old, your circuits are unidentified, or anything about your installation looks unusual, before fitting one yourself (see <a href="plugin-solar-considerations.html">Considerations</a>).</p>
+    </section>
+
+    <section class="ps-gov-links panel" aria-labelledby="gov-links-heading">
+      <h3 id="gov-links-heading">Government &amp; official sources</h3>
+      <ul>
+        <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ)</li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.myplugin.solar/">myplugin.solar</a> - the Energy Networks Association's national registration portal</li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.energynetworks.org/creating-tomorrows-networks/local-generation-and-storage/engineering-recommendations-g98-and-g99">Energy Networks Association: G98/G99 connection standards</a></li>
+      </ul>
     </section>
 
   </div>
@@ -238,59 +227,21 @@
 <script src="../assets/app.js"></script>
 <script>
 (function () {
-  // Ofgem Great Britain-average price cap electricity unit rate, direct
-  // debit, October-December 2026 cap period - see the chart-caption source
-  // link above. This is a manually-maintained constant (per the site's
-  // standing "no scraping supplier sites" rule for this feature) that
-  // should be refreshed each time Ofgem updates the cap, roughly quarterly.
-  var UNIT_RATE_GBP_PER_KWH = 0.2632;
-  var UK_YIELD_KWH_PER_KWP = 900;
-
-  var panelInput = document.getElementById("solar-panel-w");
-  var panelOut = document.getElementById("solar-panel-w-out");
-  var orientationSelect = document.getElementById("solar-orientation");
-  var occupancySelect = document.getElementById("solar-occupancy");
-  var costInput = document.getElementById("solar-cost");
-  var genOut = document.getElementById("solar-out-generation");
-  var savingOut = document.getElementById("solar-out-saving");
-  var paybackOut = document.getElementById("solar-out-payback");
-
-  function calculate() {
-    var panelW = parseFloat(panelInput.value) || 0;
-    panelOut.textContent = panelW + "W";
-
-    // Inverter "clipping": the first 800W of panel capacity converts at
-    // full effective yield; capacity beyond that is derated to 45% since
-    // it only adds useful output when irradiance is below the inverter's
-    // ceiling (dull days, mornings/evenings), not on a clear day when the
-    // inverter is already maxed out. A simplification, not a shading/hour-
-    // by-hour simulation - see the note under the calculator.
-    var effectiveKw = (Math.min(panelW, 800) + Math.max(0, panelW - 800) * 0.45) / 1000;
-
-    var orientationFactor = parseFloat(orientationSelect.value) || 1;
-    var occupancyFactor = parseFloat(occupancySelect.value) || 1;
-
-    var annualGenerationKwh = effectiveKw * UK_YIELD_KWH_PER_KWP * orientationFactor;
-    var usableKwh = annualGenerationKwh * occupancyFactor;
-    var annualSavingGbp = usableKwh * UNIT_RATE_GBP_PER_KWH;
-
-    genOut.textContent = annualGenerationKwh.toFixed(0) + " kWh/yr";
-    savingOut.textContent = "£" + annualSavingGbp.toFixed(0) + "/yr";
-
-    var cost = parseFloat(costInput.value) || 0;
-    if (annualSavingGbp > 0 && cost > 0) {
-      var years = cost / annualSavingGbp;
-      paybackOut.textContent = years < 100 ? years.toFixed(1) + " years" : "50+ years";
-    } else {
-      paybackOut.textContent = "-";
-    }
+  // Small decorative bar strip - London's monthly irradiance (kWh/m^2/day),
+  // scaled to the tallest month, just to illustrate the seasonal swing.
+  // The real, location-selectable data lives in plugin-solar-calculator.html.
+  var london = [0.84, 1.51, 2.64, 4.04, 4.87, 5.30, 5.09, 4.19, 3.23, 1.85, 0.99, 0.66];
+  var wrap = document.getElementById("ps-sunbar-demo");
+  if (wrap) {
+    var max = Math.max.apply(null, london);
+    london.forEach(function (v, i) {
+      var bar = document.createElement("div");
+      bar.style.height = Math.max(4, (v / max) * 100) + "%";
+      bar.style.animationDelay = (i * 0.05) + "s";
+      bar.title = v.toFixed(2) + " kWh/m²/day";
+      wrap.appendChild(bar);
+    });
   }
-
-  [panelInput, orientationSelect, occupancySelect, costInput].forEach(function (el) {
-    el.addEventListener("input", calculate);
-    el.addEventListener("change", calculate);
-  });
-  calculate();
 })();
 </script>
 </body>
