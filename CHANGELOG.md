@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (Australia on-demand refresh fix)
+
+### Fixed
+
+- **`OPENELECTRICITY` was missing from `includes/config.php.example`'s `refresh.intervals_minutes` and `refresh.timeouts_seconds` arrays**, caught immediately by `tools/full-refresh.php`'s own config-check when the previous day's Australia integration was deployed to a real config. `includes/refresh.php`'s fallback defaults (used only when a config predates the `refresh` key entirely) already had `OPENELECTRICITY` correctly added, but the shipped example - which is what an existing install's real `config.php` actually carries forward - was not updated to match, so a config built from it would only ever refresh Australia via cron or `tools/full-refresh.php`, never from an ordinary visitor's page load. Added `'OPENELECTRICITY' => 15` and `'OPENELECTRICITY' => 8` to the example's two arrays (matching `includes/refresh.php`'s existing fallback values), with a short explanatory comment on the timeout entry mirroring the site's other multi-request sources.
+
 ## 2026-09-19 (Australia goes live)
 
 ### Added

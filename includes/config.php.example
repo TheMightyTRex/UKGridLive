@@ -182,14 +182,14 @@ return [
     // with an occasional slower page load in exchange for the
     // embedded-wind figure being refreshed automatically.
     //
-    // EIA and ENTSOE ARE included below (unlike NESO) even though both need
-    // an API key most installs won't have set - leaving either key as
-    // 'CHANGE-ME' just makes that source's ingest function log "OK, 0 rows"
-    // and return immediately, so there's no real cost to having them
-    // enabled by default for installs that haven't set a key up. For
-    // installs that HAVE, this is what makes the USA and
-    // France/Netherlands/Belgium/Norway/Denmark/Ireland-SEM-price pages
-    // work with zero cron access at all - see includes/refresh.php's
+    // EIA, ENTSOE and OPENELECTRICITY ARE included below (unlike NESO) even
+    // though all three need an API key most installs won't have set -
+    // leaving any of those keys as 'CHANGE-ME' just makes that source's
+    // ingest function log "OK, 0 rows" and return immediately, so there's no
+    // real cost to having them enabled by default for installs that haven't
+    // set a key up. For installs that HAVE, this is what makes the USA,
+    // Australia and France/Netherlands/Belgium/Norway/Denmark/Ireland-SEM-
+    // price pages work with zero cron access at all - see includes/refresh.php's
     // ENTSOE case: on-demand refreshes are capped to ONE of the 12
     // configured countries per trigger (staleness-first, not config order),
     // so every call - including the very first, before anything's ever
@@ -201,7 +201,10 @@ return [
     // a 20-minute interval means roughly one full rotation through all 12
     // every ~4 hours, keeping each individual country reasonably close to
     // ENTSO-E's own publication cadence rather than the much longer cycle a
-    // longer interval would produce.
+    // longer interval would produce. 15 minutes for OPENELECTRICITY is
+    // close to AEMO's own 5-minute dispatch cadence without refreshing on
+    // nearly every page load - unlike ENTSOE there's only ever one NEM
+    // market to check, no per-country rotation needed.
     // WEATHER (Open-Meteo) and CONSTRAINTS (NESO's constraint-breakdown
     // dataset) are both included here so their pages' panels work with
     // zero cron access, same as everything else in this list. 60 minutes
@@ -221,6 +224,7 @@ return [
       'EIA' => 240,
       'IESO' => 30,
       'ENTSOE' => 20,
+      'OPENELECTRICITY' => 15,
       'WEATHER' => 60,
       'CONSTRAINTS' => 1440,
       'NOTABLE_MOMENTS' => 1440,
@@ -251,6 +255,7 @@ return [
       'EIA' => 15,
       'IESO' => 7, // per-request, not total - ukgrid_ingest_ieso() makes two sequential calls (~14s worst case)
       'ENTSOE' => 6,
+      'OPENELECTRICITY' => 8, // per-request, not total - ukgrid_ingest_openelectricity() makes two sequential calls
       'WEATHER' => 8,
       'CONSTRAINTS' => 10, // two sequential CKAN calls (resolve resource, then fetch it) - same shape as NESO above
       'NOTABLE_MOMENTS' => 12, // a handful of MAX()/MIN() queries against this site's own tables, no external call
