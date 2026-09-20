@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (Plug-in Solar: warning-box CSS follow-up fix)
+
+### Fixed
+
+- **The "Don't plug in more than one kit" warning box was still reported as breaking mid-sentence after the previous fix.** Root cause: the previous fix scoped the block-level rule to `.ps-warning p:first-child strong:first-child`, but every `.ps-warning` box's `<p>` is actually the *second* child (the icon `<svg>` comes first) - so that selector never matched anything, and the reported "still broken" screenshot was almost certainly the live site, not-yet-updated with the earlier fix. Rather than rely on a `:first-child` selector that silently never matches, replaced it with a plain `.ps-warning strong { font-weight: 700; }` rule - bold text inside a warning box is always inline emphasis now, never a forced block, regardless of where it falls in the sentence. Verified via Playwright screenshot that the box renders as one continuous flowing paragraph.
+
 ## 2026-09-20 (Plug-in Solar: warning/table formatting fixes, battery-page rewrite, ring-circuit worked example, extension-lead warnings, placement picker rework)
 
 ### Fixed
