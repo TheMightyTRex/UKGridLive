@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (copy/PNG/CSV overhaul, per-capita comparisons)
+
+### Added
+
+- **Every chart and donut on the site now gets a consistent "Copy as text / Download PNG / Download CSV" toolbar, formatted to paste cleanly into a comment or spreadsheet, for free - without editing the ~30+ pages that use them.** Rather than touching every individual chart call site, the toolbar is built into the four shared chart-rendering functions in `assets/app.js` (`renderLineChart`, `renderStackedAreaChart`, `renderBarChart`, `renderDonutChart`) via a new `attachChartExport(canvas, spec)`, so any page calling these functions picks up the toolbar automatically. Chart titles are derived automatically from the page's own existing heading structure (`deriveChartTitle()`); a canvas can opt out with `noExport: true` (used on `history.html`, which already had richer bespoke copy/CSV/JSON, and on any illustrative-only chart that isn't real data).
+- **"Download PNG" captures exactly what's already drawn on the chart** (`downloadChartSnapshotPng()`, via `ctx.drawImage()` on the live canvas) rather than re-implementing every chart type's drawing logic a second time - so the export always matches what the visitor actually sees, including the current light/dark theme.
+- **Legend text on exported PNGs is measured, not guessed** (`layoutLegendRows()`, using real `ctx.measureText()` results) so it always wraps to fit the card, whatever the category count - verified against Australia's 9-category worst case and GB's 8-category case, both cleanly wrapped with nothing clipped.
+- **New "Download CSV" button added to every chart, comparison table, and records/context list sitewide**, via new generic `categoriesToCsv()`, `tableToCsv()` and `listToCsv()` helpers (plus matching `categoriesToText()`/`listToText()` for "Copy as text" on lists) wired through new `[data-csv-table]`, `[data-copy-list]`, `[data-csv-list]` attributes.
+- **Records and Notable Moments**: all four of the homepage's tabbed Records lists (Wind/Solar/Emissions/Demand), the homepage's Notable Moments list, and every one of the 22 country/topic pages' "Context"/"Records" lists (23 lists in total, including South America's four per-country lists and Renewables' live-refreshed Network constraint costs list) now have "Copy as text" and "Download CSV" buttons.
+- **New "Compare against" options on `pages/comparisons.html`'s Time Periods tab: "Last week", "2 weeks ago" and "Last month"**, alongside the existing season-based options (now grouped into "Recent" and "Same season" optgroups). Backed by a genuinely new backend capability - a `period_offset` parameter on `api/series.php` that shifts the whole rolling window back by whole window-lengths, generalizing the previously season-only offset mechanism - plus matching plumbing in `assets/data.js`'s `fetchSeries()`.
+- **New population- and area-adjusted comparison metrics on `pages/comparisons.html`'s Countries tab**: demand per person, generation per person, and demand per km², for all 16 tracked grid zones. Each zone is scoped to the specific area its own data source actually covers, not naively "the whole country" - e.g. Canada uses Ontario only (IESO), the USA uses the lower-48 + DC only (EIA), Australia uses the NEM only (NSW/ACT/QLD/VIC/SA/TAS, excluding WA/NT), and Ireland uses the whole island (the SEM spans ROI + NI). Norway (NO2), Denmark (DK1) and Sweden (SE3) are single-bidding-zone figures rather than official whole-country statistics, and are explicitly flagged as estimates in the UI.
+
+### Fixed
+
+- **Discovered and fixed a real pre-existing bug**: Poland ("PL") was selectable in `pages/comparisons.html`'s two country dropdowns but missing from both label lookup objects, which would have displayed the literal string "undefined" as a table column header if selected.
+- **A CSS specificity gotcha meant `hidden` could be silently overridden by an element's own class.** The browser's built-in `[hidden] { display: none }` rule and an author class that sets its own `display` (e.g. `.records-list { display: grid }`, `.download-row { display: flex }`) have equal specificity, so whichever is declared later in the stylesheet wins - which for several elements on this site was the author class, not `[hidden]`. This had been silently harmless everywhere it already existed (`#moments-list`, tab panels, etc.) because those elements happen to be empty/inert while hidden, but it became visibly broken by this change's new `#moments-download-row` (a `.download-row`, always containing two real buttons): the Copy/CSV buttons stayed visible even when Notable Moments had no data to show. Fixed with one defensive sitewide rule, `[hidden] { display: none !important; }`, added near the top of `assets/style.css` - verified with Playwright that this didn't affect any existing tab/panel toggling anywhere on the site.
+- Removed the stale phrase "has been granted and is now wired up" from the ENTSO-E callout on `pages/data-sources.html` (described a past one-off grant event; now written in the present tense to match its actual ongoing state).
+
+### Verification
+
+- Verified via a standalone Playwright test harness (synthetic 9-category and 8-category donuts) that exported PNG legends wrap correctly with nothing clipped.
+- Verified every one of the site's 31 HTML pages' inline `<script>` blocks still parse cleanly (`new Function()`) after all of the above edits, plus `node --check` on `assets/app.js` and `php -l` on `api/series.php`.
+- Verified HTML tag balance (`div`/`ul`/`section`/`p`/`button`) across all 22 directly-edited country/topic pages.
+- Verified rendered layout with Playwright screenshots on both directly-edited pages (Australia, France, the homepage's Notable Moments section) and the `[hidden]` CSS fix specifically (before/after, plus confirming the homepage's Records tabs and `history.html`'s range tabs still toggle correctly).
+
 ## 2026-09-20 (Australia on-demand refresh fix)
 
 ### Fixed

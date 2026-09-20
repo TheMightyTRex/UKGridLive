@@ -218,12 +218,24 @@
     <section class="panel" aria-labelledby="records-heading">
       <h2 id="records-heading">Context</h2>
       <div class="panel-grid panel-grid--2">
-        <ul class="records-list">
-          <li><span>Nuclear share of generation</span><strong>~65-70% in a typical year</strong></li>
-          <li><span>Number of operating reactors</span><strong>57, across 18 sites</strong></li>
-          <li><span>Approx. winter demand record</span><strong>~102GW - February 2012</strong></li>
-          <li><span>Net electricity exporter</span><strong>Most years since the 1980s</strong></li>
-        </ul>
+        <div>
+          <ul class="records-list" id="records-list">
+            <li><span>Nuclear share of generation</span><strong>~65-70% in a typical year</strong></li>
+            <li><span>Number of operating reactors</span><strong>57, across 18 sites</strong></li>
+            <li><span>Approx. winter demand record</span><strong>~102GW - February 2012</strong></li>
+            <li><span>Net electricity exporter</span><strong>Most years since the 1980s</strong></li>
+          </ul>
+          <p class="download-row">
+            <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="France context - UK Grid: Live+">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+              <span data-copy-label aria-live="polite">Copy as text</span>
+            </button>
+            <button type="button" class="copy-btn" data-csv-list="records-list" data-csv-title="records-list">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              <span data-copy-label aria-live="polite">Download CSV</span>
+            </button>
+          </p>
+        </div>
         <div>
           <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of France's approximate nuclear generation share, 2020 to 2025"></canvas></div>
           <p class="chart-caption">Approximate nuclear share of French generation by year - dipped in 2022 due to reactor maintenance and corrosion inspections, recovering since.</p>

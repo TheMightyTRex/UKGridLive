@@ -219,11 +219,21 @@
     <section class="panel" aria-labelledby="records-heading">
       <h2 id="records-heading">Records</h2>
       <p class="chart-caption">The Dinorwig facts below are real and sourced, hand-checked periodically against the sources below (see "Last checked") rather than computed live from this site's own stored history, which for a fresh install would only cover a few days or weeks rather than a full year.</p>
-      <ul class="records-list">
+      <ul class="records-list" id="records-list">
         <li><span>Highest pumped storage discharge (this year)</span><strong>2.7GW - 8 January 2026</strong></li>
         <li><span>Dinorwig start-to-full-power time</span><strong>under 16 seconds</strong></li>
         <li><span>Dinorwig opened</span><strong>1984</strong></li>
       </ul>
+      <p class="download-row">
+        <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Storage records - UK Grid: Live+">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+          <span data-copy-label aria-live="polite">Copy as text</span>
+        </button>
+        <button type="button" class="copy-btn" data-csv-list="records-list" data-csv-title="records-list">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span data-copy-label aria-live="polite">Download CSV</span>
+        </button>
+      </p>
       <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a> (Elexon BMRS for the "this year" figure) and <a href="https://www.firsthydro.com/dinorwig-power-station">First Hydro Company, Dinorwig Power Station</a>. Last checked: 4 September 2026.</p>
     </section>
 

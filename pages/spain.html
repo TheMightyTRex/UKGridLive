@@ -218,12 +218,24 @@
     <section class="panel" aria-labelledby="records-heading">
       <h2 id="records-heading">Context</h2>
       <div class="panel-grid panel-grid--2">
-        <ul class="records-list">
-          <li><span>Renewable share of generation</span><strong>~56% in 2024 - first year renewables outpaced non-renewables</strong></li>
-          <li><span>Wind capacity</span><strong>~32.6GW installed (2025) - Spain's largest single generation technology</strong></li>
-          <li><span>Nuclear fleet</span><strong>7 reactors, ~20% of generation in 2024</strong></li>
-          <li><span>Iberian Peninsula blackout</span><strong>28 April 2025 - grid collapse across Spain, Portugal and parts of southern France</strong></li>
-        </ul>
+        <div>
+          <ul class="records-list" id="records-list">
+            <li><span>Renewable share of generation</span><strong>~56% in 2024 - first year renewables outpaced non-renewables</strong></li>
+            <li><span>Wind capacity</span><strong>~32.6GW installed (2025) - Spain's largest single generation technology</strong></li>
+            <li><span>Nuclear fleet</span><strong>7 reactors, ~20% of generation in 2024</strong></li>
+            <li><span>Iberian Peninsula blackout</span><strong>28 April 2025 - grid collapse across Spain, Portugal and parts of southern France</strong></li>
+          </ul>
+          <p class="download-row">
+            <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Spain context - UK Grid: Live+">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
+              <span data-copy-label aria-live="polite">Copy as text</span>
+            </button>
+            <button type="button" class="copy-btn" data-csv-list="records-list" data-csv-title="records-list">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              <span data-copy-label aria-live="polite">Download CSV</span>
+            </button>
+          </p>
+        </div>
         <div>
           <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Spain's approximate renewable generation share, 2022 to 2025"></canvas></div>
           <p class="chart-caption">Approximate renewable share of Spanish generation by year - renewables passed the halfway mark for the first time in 2024.</p>

@@ -182,7 +182,7 @@
           </label>
         </div>
 
-        <table class="mix">
+        <table class="mix" id="countries-table">
           <caption class="visually-hidden">Side-by-side comparison of two countries' current grid snapshot</caption>
           <thead>
             <tr><th scope="col">Metric</th><th scope="col" class="num" id="countries-col-a">Great Britain</th><th scope="col" class="num" id="countries-col-b">Ireland</th></tr>
@@ -193,8 +193,19 @@
             <tr><td>Generation</td><td class="num" id="ca-generation">-</td><td class="num" id="cb-generation">-</td></tr>
             <tr><td>Day-ahead price</td><td class="num" id="ca-price">-</td><td class="num" id="cb-price">-</td></tr>
             <tr><td>Carbon intensity</td><td class="num" id="ca-emissions">-</td><td class="num" id="cb-emissions">-</td></tr>
+            <tr class="group-row"><th scope="row" colspan="3">Adjusted for population &amp; size</th></tr>
+            <tr><td>Demand per person</td><td class="num" id="ca-demand-percap">-</td><td class="num" id="cb-demand-percap">-</td></tr>
+            <tr><td>Generation per person</td><td class="num" id="ca-generation-percap">-</td><td class="num" id="cb-generation-percap">-</td></tr>
+            <tr><td>Demand per km²</td><td class="num" id="ca-demand-perarea">-</td><td class="num" id="cb-demand-perarea">-</td></tr>
           </tbody>
         </table>
+        <p class="chart-caption" id="countries-percap-caption" style="margin-top:.5rem;"></p>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-csv-table="countries-table" data-csv-title="countries-comparison">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span data-copy-label aria-live="polite">Download CSV</span>
+          </button>
+        </p>
         <p class="chart-caption" id="countries-caption">Loading…</p>
       </section>
     </div>
@@ -215,16 +226,23 @@
           </label>
           <label>Compare against
             <select id="period-offset">
-              <option value="-1" selected>Same season last year</option>
-              <option value="-2">2 years ago</option>
-              <option value="-3">3 years ago</option>
-              <option value="-4">4 years ago</option>
-              <option value="-5">5 years ago</option>
-              <option value="-6">6 years ago</option>
-              <option value="-7">7 years ago</option>
-              <option value="-8">8 years ago</option>
-              <option value="-9">9 years ago</option>
-              <option value="-10">10 years ago</option>
+              <optgroup label="Recent">
+                <option value="week:-1">Last week</option>
+                <option value="week:-2">2 weeks ago</option>
+                <option value="month:-1">Last month</option>
+              </optgroup>
+              <optgroup label="Same season">
+                <option value="season:-1" selected>Same season last year</option>
+                <option value="season:-2">2 years ago</option>
+                <option value="season:-3">3 years ago</option>
+                <option value="season:-4">4 years ago</option>
+                <option value="season:-5">5 years ago</option>
+                <option value="season:-6">6 years ago</option>
+                <option value="season:-7">7 years ago</option>
+                <option value="season:-8">8 years ago</option>
+                <option value="season:-9">9 years ago</option>
+                <option value="season:-10">10 years ago</option>
+              </optgroup>
             </select>
           </label>
         </div>
@@ -368,7 +386,41 @@
 <script src="../assets/data.js"></script>
 <script>
 (function () {
-  const COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", US: "USA", CA: "Canada (Ontario)", AU: "Australia (NEM)" };
+  const COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", PL: "Poland", US: "USA", CA: "Canada (Ontario)", AU: "Australia (NEM)" };
+
+  // Population/land-area for each grid zone the Countries tab can compare -
+  // used for the per-capita/per-km2 rows below, so a straight demand/
+  // generation figure (which just tracks how big a grid is) can also be
+  // read against how many people or how much land it actually serves.
+  // Deliberately scoped to the SAME area each source actually reports on,
+  // not the whole country, where the two differ - e.g. Ontario only (not
+  // all of Canada), NEM only (not all of Australia, which excludes WA/NT),
+  // the lower 48 states only (not Alaska/Hawaii, which EIA's feed doesn't
+  // cover), and the whole island of Ireland (since the SEM market spans
+  // both the Republic and Northern Ireland). Norway (NO2), Denmark (DK1)
+  // and Sweden (SE3) are bidding zones smaller than their own countries
+  // with no single official population figure of their own - those three
+  // are marked isEstimate: true and are sums of their constituent
+  // counties/regions (see CHANGELOG.md for the exact figures summed and
+  // their sources) rather than a precise, directly-published number.
+  const ZONE_STATS = {
+    GB: { population: 66344800, areaKm2: 230050 },
+    IE: { population: 7480000, areaKm2: 84421 },
+    FR: { population: 66792845, areaKm2: 543940 },
+    NL: { population: 18044027, areaKm2: 33670 },
+    BE: { population: 11867634, areaKm2: 30494 },
+    NO: { population: 1248000, areaKm2: 39480, isEstimate: true },
+    DK: { population: 3207000, areaKm2: 33177, isEstimate: true },
+    DE: { population: 83497147, areaKm2: 357022 },
+    ES: { population: 49801559, areaKm2: 506030 },
+    IT: { population: 58934336, areaKm2: 301340 },
+    SE: { population: 4606938, areaKm2: 98016, isEstimate: true },
+    PT: { population: 11424031, areaKm2: 92225 },
+    PL: { population: 37314000, areaKm2: 312696 },
+    US: { population: 339629910, areaKm2: 7663942 },
+    CA: { population: 16258260, areaKm2: 892412 },
+    AU: { population: 24309000, areaKm2: 3806705, isEstimate: true },
+  };
 
   /** Normalizes each source's own current-snapshot shape into one common
       {label, ts, demandMw, generationMw, price, priceUnit, emissionsGco2}
@@ -494,6 +546,40 @@
     set("ca-emissions", a ? fmtEmissions(a.emissionsGco2) : "-");
     set("cb-emissions", b ? fmtEmissions(b.emissionsGco2) : "-");
 
+    // Per-capita/per-area rows: a raw GW figure mostly just tracks how big
+    // a grid is, which mainly reflects population and land area rather
+    // than anything about the grid itself - dividing through by both lets
+    // you compare, say, Ireland against the USA on more equal footing
+    // rather than the USA "winning" every comparison purely by being much
+    // bigger. See ZONE_STATS above for what each zone's population/area
+    // actually covers (some are less than the whole country) and which
+    // three are estimates rather than a precise published figure.
+    function fmtWattsPerPerson(mw, population) {
+      if (mw == null || !population) return "-";
+      return Math.round((mw * 1e6) / population) + "W";
+    }
+    function fmtMwPerArea(mw, areaKm2) {
+      if (mw == null || !areaKm2) return "-";
+      const kwPerKm2 = (mw * 1000) / areaKm2;
+      return (kwPerKm2 >= 100 ? Math.round(kwPerKm2) : kwPerKm2.toFixed(1)) + "kW/km²";
+    }
+    const statsA = ZONE_STATS[selA.value];
+    const statsB = ZONE_STATS[selB.value];
+    set("ca-demand-percap", a && statsA ? fmtWattsPerPerson(a.demandMw, statsA.population) : "-");
+    set("cb-demand-percap", b && statsB ? fmtWattsPerPerson(b.demandMw, statsB.population) : "-");
+    set("ca-generation-percap", a && statsA ? fmtWattsPerPerson(a.generationMw, statsA.population) : "-");
+    set("cb-generation-percap", b && statsB ? fmtWattsPerPerson(b.generationMw, statsB.population) : "-");
+    set("ca-demand-perarea", a && statsA ? fmtMwPerArea(a.demandMw, statsA.areaKm2) : "-");
+    set("cb-demand-perarea", b && statsB ? fmtMwPerArea(b.demandMw, statsB.areaKm2) : "-");
+
+    const percapCaptionEl = document.getElementById("countries-percap-caption");
+    if (percapCaptionEl) {
+      const estimateNote = (statsA && statsA.isEstimate) || (statsB && statsB.isEstimate)
+        ? " Norway (NO2), Denmark (DK1), Sweden (SE3) and Australia (NEM) are only part of their country, with no official population/area figure of their own - theirs are estimates built from the counties/states each zone actually covers (see data sources)."
+        : "";
+      percapCaptionEl.textContent = "Population and land area are for the specific area each source covers, not always the whole country - see data sources for Ontario-only Canada, lower-48-only USA, and NEM-only Australia." + estimateNote;
+    }
+
     if (!a && !b) {
       captionEl.textContent = "Live data isn't available yet for either selection.";
     } else if (!a || !b) {
@@ -539,6 +625,39 @@
   const seasonLabelEl = document.querySelector("[data-season-label]");
   if (seasonLabelEl && window.GridPreview) seasonLabelEl.textContent = GridPreview.getCurrentUkSeason().label;
 
+  // "Compare against" option values are "<kind>:<offset>" - "season:-1" (the
+  // existing year-based comparisons, calendar-anchored to the current UK
+  // meteorological season) or "week:-1"/"week:-2"/"month:-1" (new: a plain
+  // rolling window shifted back by whole window-lengths, for a much more
+  // recent comparison than "same season" can offer - see period_offset in
+  // api/series.php).
+  function parseOffsetOption(value) {
+    const [kind, offsetStr] = value.split(":");
+    return { kind, offset: parseInt(offsetStr, 10) };
+  }
+
+  function recentPeriodLabel(kind, offset) {
+    const nounSingular = kind === "week" ? "week" : "month";
+    if (offset === 0) return `This ${nounSingular}`;
+    if (offset === -1) return `Last ${nounSingular}`;
+    return `${Math.abs(offset)} ${nounSingular}s ago`;
+  }
+
+  // Date-range subtitle for a shifted window, same formatting style as
+  // GridPreview.getRangePeriodLabel() but for a window that ends `offset`
+  // whole window-lengths before now rather than ending now.
+  function shiftedPeriodDates(kind, offset) {
+    const cfg = GridPreview.RANGE_CONFIG[kind];
+    if (!cfg) return "";
+    const windowMs = cfg.points * cfg.stepMs;
+    const end = new Date(Date.now() + offset * windowMs);
+    const start = new Date(end.getTime() - windowMs);
+    const dOpts = { day: "numeric", month: "short", year: "numeric" };
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const startStr = start.toLocaleDateString([], sameYear ? { day: "numeric", month: "short" } : dOpts);
+    return `${startStr} – ${end.toLocaleDateString([], dOpts)}`;
+  }
+
   async function renderPeriodsTab() {
     const metricSel = document.getElementById("period-metric");
     const offsetSel = document.getElementById("period-offset");
@@ -547,20 +666,26 @@
     if (!metricSel || !offsetSel || !canvas || !window.GridData) return;
 
     const metric = metricSel.value;
-    const offset = parseInt(offsetSel.value, 10);
+    const { kind, offset } = parseOffsetOption(offsetSel.value);
+    const isSeason = kind === "season";
+    const baseRange = isSeason ? "season" : kind;
     const cfg = PERIOD_METRICS[metric];
 
     canvas.closest(".chart-wrap").classList.add("is-loading");
     captionEl.textContent = "Loading…";
 
     const [primary, compare] = await Promise.all([
-      window.GridData.fetchSeries(metric, "season"),
-      window.GridData.fetchSeries(metric, "season", null, offset),
+      window.GridData.fetchSeries(metric, baseRange),
+      isSeason
+        ? window.GridData.fetchSeries(metric, baseRange, null, offset)
+        : window.GridData.fetchSeries(metric, baseRange, null, null, offset),
     ]);
     canvas.closest(".chart-wrap").classList.remove("is-loading");
 
-    const thisLabel = GridPreview.getCurrentUkSeason().label;
-    const compareLabel = GridPreview.getUkSeasonBounds(offset).label;
+    const thisLabel = isSeason ? GridPreview.getCurrentUkSeason().label : recentPeriodLabel(kind, 0);
+    const compareLabel = isSeason ? GridPreview.getUkSeasonBounds(offset).label : recentPeriodLabel(kind, offset);
+    const thisDates = isSeason ? "" : ` (${shiftedPeriodDates(kind, 0)})`;
+    const compareDates = isSeason ? "" : ` (${shiftedPeriodDates(kind, offset)})`;
 
     document.getElementById("periods-stat-a-label").textContent = thisLabel + " - average";
     document.getElementById("periods-stat-a-peak-label").textContent = thisLabel + " - peak";
@@ -578,6 +703,7 @@
       label: cfg.label, color: cfg.color, unit: primary.unit || cfg.unit,
       compareSeries: compare || undefined,
       compareLabel: compare ? compareLabel : undefined,
+      exportTitle: `${cfg.label} - ${thisLabel} vs. ${compareLabel} - UK Grid: Live+`,
     });
 
     document.getElementById("periods-stat-a-avg").textContent = fmtMetricValue(avgOf(primary.values), cfg.unit);
@@ -585,9 +711,13 @@
     document.getElementById("periods-stat-b-avg").textContent = compare ? fmtMetricValue(avgOf(compare.values), cfg.unit) : "-";
     document.getElementById("periods-stat-b-peak").textContent = compare ? fmtMetricValue(peakOf(compare.values), cfg.unit) : "-";
 
-    captionEl.textContent = compare
-      ? `Aligned by position within the season, not calendar date - so the same point through each season lines up even though the actual dates differ. ${thisLabel} is still in progress, so only the portion elapsed so far is compared.`
-      : `No recorded data yet for ${compareLabel} on this install - showing ${thisLabel} on its own. A fresh install won't have multi-year history yet.`;
+    if (!compare) {
+      captionEl.textContent = `No recorded data yet for ${compareLabel}${compareDates} on this install - showing ${thisLabel} on its own. A fresh install won't have that much history yet.`;
+    } else if (isSeason) {
+      captionEl.textContent = `Aligned by position within the season, not calendar date - so the same point through each season lines up even though the actual dates differ. ${thisLabel} is still in progress, so only the portion elapsed so far is compared.`;
+    } else {
+      captionEl.textContent = `${thisLabel}${thisDates} against ${compareLabel.toLowerCase()}${compareDates}, aligned by position within each window rather than by calendar date.`;
+    }
   }
 
   document.getElementById("period-metric").addEventListener("change", renderPeriodsTab);
@@ -613,7 +743,7 @@
     nuclear:         { label: "Nuclear",           color: "#6a5acd" },
     biomass:         { label: "Biomass",           color: "#7a8f3f" },
   };
-  const ENERGY_COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", US: "USA", CA: "Canada (Ontario)", AU: "Australia (NEM)" };
+  const ENERGY_COUNTRY_LABELS = { GB: "Great Britain", IE: "Ireland", FR: "France", NL: "Netherlands", BE: "Belgium", NO: "Norway (NO2)", DK: "Denmark (DK1)", DE: "Germany", ES: "Spain", IT: "Italy", SE: "Sweden (SE3)", PT: "Portugal", PL: "Poland", US: "USA", CA: "Canada (Ontario)", AU: "Australia (NEM)" };
 
   // Routes a (country, metric) pair to whichever backend endpoint actually
   // covers it. GB, USA and Australia each have one endpoint that covers

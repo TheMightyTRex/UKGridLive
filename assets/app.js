@@ -630,6 +630,23 @@
 
     registerChart(canvas, draw);
     bindLineChartHover(canvas, () => layout, series, opts, color, draw);
+
+    if (!opts.noExport) {
+      const columns = [{ name: opts.label || "Value", unit: series.unit || opts.unit, color: opts.color, values: series.values }];
+      if (opts.compareSeries && opts.compareSeries.values && opts.compareSeries.values.length) {
+        columns.push({
+          name: opts.compareLabel || "Comparison",
+          unit: series.unit || opts.unit,
+          color: color, // same hue as the primary line (drawn as a lighter dashed overlay on-canvas) - reused here just to distinguish the two legend entries, not to imply a second true colour
+          values: opts.compareSeries.values.slice(0, series.values.length),
+        });
+      }
+      attachChartExport(canvas, {
+        title: opts.exportTitle,
+        kind: "series",
+        data: { times: series.times, labels: series.labels, columns },
+      });
+    }
   }
   window.GridPreview.renderLineChart = renderLineChart;
 
@@ -906,6 +923,18 @@
     registerChart(canvas, draw);
     bindStackedAreaHover(canvas, () => layout, times, labels, series, opts, draw);
     if (opts.legendTarget) buildLegend(opts.legendTarget, series.map((s) => s.name), series.map((s) => s.color));
+
+    if (!opts.noExport) {
+      attachChartExport(canvas, {
+        title: opts.exportTitle,
+        kind: "series",
+        data: {
+          times,
+          labels,
+          columns: series.map((s) => ({ name: s.name, unit: opts.unit, color: s.color, values: s.values })),
+        },
+      });
+    }
   }
   window.GridPreview.renderStackedAreaChart = renderStackedAreaChart;
 
@@ -1518,6 +1547,15 @@
       }
     }
     registerChart(canvas, draw);
+
+    if (!opts.noExport) {
+      const colorArr = Array.isArray(colorsInput) ? colorsInput : labels.map(() => colorsInput);
+      attachChartExport(canvas, {
+        title: opts.exportTitle,
+        kind: "categories",
+        data: { labels, values, colors: colorArr, unit: opts.unit },
+      });
+    }
   }
   window.GridPreview.renderBarChart = renderBarChart;
 
@@ -1676,6 +1714,14 @@
 
     registerChart(canvas, draw);
     if (opts.legendTarget) buildLegend(opts.legendTarget, labels, colors, values, opts.unit);
+
+    if (!opts.noExport) {
+      attachChartExport(canvas, {
+        title: opts.exportTitle,
+        kind: "categories",
+        data: { labels, values, colors, unit: opts.unit },
+      });
+    }
 
     if (!canvas._donutHoverBound) {
       canvas._donutHoverBound = true;
@@ -1873,6 +1919,317 @@
   }
   window.GridPreview.renderPsrMixSection = renderPsrMixSection;
 
+  /* ==========================================================================
+     Universal chart export toolbar - Copy as text / Download PNG / Download CSV
+     ==========================================================================
+     Attached automatically by renderLineChart, renderStackedAreaChart,
+     renderBarChart and renderDonutChart below, rather than requiring every
+     page to hand-wire its own buttons - that's what makes "every graph and
+     donut on the site" tractable: enhance the ~5 shared render functions
+     once, and every one of the ~100 chart calls across every page picks it
+     up automatically. Two exclusions, both automatic:
+       - a canvas marked aria-hidden="true" (the small inline sparklines
+         next to the headline stats) has nothing meaningful to export, so
+         it's skipped;
+       - a call that passes opts.noExport (e.g. history.html's charts,
+         which already have their own more capable per-metric Copy data
+         button plus a combined whole-range CSV/JSON download - adding a
+         second, near-duplicate toolbar there would just be clutter).
+     A page can still pass opts.exportTitle for a nicer label; if it
+     doesn't, deriveChartTitle() below finds one from the page's own
+     heading structure, which every page already has consistently (an <h2>
+     for the section, an <h3> inside chart-card for an individual metric).
+  */
+
+  /** Finds a human title for a chart with no explicit opts.exportTitle, by
+      walking up from the canvas to the nearest heading, prefixed with the
+      page's own <h1> so "Demand" (say) doesn't read as ambiguous once
+      copied/downloaded somewhere that's lost the page context. */
+  function deriveChartTitle(canvas) {
+    const card = canvas.closest(".chart-card");
+    const cardHeading = card && card.querySelector("h3, h4");
+    const section = canvas.closest("section, .panel");
+    const sectionHeading = section && section.querySelector("h2");
+    const heading = cardHeading || sectionHeading;
+    const h1 = document.querySelector("h1");
+    const pageTitle = (h1 && h1.textContent.trim()) || document.title.split("|")[0].trim();
+    const sectionTitle = heading ? heading.textContent.trim() : "";
+    return sectionTitle && sectionTitle !== pageTitle ? `${pageTitle} – ${sectionTitle}` : pageTitle;
+  }
+
+  function slugify(s) {
+    return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-+|-+$)/g, "") || "chart";
+  }
+
+  function todayStamp() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  /** Same narrative style as mixTableToText (e.g. "Wind: 10.33 GW - 35.8%"),
+      but built straight from the arrays already in hand at chart-render
+      time rather than re-parsing an HTML table - works for any donut/bar
+      snapshot, not just the one page with a matching <table>. Deliberately
+      plain text with no markdown syntax (no *bold*, no #headings|), so it
+      pastes cleanly into a forum/social comment box or a plain-text email
+      exactly as written, rather than leaving stray asterisks visible on a
+      site that doesn't render markdown. */
+  function categoriesToText(labels, values, unit, title) {
+    const lines = [];
+    if (title) lines.push(title, "");
+    const total = values.reduce((a, b) => a + Math.max(Number(b) || 0, 0), 0) || 1;
+    labels.forEach((l, i) => {
+      const v = values[i];
+      const pct = ((Math.max(Number(v) || 0, 0) / total) * 100).toFixed(1);
+      lines.push(`${l}: ${formatAxisValue(v, unit)} (${pct}%)`);
+    });
+    lines.push("", "Source: https://ukgridlive.info/");
+    return lines.join("\n");
+  }
+
+  function categoriesToCsv(labels, values, unit) {
+    const header = ["label", unit ? `value (${unit})` : "value", "share of total (%)"];
+    const total = values.reduce((a, b) => a + Math.max(Number(b) || 0, 0), 0) || 1;
+    const lines = [header.map(csvField).join(",")];
+    labels.forEach((l, i) => {
+      const pct = ((Math.max(Number(values[i]) || 0, 0) / total) * 100).toFixed(1);
+      lines.push([l, values[i], pct].map(csvField).join(","));
+    });
+    return lines.join("\r\n");
+  }
+
+  /** Legend entries for the PNG card - one swatch + label per category
+      (donut/bar), or one swatch + series name per line in a multi-column
+      time series (stacked area, or a line chart with a compare overlay).
+      A single-column time series (the common case: one metric, one line)
+      gets no legend at all - there's nothing to distinguish, and the
+      chart's own title already says what it is. */
+  function buildLegendEntries(spec) {
+    if (spec.kind === "categories") {
+      const { labels, values, colors, unit } = spec.data;
+      const total = (values || []).reduce((a, b) => a + Math.max(Number(b) || 0, 0), 0) || 1;
+      return labels.map((l, i) => ({
+        color: (colors && colors[i]) || "#7a7a7a",
+        text: `${l}: ${formatAxisValue(values[i], unit)} (${Math.round((Math.max(Number(values[i]) || 0, 0) / total) * 100)}%)`,
+      }));
+    }
+    const cols = (spec.data.columns || []).filter((c) => c && c.color);
+    if (cols.length > 1) {
+      return cols.map((c) => ({ color: c.color, text: c.name }));
+    }
+    return [];
+  }
+
+  /** Wraps legend entries into as many rows as the card's width actually
+      needs, measured with real canvas text metrics rather than guessing a
+      fixed row length - this is what keeps every category's key legible
+      on the exported image regardless of how many there are (checked
+      against the site's own worst cases: Australia's ~10 fuel-type
+      categories including both battery directions, and GB's own
+      multi-row generation-mix table) instead of a fixed-height legend
+      area that would clip or overlap once a page has more categories
+      than whichever count the layout happened to be eyeballed against. */
+  function layoutLegendRows(ctx, entries, maxWidth) {
+    const rows = [];
+    let row = [];
+    let rowW = 0;
+    const gap = 20;
+    entries.forEach((e) => {
+      const w = 16 + ctx.measureText(e.text).width + gap;
+      if (row.length && rowW + w > maxWidth) {
+        rows.push(row);
+        row = [];
+        rowW = 0;
+      }
+      row.push(e);
+      rowW += w;
+    });
+    if (row.length) rows.push(row);
+    return rows;
+  }
+
+  function drawLegendRows(ctx, rows, x0, y0, rowH, palette) {
+    ctx.font = '600 13px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.textBaseline = "middle";
+    rows.forEach((row, ri) => {
+      let x = x0;
+      const y = y0 + ri * rowH + rowH / 2;
+      row.forEach((e) => {
+        ctx.fillStyle = e.color;
+        ctx.beginPath();
+        ctx.arc(x + 5, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = palette.text;
+        ctx.fillText(e.text, x + 16, y + 1);
+        x += 16 + ctx.measureText(e.text).width + 20;
+      });
+    });
+  }
+
+  /** Fits a title onto one line, truncating with an ellipsis only in the
+      rare case a page heading plus section heading combined don't fit -
+      simpler and more predictable than wrapping to a second line and
+      having to recompute every other element's y-offset underneath it. */
+  function fitTitleLine(ctx, text, maxWidth) {
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    let t = text;
+    while (t.length > 1 && ctx.measureText(t + "…").width > maxWidth) t = t.slice(0, -1);
+    return t + "…";
+  }
+
+  /**
+   * Renders a shareable PNG of a live chart: the chart's own current canvas
+   * pixels (already theme-correct, already showing real data - captured via
+   * drawImage rather than redrawn from scratch, so this works identically
+   * for every chart type without reimplementing each one's drawing code a
+   * second time) plus a title/timestamp header, a legend sized to fit every
+   * category, and a source footer. Card height is computed AFTER measuring
+   * how many legend rows are actually needed, so nothing is ever clipped -
+   * see layoutLegendRows() above.
+   */
+  function downloadChartSnapshotPng(canvas, spec) {
+    const scale = 2;
+    const cardW = 900;
+    const pad = 28;
+    const dark = themeAwareColors().dark;
+    const palette = dark
+      ? { bg: "#14161c", border: "#333846", text: "#edeef2", muted: "#a2a8b6" }
+      : { bg: "#ffffff", border: "#dde1e7", text: "#171a21", muted: "#5b6270" };
+
+    const srcW = canvas.clientWidth || canvas.width || 600;
+    const srcH = canvas.clientHeight || canvas.height || 330;
+    const chartW = cardW - pad * 2;
+    const chartH = Math.round(chartW * Math.min(srcH / srcW, 0.75));
+
+    const measureCanvas = document.createElement("canvas");
+    const mctx = measureCanvas.getContext("2d");
+    mctx.font = '600 13px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
+    const legendEntries = buildLegendEntries(spec);
+    const legendRows = layoutLegendRows(mctx, legendEntries, chartW);
+
+    const headerH = 74;
+    const legendRowH = 24;
+    const legendH = legendRows.length ? legendRows.length * legendRowH + 14 : 0;
+    const footerH = 30;
+    const cardH = headerH + chartH + legendH + footerH + pad;
+
+    const out = document.createElement("canvas");
+    out.width = cardW * scale;
+    out.height = cardH * scale;
+    const ctx = out.getContext("2d");
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = palette.bg;
+    ctx.fillRect(0, 0, cardW, cardH);
+
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = palette.text;
+    ctx.font = '700 18px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText(fitTitleLine(ctx, spec.title || "UK Grid: Live+", cardW - pad * 2), pad, 32);
+    ctx.fillStyle = palette.muted;
+    ctx.font = '500 12px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText("ukgridlive.info – as of " + new Date().toLocaleString(), pad, 52);
+    ctx.strokeStyle = palette.border;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad, headerH - 8);
+    ctx.lineTo(cardW - pad, headerH - 8);
+    ctx.stroke();
+
+    ctx.drawImage(canvas, pad, headerH, chartW, chartH);
+
+    if (legendRows.length) {
+      drawLegendRows(ctx, legendRows, pad, headerH + chartH + 14, legendRowH, palette);
+    }
+
+    ctx.fillStyle = palette.muted;
+    ctx.font = '400 11px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText("Source: https://ukgridlive.info/", pad, cardH - 12);
+
+    out.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ukgridlive-${spec.base}-${todayStamp()}.png`;
+      a.style.position = "fixed";
+      a.style.opacity = "0";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/png");
+  }
+  window.GridPreview.downloadChartSnapshotPng = downloadChartSnapshotPng;
+
+  /** Creates (once) the Copy as text / Download PNG / Download CSV row for
+      a chart, inserted as a sibling right after its .chart-wrap - not
+      inside it, since .chart-wrap has its own fixed aspect-ratio/height
+      CSS plus the is-loading::before shimmer overlay, and sibling buttons
+      inside that box would get squeezed or clipped by that layout. */
+  function ensureChartToolbar(canvas) {
+    if (canvas._exportToolbar) return canvas._exportToolbar;
+    const wrap = canvas.closest(".chart-wrap") || canvas.parentElement;
+    const toolbar = document.createElement("div");
+    toolbar.className = "chart-toolbar";
+    toolbar.innerHTML = [
+      ["copy", "Copy as text"],
+      ["png", "Download PNG"],
+      ["csv", "Download CSV"],
+    ].map(([action, label]) => (
+      `<button type="button" class="copy-btn chart-toolbar__btn" data-chart-action="${action}">` +
+      `<span data-copy-label>${label}</span></button>`
+    )).join("");
+    wrap.insertAdjacentElement("afterend", toolbar);
+    canvas._exportToolbar = toolbar;
+    return toolbar;
+  }
+
+  /** The single entry point every render*Chart function below calls. Safe
+      to call on every (re-)render of the same canvas: toolbar creation and
+      button wiring happen once (guarded by toolbar.dataset.wired), while
+      canvas._exportSpec - what the buttons actually read when clicked - is
+      refreshed every time, so a chart that's re-rendered with new data
+      (illustrative placeholder swapped for live data, a range-tab switch
+      reusing the same canvas) always exports what's currently on screen. */
+  function attachChartExport(canvas, spec) {
+    if (!spec || spec.noExport) return;
+    if (canvas.getAttribute("aria-hidden") === "true") return;
+    const title = spec.title || deriveChartTitle(canvas);
+    const base = spec.filenameBase || slugify(title);
+    canvas._exportSpec = Object.assign({}, spec, { title, base });
+
+    const toolbar = ensureChartToolbar(canvas);
+    if (toolbar.dataset.wired) return;
+    toolbar.dataset.wired = "1";
+
+    const copyBtn = toolbar.querySelector('[data-chart-action="copy"]');
+    const pngBtn = toolbar.querySelector('[data-chart-action="png"]');
+    const csvBtn = toolbar.querySelector('[data-chart-action="csv"]');
+
+    copyBtn.addEventListener("click", () => {
+      const s = canvas._exportSpec;
+      const text = s.kind === "categories"
+        ? categoriesToText(s.data.labels, s.data.values, s.data.unit, s.title)
+        : seriesToText(s.data.times, s.data.labels, s.data.columns, { title: s.title });
+      copyText(text).then(() => announceCopyResult(copyBtn, true)).catch(() => announceCopyResult(copyBtn, false));
+    });
+
+    csvBtn.addEventListener("click", () => {
+      const s = canvas._exportSpec;
+      const csv = s.kind === "categories"
+        ? categoriesToCsv(s.data.labels, s.data.values, s.data.unit)
+        : seriesToCsv(s.data.times, s.data.labels, s.data.columns, {});
+      downloadTextFile(`ukgridlive-${s.base}-${todayStamp()}.csv`, csv, "text/csv");
+      announceCopyResult(csvBtn, true);
+    });
+
+    pngBtn.addEventListener("click", () => {
+      downloadChartSnapshotPng(canvas, canvas._exportSpec);
+      announceCopyResult(pngBtn, true);
+    });
+  }
+  window.GridPreview.attachChartExport = attachChartExport;
+
   /* ---------- External links: open in a new tab, mark it clearly ---------- */
   function externalizeLinks() {
     const here = window.location.hostname;
@@ -1920,6 +2277,58 @@
     return lines.join('\n');
   }
   window.GridPreview.mixTableToText = mixTableToText;
+
+  /** Turns any data table (thead th headers + tbody rows) into a CSV
+      string - a generic counterpart to mixTableToText above, used by
+      [data-csv-table] buttons wherever a page shows a table but has no
+      backing labels/values array in JS to hand to categoriesToCsv
+      directly (the Records/Context and Notable moments tables, e.g.,
+      exist only as server-rendered/DOM content, not JS arrays). */
+  function tableToCsv(table) {
+    const headers = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
+    const lines = [headers.map(csvField).join(',')];
+    table.querySelectorAll('tbody tr').forEach((tr) => {
+      const cells = Array.from(tr.children).map((c) => c.textContent.replace(/\s+/g, ' ').trim());
+      if (!cells[0]) return;
+      lines.push(cells.map(csvField).join(','));
+    });
+    return lines.join('\r\n');
+  }
+  window.GridPreview.tableToCsv = tableToCsv;
+
+  /** Same job as mixTableToText/tableToCsv above, but for a Records/Context
+      or Notable moments list (<ul class="records-list"><li><span>label</span>
+      <strong>value</strong></li>...</ul>) rather than a <table> - shared by
+      every "Copy as text" button on those sections, sitewide. */
+  function listToText(ul, title) {
+    const lines = [];
+    if (title) lines.push(title, "");
+    ul.querySelectorAll("li").forEach((li) => {
+      const label = li.querySelector("span");
+      const value = li.querySelector("strong");
+      if (!label) return;
+      const labelText = label.textContent.replace(/\s+/g, " ").trim();
+      const valueText = value ? value.textContent.replace(/\s+/g, " ").trim() : "";
+      lines.push(valueText ? `${labelText}: ${valueText}` : labelText);
+    });
+    lines.push("", "Source: https://ukgridlive.info/");
+    return lines.join("\n");
+  }
+  window.GridPreview.listToText = listToText;
+
+  function listToCsv(ul) {
+    const lines = ["label,value"];
+    ul.querySelectorAll("li").forEach((li) => {
+      const label = li.querySelector("span");
+      const value = li.querySelector("strong");
+      if (!label) return;
+      const labelText = label.textContent.replace(/\s+/g, " ").trim();
+      const valueText = value ? value.textContent.replace(/\s+/g, " ").trim() : "";
+      lines.push([labelText, valueText].map(csvField).join(","));
+    });
+    return lines.join("\r\n");
+  }
+  window.GridPreview.listToCsv = listToCsv;
 
   /* Turns one or more time-series columns into a tab-separated block, one
      row per timestamp - pastes straight into a spreadsheet as proper
@@ -2274,6 +2683,37 @@
         copyText(text)
           .then(() => announceCopyResult(btn, true))
           .catch(() => announceCopyResult(btn, false));
+      });
+    });
+    document.querySelectorAll('[data-csv-table]').forEach((btn) => {
+      const table = document.getElementById(btn.getAttribute('data-csv-table'));
+      if (!table) return;
+      btn.addEventListener('click', () => {
+        const csv = tableToCsv(table);
+        const base = slugify(btn.getAttribute('data-csv-title') || table.id || 'table');
+        downloadTextFile(`ukgridlive-${base}-${todayStamp()}.csv`, csv, 'text/csv');
+        announceCopyResult(btn, true);
+      });
+    });
+    document.querySelectorAll('[data-copy-list]').forEach((btn) => {
+      const list = document.getElementById(btn.getAttribute('data-copy-list'));
+      if (!list) return;
+      btn.addEventListener('click', () => {
+        const title = btn.getAttribute('data-copy-title') || '';
+        const text = listToText(list, title);
+        copyText(text)
+          .then(() => announceCopyResult(btn, true))
+          .catch(() => announceCopyResult(btn, false));
+      });
+    });
+    document.querySelectorAll('[data-csv-list]').forEach((btn) => {
+      const list = document.getElementById(btn.getAttribute('data-csv-list'));
+      if (!list) return;
+      btn.addEventListener('click', () => {
+        const csv = listToCsv(list);
+        const base = slugify(btn.getAttribute('data-csv-title') || list.id || 'list');
+        downloadTextFile(`ukgridlive-${base}-${todayStamp()}.csv`, csv, 'text/csv');
+        announceCopyResult(btn, true);
       });
     });
   }

@@ -107,6 +107,17 @@
 
 * { box-sizing: border-box; }
 
+/* Belt-and-braces fix for a real CSS gotcha: the browser's own [hidden]
+   rule (display:none) and an author class like .records-list or
+   .download-row that sets its own `display` have equal specificity, so
+   without this, whichever rule is declared later in the cascade wins -
+   which on several elements here is the author class, silently defeating
+   `hidden`/`.hidden = true`. Most existing [hidden] elements on this site
+   happen to end up empty when hidden (so the bug never showed visually),
+   but it's a landmine for any hidden element that keeps static content -
+   this makes `hidden` reliably win everywhere. */
+[hidden] { display: none !important; }
+
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 [id] { scroll-margin-top: 7rem; }
 @media (prefers-reduced-motion: reduce) {
@@ -880,6 +891,19 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   margin: 0 0 1rem;
 }
 .download-row .copy-btn { margin-bottom: 0; }
+
+/* Universal chart export toolbar (Copy as text / Download PNG / Download
+   CSV) - auto-inserted after every .chart-wrap by assets/app.js's
+   attachChartExport(). Sits directly under the chart it belongs to,
+   wrapping onto its own line on narrow screens rather than squeezing
+   three buttons into one row. */
+.chart-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: .6rem 0 1rem;
+}
+.chart-toolbar__btn { margin-bottom: 0; }
 
 /* Mix table */
 table.mix {
