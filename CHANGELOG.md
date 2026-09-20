@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (Plug-in Solar: myplugin.solar link fix, indoor mounting options, base-load section, mounting-icon redesign)
+
+### Fixed
+
+- **`myplugin.solar` links pointed to the wrong subdomain.** All four hrefs across `plugin-solar.html` and `plugin-solar-registration.html` used `https://www.myplugin.solar/`; the correct address has no `www`. Fixed to `https://myplugin.solar/`.
+- **Mounting-type example icons redrawn as side profiles.** The original six icons on the calculator's "Mounting type examples" grid mixed front-on and see-through-window views and didn't read clearly. Redrawn consistently as side-view silhouettes (ground/wall/rail bar plus a panel rectangle, rotated where relevant to show tilt), matching the convention already used for the orientation cards on `plugin-solar-considerations.html`.
+
+### Added
+
+- **Two new indoor mounting options on the Energy calculator**: "Indoors (flat against window)" and "Indoors (tilted behind window)", added back to the Mounting type dropdown (they'd been dropped from the calculator when placement was reworked into Facing/Orientation/Mounting). Unlike the four outdoor mounting types, these two carry their own fixed, illustrative factor (0.55 / 0.65 - the same figures already used on Considerations) and, when selected, override the facing/orientation multiplication entirely, since those figures already assume a south-facing window and bake in an estimated glass-transmission loss. Selecting either one now: greys out and disables the Facing/Orientation dropdowns (they don't apply), shows a new callout warning that the figure is a rough estimate depending heavily on the specific window's glass type (10-15% loss for older single glazing vs 40-50%+ for modern Low-E double glazing), and updates the "How your placement factor is worked out" card to show the fixed estimate instead of a facing x orientation formula. `assets/plugin-solar-data.js`'s `MOUNTINGS` array gained an optional `indoorFactor` field used by the calculator's script to detect and branch on the indoor case.
+- **New "Working out your base load" section on the Energy calculator**, explaining what base load means for the calculator, the accurate method (reading the overnight floor value off a smart meter's in-home display or app), a rough by-property-size guide (small flat ~100-200W, mid-terrace ~200-350W, larger detached ~300-500W) for anyone without a smart meter, and a build-it-yourself breakdown of typical always-on device wattages (a fridge-freezer's ~400W nameplate rating cycles down to roughly 25-60W averaged over a day; a WiFi router draws 2-20W, averaging ~6W; other standby electronics add up in small amounts). Sourced to Home Energy Model's base-load explainer, Power NI's appliance-electricity guide, and Citizens Advice's smart-meter-display guidance - disclosed as general industry guides, not a measurement of the reader's own home.
+
+### Verification
+
+- HTML tag-balance and JS-syntax checks (external + inline) on the calculator page and `plugin-solar-data.js`; CSS brace-balance check; secrets grep - all clean.
+- Playwright: confirmed selecting an indoor mounting option shows the callout, disables both Facing and Orientation selects, and updates the worked-out card to the fixed estimate (0.65 for "tilted behind window"); confirmed switching back to an outdoor option re-enables everything and hides the callout; confirmed the annual generation figure itself changes correctly with the indoor factor (536 kWh/yr at the default south/vertical setup vs 378 kWh/yr for indoor-flat, matching the 0.78→0.55 factor ratio exactly); screenshots of the redrawn mounting-icon grid and the new base-load section.
+
 ## 2026-09-20 (Plug-in Solar: warning-box CSS follow-up fix)
 
 ### Fixed

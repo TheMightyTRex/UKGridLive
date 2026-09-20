@@ -130,11 +130,23 @@
     { id: "vertical", label: "Vertical",         factor: 0.78 }
   ];
 
+  // The two indoor entries are a special case: unlike the four outdoor
+  // mounting types, they carry their own fixed "indoorFactor" and, when
+  // selected, override the facing x orientation multiplication entirely
+  // (see the calculator's script). That's because these figures already
+  // assume a south-facing window and bake in an estimated glass-
+  // transmission loss on top of the orientation loss - the same two
+  // figures (0.55/0.65) used in the older single-dropdown picker and
+  // still shown on pages/plugin-solar-considerations.html, where the
+  // wide 10-50%+ glass-loss range this estimate is drawn from is sourced
+  // and explained in full.
   var MOUNTINGS = [
-    { id: "ground_frame", label: "Outside (Ground Frame)",                            icon: "ground" },
-    { id: "balcony",      label: "Outside (Balcony)",                                 icon: "balcony" },
-    { id: "wall_hang",    label: "Outside (Wall / Hang on outside of Balcony)",       icon: "wallhang" },
-    { id: "wall_mount",   label: "Outside Wall mount",                                icon: "wallmount" }
+    { id: "ground_frame",   label: "Outside (Ground Frame)",                      icon: "ground" },
+    { id: "balcony",        label: "Outside (Balcony)",                           icon: "balcony" },
+    { id: "wall_hang",      label: "Outside (Wall / Hang on outside of Balcony)", icon: "wallhang" },
+    { id: "wall_mount",     label: "Outside Wall mount",                          icon: "wallmount" },
+    { id: "indoor_flat",    label: "Indoors (flat against window)",               icon: "indoor_flat",   indoorFactor: 0.55 },
+    { id: "indoor_tilted",  label: "Indoors (tilted behind window)",              icon: "indoor_tilted", indoorFactor: 0.65 }
   ];
 
   // Manually-maintained price constants (same convention as the previous
