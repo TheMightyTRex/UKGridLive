@@ -158,13 +158,18 @@
 
     <div class="ps-warning" role="note">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <p><strong>A plug-in solar kit MUST connect directly into a wall socket.</strong> Do not use extension leads, multi-way adaptors, travel adaptors or RCD adaptors - see <a href="#ext-heading">Extension leads</a> below for why.</p>
+    </div>
+
+    <div class="ps-warning" role="note">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <p><strong>Don't plug in more than one kit.</strong> This matters most on a shared ring final circuit (see below): two solar kits feeding the same ring, or a solar kit sharing a ring with something else drawing hard at the same time, is exactly the scenario the "one device per household" limit exists to avoid.</p>
     </div>
 
     <section class="panel" aria-labelledby="cu-heading">
       <h2 id="cu-heading">Type of consumer unit</h2>
       <p>Your consumer unit (fuse box) matters more than most people realise. There are, broadly, three generations you'll find in UK homes:</p>
-      <ul class="records-list" id="cu-list">
+      <ul class="ps-fact-list" id="cu-list">
         <li><span>Old rewireable fuse board</span><strong>Fuse wire in a ceramic holder, no RCD protection at all - the type most likely to prompt "get an electrician to check first" advice before fitting any new electrical load, plug-in solar included</strong></li>
         <li><span>Older MCB board, no RCD or a single whole-board RCD</span><strong>Modern circuit breakers, but if there's only one RCD covering the whole board, a fault anywhere trips everything - inconvenient, and a sign the board predates 18th Edition wiring regulations</strong></li>
         <li><span>Modern dual-RCD or RCBO board</span><strong>Each circuit (or small group of circuits) has its own RCBO - a combined residual-current + overcurrent device - so a fault on one socket circuit won't take out your lighting or your fridge circuit too. This is what an 18th Edition-compliant installation looks like today.</strong></li>
@@ -188,6 +193,52 @@
       <h2 id="ring-heading">Ring final circuits, and the risk of sharing one</h2>
       <p>Most UK homes wire their socket outlets as a "ring final circuit" - a single cable that loops out from the consumer unit, around the room(s), and back again, with both ends landing on the same 32A MCB/RCBO. This ring topology is exactly what lets a 2.5mm² cable safely serve a whole floor's worth of sockets: the assumption behind the 32A rating is that normal domestic use is spread out, not that every socket draws hard at once.</p>
       <p>Plugging in a single ~800W solar kit on a ring doesn't change that assumption meaningfully - it's a small injection, well within the ring's normal headroom. The situations actually worth avoiding are: two solar kits feeding sockets on the <strong>same ring</strong> at once (see the warning above); a solar kit sharing a ring with something that's already close to the ring's limit on its own (a space heater plus a kettle plus a tumble dryer, for instance); or an older property where the ring has had unauthorised extra sockets ("spurs") added over the years without checking the total load - which is a pre-existing risk plug-in solar doesn't cause, but is worth having checked regardless if you're not sure of your home's wiring history.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="aircon-ring-heading">
+      <h2 id="aircon-ring-heading">Worked example: plug-in solar and a portable air conditioner</h2>
+      <p>A common real-world combination: a plug-in solar kit in the living room, and a portable air conditioner plugged in nearby during a heatwave. Whether that combination is fine comes down to one question - are the two sockets on the <strong>same ring final circuit</strong>, and what else is on it at the same time?</p>
+      <div class="ps-ring-diagram">
+        <svg viewBox="0 0 520 230" role="img" aria-labelledby="ringDiagTitle ringDiagDesc" style="width:100%;height:auto;max-width:520px;display:block;margin:0 auto;">
+          <title id="ringDiagTitle">A ring final circuit</title>
+          <desc id="ringDiagDesc">A single cable loops out from the consumer unit, past several wall sockets, and back again, with both ends connected to the same circuit breaker.</desc>
+          <rect x="120" y="30" width="330" height="150" rx="16" fill="none" stroke="var(--accent)" stroke-width="3"/>
+          <rect x="8" y="80" width="96" height="50" rx="6" fill="var(--bg-inset)" stroke="currentColor" stroke-width="1.6"/>
+          <text x="56" y="101" text-anchor="middle" font-size="10" fill="currentColor">Consumer</text>
+          <text x="56" y="114" text-anchor="middle" font-size="10" fill="currentColor">unit (MCB)</text>
+          <path d="M104 92 L120 48" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M104 118 L120 162" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="185" cy="30" r="8" fill="var(--accent)"/>
+          <text x="185" y="18" text-anchor="middle" font-size="9" fill="currentColor">Kitchen</text>
+          <circle cx="285" cy="30" r="8" fill="var(--band-average)"/>
+          <text x="285" y="18" text-anchor="middle" font-size="9" fill="currentColor">Solar kit</text>
+          <circle cx="385" cy="30" r="8" fill="var(--accent)"/>
+          <text x="385" y="18" text-anchor="middle" font-size="9" fill="currentColor">Hallway</text>
+          <circle cx="185" cy="180" r="8" fill="var(--band-verybad)"/>
+          <text x="185" y="203" text-anchor="middle" font-size="9" fill="currentColor">Air conditioner</text>
+          <circle cx="285" cy="180" r="8" fill="var(--accent)"/>
+          <text x="285" y="203" text-anchor="middle" font-size="9" fill="currentColor">Lamp</text>
+          <circle cx="385" cy="180" r="8" fill="var(--accent)"/>
+          <text x="385" y="203" text-anchor="middle" font-size="9" fill="currentColor">TV</text>
+        </svg>
+      </div>
+      <p class="chart-caption">Simplified illustration of a ring final circuit: one cable leaves the consumer unit, loops past a series of sockets, and returns to the <strong>same</strong> 32A MCB/RCBO - it isn't a set of independent branches. The solar kit and the air conditioner shown here share one ring; a socket in a different part of the house, or one wired as a "spur", might not.</p>
+      <ul class="ps-fact-list" id="aircon-ring-list">
+        <li><span>The solar kit itself</span><strong>Must connect directly into its own wall socket using the manufacturer's plug. Never put it on an extension lead, multi-way adaptor or travel adaptor - see <a href="#ext-heading">Extension leads</a> above.</strong></li>
+        <li><span>A portable air conditioner on the same ring</span><strong>Electrically fine on its own terms - the ring's 32A protection covers it exactly as it would without any solar kit present - but it will draw far more than the kit ever feeds in, so don't expect the kit to meaningfully offset its running cost. Don't run it alongside a kettle, tumble dryer and heater all on the same ring at once, solar kit or not.</strong></li>
+      </ul>
+      <h3>How to check which sockets are on the same ring</h3>
+      <ol class="ps-steps">
+        <li><strong>Check your consumer unit's labelling first.</strong> Many boards label circuits by room or area ("Downstairs sockets", "Kitchen ring") - a useful starting point, but not a guarantee it's accurate or up to date.</li>
+        <li><strong>Switch off one MCB/RCBO at a time.</strong> With a lamp or similar plugged in and switched on at each socket you want to test, turn off one breaker and see which sockets lose power - everything that goes off together is on that circuit.</li>
+        <li><strong>Use a plug-in socket tester or circuit finder.</strong> An inexpensive tester plugs into a socket while a receiver unit at the consumer unit beeps or lights up on the matching circuit - quicker than the switch-off method when there are a lot of sockets to check.</li>
+        <li><strong>Don't assume by room or wall.</strong> Rings often loop between rooms (a landing socket can share a ring with a bedroom, or a kitchen with a hallway), and older properties may have unrecorded "spurs" added over the years - physical proximity isn't a reliable guide.</li>
+        <li><strong>When in doubt, ask an electrician.</strong> A qualified, registered electrician can test and map your circuits properly and tell you with certainty what shares a ring with what.</li>
+      </ol>
+      <div class="ps-warning" role="note">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <p><strong>This isn't electrical advice for your home.</strong> The diagram and steps above are a general illustration of how ring final circuits work, not a substitute for inspecting your own wiring. If you're not confident identifying your circuits, or your consumer unit or wiring is old or unclear, get a qualified, registered electrician to check before fitting a plug-in solar kit or running high-draw appliances alongside one.</p>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="cut-heading">
@@ -262,7 +313,7 @@
 
     <section class="panel" aria-labelledby="other-heading">
       <h2 id="other-heading">Other things worth knowing</h2>
-      <ul class="records-list" id="other-list">
+      <ul class="ps-fact-list" id="other-list">
         <li><span>Wind and weather loading</span><strong>A panel is a sizeable sail in strong wind - use a bracket rated for the location's exposure, not just for the panel's weight</strong></li>
         <li><span>Cleaning and maintenance</span><strong>Dust, pollen, bird droppings and fallen leaves measurably reduce output - a periodic wipe-down with water restores most of it, but don't create a fall risk reaching an awkward spot to do it</strong></li>
         <li><span>Tell your home insurer</span><strong>Especially for anything mounted externally - some policies want to know about permanently fixed external equipment</strong></li>

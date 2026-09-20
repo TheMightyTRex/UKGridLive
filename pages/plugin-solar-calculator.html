@@ -156,6 +156,11 @@
       </nav>
     </section>
 
+    <div class="ps-warning" role="note">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <p><strong>A plug-in solar kit MUST connect directly into a wall socket.</strong> Do not use extension leads, multi-way adaptors, travel adaptors or RCD adaptors - the Interim Product Specification requires a direct plug-to-socket connection. See <a href="plugin-solar-considerations.html#ext-heading">Extension leads</a> for why.</p>
+    </div>
+
     <section class="panel" aria-labelledby="calc-heading">
       <h2 id="calc-heading">Your setup</h2>
       <div class="compare-picker" style="align-items:flex-start;">
@@ -166,8 +171,14 @@
           <input type="range" id="ps-panel-w" min="300" max="2000" step="10" value="800" style="width:160px;vertical-align:middle;">
           <strong id="ps-panel-w-out" style="min-width:4.5em;display:inline-block;">800W</strong>
         </label>
-        <label>Panel placement
-          <select id="ps-placement"></select>
+        <label>Panel facing
+          <select id="ps-facing"></select>
+        </label>
+        <label>Panel orientation
+          <select id="ps-orientation"></select>
+        </label>
+        <label>Mounting type
+          <select id="ps-mounting"></select>
         </label>
         <label>Household base load (W) - always-on draw
           <input type="number" id="ps-baseload" min="0" max="1000" step="10" value="200">
@@ -184,6 +195,37 @@
         </label>
       </div>
       <p class="chart-caption">Base load is a rough always-on estimate (fridge-freezer, router, standby devices) pre-filled at a typical UK figure - edit it to match your own home if you know it (e.g. from a smart meter's overnight reading). Generation up to this level is assumed to be almost always used instantly; generation above it depends on whether someone's actually home and using extra power, which is what the occupancy setting above controls.</p>
+
+      <h3 style="margin-top:1.5rem;">Mounting type examples</h3>
+      <div class="ps-placement-grid" id="ps-mounting-grid">
+        <div class="ps-placement-card" data-mounting-card="ground_frame">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M8 52h48" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/><path d="M16 52 26 30h20l6 22" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="18" y="14" width="30" height="18" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2" transform="rotate(-16 33 23)"/></svg>
+          <strong>Outside (Ground Frame)</strong>
+          <span>Freestanding angled frame on the ground - no building fixing needed</span>
+        </div>
+        <div class="ps-placement-card" data-mounting-card="balcony">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M8 20v34M56 20v34" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/><path d="M8 30h48" stroke="currentColor" stroke-width="2.4"/><rect x="12" y="32" width="40" height="20" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <strong>Outside (Balcony)</strong>
+          <span>Bracket clamped to the balcony rail, panel typically vertical</span>
+        </div>
+        <div class="ps-placement-card" data-mounting-card="wall_hang">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M6 8v48" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/><path d="M6 22h10M6 40h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="18" y="18" width="34" height="30" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <strong>Outside (Wall / Hang on outside of Balcony)</strong>
+          <span>Hung on brackets from the outer face of a balcony or wall, panel vertical</span>
+        </div>
+        <div class="ps-placement-card" data-mounting-card="wall_mount">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M6 6v52" stroke="var(--border)" stroke-width="5" stroke-linecap="round"/><path d="M6 24h8M6 44h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="16" y="14" width="34" height="36" rx="1.5" fill="var(--bg-inset)" stroke="var(--accent)" stroke-width="2"/></svg>
+          <strong>Outside Wall mount</strong>
+          <span>Fixed directly to an exterior wall face, bracket-mounted vertical or slightly angled</span>
+        </div>
+      </div>
+      <p class="chart-caption">Mounting type is illustrative only - it doesn't change the generation estimate itself. What actually affects output is the facing and orientation you choose above, since a ground frame, a balcony rail, a wall-hang and a wall mount can each be set up tilted or vertical. See <a href="plugin-solar-mounting.html">Mounting</a> for planning/fixing rules for each type.</p>
+
+      <div class="ps-ring-diagram" id="ps-working-card" style="margin-top:1.25rem;">
+        <h3 style="margin-top:0;">How your placement factor is worked out</h3>
+        <p style="margin:0 0 .5rem;font-size:.95rem;"><span id="ps-work-facing-label">-</span> (<strong id="ps-work-facing-factor">-</strong>) &times; <span id="ps-work-orientation-label">-</span> (<strong id="ps-work-orientation-factor">-</strong>) = <strong id="ps-work-combined">-</strong></p>
+        <p class="chart-caption" style="margin:0;">This combined factor is what the calculator multiplies your estimated generation by, relative to the best case this dataset assumes (south-facing, tilted ~30-40°, factor 1.00). Mounting type doesn't feature in this multiplication - see the note above.</p>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="results-heading">
@@ -274,7 +316,7 @@
 
     <section class="panel" aria-labelledby="placement-note-heading">
       <h2 id="placement-note-heading">About the placement options</h2>
-      <p>"South-facing, tilted" is the best-case baseline this calculator's location data already assumes. Every other placement - vertical mounting, east/west, north, and the two indoor/behind-glass options - is a multiplier below that baseline. The two window options include an estimated glass-transmission loss on top of the orientation loss; see <a href="plugin-solar-considerations.html">Considerations</a> for the full explanation, the research this is based on, and why indoor placement isn't really what a registered 800W kit is designed for in the first place.</p>
+      <p>South-facing and tilted ~30-40° is the best-case baseline this calculator's location data already assumes - a factor of 1.00. Facing away from south (east, west or north) and standing the panel vertically instead of tilting it each reduce that baseline; the two factors are multiplied together, and the "How your placement factor is worked out" card above shows exactly how for your current choices. East and west are treated the same, since there's no sourced UK dataset splitting them apart. This calculator's picker covers outdoor mounting only - for the separate, lower-output case of an indoor panel placed behind a window, see the placement figures and caveats on <a href="plugin-solar-considerations.html">Considerations</a>.</p>
     </section>
 
     <section class="panel" aria-labelledby="ps-sources-heading">
@@ -314,7 +356,15 @@
   if (!DATA) { return; }
 
   var citySelect = document.getElementById("ps-city");
-  var placementSelect = document.getElementById("ps-placement");
+  var facingSelect = document.getElementById("ps-facing");
+  var orientationSelect = document.getElementById("ps-orientation");
+  var mountingSelect = document.getElementById("ps-mounting");
+  var mountingCards = Array.prototype.slice.call(document.querySelectorAll("[data-mounting-card]"));
+  var workFacingLabel = document.getElementById("ps-work-facing-label");
+  var workFacingFactor = document.getElementById("ps-work-facing-factor");
+  var workOrientationLabel = document.getElementById("ps-work-orientation-label");
+  var workOrientationFactor = document.getElementById("ps-work-orientation-factor");
+  var workCombined = document.getElementById("ps-work-combined");
   var panelInput = document.getElementById("ps-panel-w");
   var panelOut = document.getElementById("ps-panel-w-out");
   var baseloadInput = document.getElementById("ps-baseload");
@@ -352,12 +402,26 @@
     if (c.id === "london") { opt.selected = true; }
     citySelect.appendChild(opt);
   });
-  DATA.PLACEMENT_FACTORS.forEach(function (p) {
+  DATA.FACINGS.forEach(function (f) {
     var opt = document.createElement("option");
-    opt.value = p.id;
-    opt.textContent = p.label;
-    if (p.id === "south_vert") { opt.selected = true; }
-    placementSelect.appendChild(opt);
+    opt.value = f.id;
+    opt.textContent = f.label;
+    if (f.id === "south") { opt.selected = true; }
+    facingSelect.appendChild(opt);
+  });
+  DATA.ORIENTATIONS.forEach(function (o) {
+    var opt = document.createElement("option");
+    opt.value = o.id;
+    opt.textContent = o.label;
+    if (o.id === "vertical") { opt.selected = true; }
+    orientationSelect.appendChild(opt);
+  });
+  DATA.MOUNTINGS.forEach(function (m) {
+    var opt = document.createElement("option");
+    opt.value = m.id;
+    opt.textContent = m.label;
+    if (m.id === "balcony") { opt.selected = true; }
+    mountingSelect.appendChild(opt);
   });
   baseloadInput.value = DATA.BASE_LOAD_DEFAULT_W;
 
@@ -408,12 +472,30 @@
     var panelW = parseFloat(panelInput.value) || 0;
     panelOut.textContent = panelW + "W";
     var cityId = citySelect.value;
-    var placementId = placementSelect.value;
+    var facingId = facingSelect.value;
+    var orientationId = orientationSelect.value;
+    var mountingId = mountingSelect.value;
+    var placementFactor = DATA.computePlacementFactor(facingId, orientationId);
     var baseLoadW = parseFloat(baseloadInput.value) || 0;
     var occupancyFactor = parseFloat(occupancySelect.value) || 0.5;
     var cost = parseFloat(costInput.value) || 0;
 
-    var months = DATA.computeMonthly(panelW, cityId, placementId, baseLoadW, occupancyFactor);
+    // "How your placement factor is worked out" card - kept in sync with
+    // the facing/orientation dropdowns above.
+    var facing = DATA.getFacing(facingId);
+    var orientation = DATA.getOrientation(orientationId);
+    workFacingLabel.textContent = facing.label;
+    workFacingFactor.textContent = facing.factor.toFixed(2);
+    workOrientationLabel.textContent = orientation.label;
+    workOrientationFactor.textContent = orientation.factor.toFixed(2);
+    workCombined.textContent = placementFactor.toFixed(2) + " (" + Math.round(placementFactor * 100) + "% of best case)";
+
+    // Highlight the selected mounting-type example card.
+    mountingCards.forEach(function (card) {
+      card.classList.toggle("is-active", card.getAttribute("data-mounting-card") === mountingId);
+    });
+
+    var months = DATA.computeMonthly(panelW, cityId, placementFactor, baseLoadW, occupancyFactor);
 
     var annualGenKwh = 0, annualUsableKwh = 0;
     months.forEach(function (m) { annualGenKwh += m.generationKwh; annualUsableKwh += m.usableKwh; });
@@ -490,7 +572,7 @@
     // named weather condition, via DATA.computeDay(). ---
     var seasonId = daySeasonSelect.value;
     var weatherId = dayWeatherSelect.value;
-    var dayData = DATA.computeDay(panelW, cityId, placementId, baseLoadW, occupancyFactor, seasonId, weatherId);
+    var dayData = DATA.computeDay(panelW, cityId, placementFactor, baseLoadW, occupancyFactor, seasonId, weatherId);
     var daySavingOfgem = dayData.usableKwh * DATA.PRICES.ofgem_cap_gbp_per_kwh;
     var daySavingOctopus = dayData.usableKwh * DATA.PRICES.octopus_flexible_gbp_per_kwh;
     dayGenOut.textContent = dayData.generationKwh.toFixed(2) + " kWh";
@@ -499,7 +581,7 @@
     daySavingOctopusOut.textContent = "£" + daySavingOctopus.toFixed(2);
   }
 
-  [citySelect, placementSelect, panelInput, baseloadInput, occupancySelect, costInput,
+  [citySelect, facingSelect, orientationSelect, mountingSelect, panelInput, baseloadInput, occupancySelect, costInput,
     monthSelect, daySeasonSelect, dayWeatherSelect].forEach(function (el) {
     el.addEventListener("input", calculate);
     el.addEventListener("change", calculate);
