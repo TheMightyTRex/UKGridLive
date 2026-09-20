@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (New: Plug-in solar page and savings calculator)
+
+### Added
+
+- **New `pages/plugin-solar.html`**, added to the "Great Britain" nav group on every page. Plug-in ("balcony") solar panel kits became legal to sell and self-install in Great Britain on 27 August 2026 - this is genuinely new, previously-uncovered subject matter for the site, not an extension of the existing live-grid-data pages. The page has four parts:
+  - **What is it** - a plain-language explanation of plug-in solar and how it differs from a full rooftop PV installation (no export payment, no battery by default, self-consumption-dependent savings).
+  - **The rules** - a sourced `records-list` of the confirmed technical limits (800VA/3.5A max inverter output, 2,000W max panel capacity across up to 4 panels, direct BS 1363 plug connection only, `myplugin.solar` registration, one device per household under the current G98 limit), taken from DESNZ's July 2026 government response and Interim Product Specification v2.0 (the primary regulatory source) and cross-checked against several independent installer/guide sites, which is how a factual conflict was caught and resolved: one secondary source claimed these kits must be hardwired to the consumer unit by a registered electrician, which the primary government document contradicts (compliant kits use a standard plug into an existing socket) - the page follows the primary source.
+  - **Savings calculator** - a client-side JS calculator (panel capacity, orientation, and daylight-hours home-occupancy as inputs) estimating annual generation and saving. Deliberately uses Ofgem's own published price cap unit rate (26.32p/kWh, October-December 2026 cap period) as a manually-maintained constant, per the standing "no scraping supplier sites for pricing" instruction for this feature, rather than any retailer's own marketing figures - the same "state the source, state the last-checked date" convention as the site's Records sections. The calculation method (inverter-clipping derate above 800W, a 900 kWh/kWp/year UK-average yield, an orientation factor, a self-consumption factor) is disclosed in full underneath the calculator rather than presented as a precise quote.
+  - **What kits actually cost** - indicative self-install vs professionally-installed price ranges, sourced and captioned as indicative rather than this site's own quotes.
+- New `.compare-picker input[type="number"]`/`input[type="range"]` theming in `assets/style.css`, extending the existing `.compare-picker` select styling (from `pages/comparisons.html`) so the calculator's slider and number field match the site's dark/light theme instead of falling back to unstyled browser defaults.
+
+### Notes
+
+- Per instruction, no live affiliate links were added anywhere on the site for this feature - a separate research-only document on UK plug-in solar retailers' affiliate programmes (EcoFlow, Anker SOLIX, BLUETTI, UKSOL) was written and delivered directly, not published.
+
+### Verification
+
+- JS-syntax and HTML tag-balance checks on the new page; confirmed all 32 pages (31 existing + the new one) now carry the same nav entry via a scripted, anchor-based sitewide update, with a spot-check that the "Great Britain" nav dropdown renders it correctly.
+- Manually re-derived the calculator's own arithmetic for its default inputs to confirm the displayed £/kWh/payback figures match the formula disclosed on the page.
+- Cross-checked the regulatory figures against DESNZ's primary-source PDFs (the July 2026 government response and the Interim Product Specification) rather than relying solely on secondary installer-guide sites, after finding a genuine conflict between two secondary sources on the connection method.
+
 ## 2026-09-20 (Interconnector maps redrawn with real geography)
 
 ### Changed
