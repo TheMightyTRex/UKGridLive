@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-20 (Plug-in Solar: subnav icon fix, Annual/Month/Day calculator tabs)
+
+### Fixed
+
+- **Subnav icons missing on 7 of the 8 Plug-in Solar pages.** The cross-page tile row (`.ps-subnav`) only had its icons wired up on `plugin-solar.html` itself - Safety, Battery power, Considerations, Mounting, Registration, Energy calculator and Certification were shipped with plain text tiles. Fixed via a scripted pass inserting the same icon SVG (matching the one used for that page in the main nav dropdown) into all eight pages' subnav consistently.
+
+### Added
+
+- **Annual / Month / Day tabs on the Energy calculator's "Estimated results" section.** Previously the section only showed annual totals plus the monthly chart/table. Now:
+  - **Annual** - unchanged: annual generation/usable/savings/payback, the monthly bar chart, and the CSV-exportable monthly table.
+  - **Month** - a month dropdown (defaulting to the current month) showing that single month's generation, usable generation and both savings figures, read directly from the same per-month array the Annual tab's chart/table use, so the two never disagree.
+  - **Day** - two dropdowns, Season (Spring/Summer/Autumn/Winter) and Weather (Sunny, Cloudy, Overcast, Wet, Stormy), estimating a single representative day's generation and saving. The season maps to the average irradiance across its three calendar months; the weather condition applies an illustrative multiplier (1.60 sunny down to 0.15 stormy) on top of that average. There's no citable UK dataset breaking solar irradiance down by named weather condition, so this is explicitly disclosed on-page as an illustration of day-to-day variability, not a measured forecast - consistent with the site's practice of never presenting a modelling assumption as measured fact.
+  - New shared logic in `assets/plugin-solar-data.js`: `SEASONS`, `WEATHER_CONDITIONS`, `getProfile()`, `getSeason()`, `getWeather()` and `computeDay()`, alongside the existing `computeMonthly()` - the page script no longer duplicates the 13-city irradiance-profile object inline, it now calls `DATA.getProfile()` for the sun-hours strip too.
+  - New `.ps-tabs`/`.ps-tab-btn`/`.ps-tab-panel` styling in `assets/style.css`, built from existing tokens/keyframes so it matches the site's light/dark theme.
+
+### Verification
+
+- JS-syntax check on both inline scripts and `assets/plugin-solar-data.js`; HTML tag-balance check on the calculator page.
+- Playwright: confirmed all three tabs switch correctly, the Day tab produces sensible extremes (a stormy winter day and a sunny summer day for London came out at 0.08 kWh and 3.88 kWh respectively for an 800W south-vertical setup), and the Month tab's December figures match the Annual tab's own table row for December.
+- Playwright screenshot of the Safety page confirming its subnav tiles now show icons matching the main nav.
+
 ## 2026-09-20 (Plug-in Solar becomes its own 8-page top-level section)
 
 ### Added

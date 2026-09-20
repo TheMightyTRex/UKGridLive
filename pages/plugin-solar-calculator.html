@@ -145,14 +145,14 @@
       </div>
       <p>Estimate what a plug-in solar kit could generate and save you, month by month across the year, based on your location, the season, which way the panels face, your household's background power use, and what the kit costs. This is a modelling tool, not a quote - see the formula notes under each section for exactly what it does and doesn't account for.</p>
       <nav class="ps-subnav" aria-label="Plug-in Solar section pages">
-        <a href="plugin-solar.html">What is it</a>
-        <a href="plugin-solar-safety.html">Safety</a>
-        <a href="plugin-solar-battery.html">Battery power</a>
-        <a href="plugin-solar-considerations.html">Considerations</a>
-        <a href="plugin-solar-mounting.html">Mounting</a>
-        <a href="plugin-solar-registration.html">Registration</a>
-        <a href="plugin-solar-calculator.html" aria-current="page">Energy calculator</a>
-        <a href="plugin-solar-certification.html">Certification</a>
+        <a href="plugin-solar.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v2M12 19v2M5 5l1.4 1.4M17.6 17.6 19 19M3 12h2M19 12h2M5 19l1.4-1.4M17.6 6.4 19 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/></svg>What is it</a>
+        <a href="plugin-solar-safety.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Safety</a>
+        <a href="plugin-solar-battery.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="8" width="17" height="8" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M21 10.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Battery power</a>
+        <a href="plugin-solar-considerations.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 15.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Considerations</a>
+        <a href="plugin-solar-mounting.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 20h18M6 20V9l6-4 6 4v11" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Mounting</a>
+        <a href="plugin-solar-registration.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l3 3v15H6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Registration</a>
+        <a href="plugin-solar-calculator.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Energy calculator</a>
+        <a href="plugin-solar-certification.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/><path d="M9 14l-2 7 5-3 5 3-2-7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Certification</a>
       </nav>
     </section>
 
@@ -188,32 +188,74 @@
 
     <section class="panel" aria-labelledby="results-heading">
       <h2 id="results-heading">Estimated results</h2>
-      <dl class="status-grid" aria-label="Estimated plug-in solar savings" style="grid-template-columns:repeat(4,1fr);">
-        <div class="stat"><dt>Annual generation</dt><dd id="ps-out-generation">-</dd></div>
-        <div class="stat"><dt>Annual usable</dt><dd id="ps-out-usable">-</dd></div>
-        <div class="stat"><dt>Saving vs Ofgem cap</dt><dd id="ps-out-saving-ofgem">-</dd></div>
-        <div class="stat"><dt>Saving vs Octopus Flexible</dt><dd id="ps-out-saving-octopus">-</dd></div>
-      </dl>
-      <dl class="status-grid" aria-label="Payback" style="grid-template-columns:repeat(2,1fr);margin-top:.75rem;">
-        <div class="stat"><dt>Simple payback (Ofgem cap)</dt><dd id="ps-out-payback-ofgem">-</dd></div>
-        <div class="stat"><dt>Simple payback (Octopus Flexible)</dt><dd id="ps-out-payback-octopus">-</dd></div>
-      </dl>
 
-      <div class="chart-wrap" style="height:240px;margin-top:1rem;"><canvas id="ps-monthly-chart" role="img" aria-label="Estimated monthly generation and usable generation"></canvas></div>
-      <p class="chart-caption">Bars show estimated generation each month; the darker portion is the share estimated as actually usable (self-consumed) rather than lost.</p>
+      <div class="ps-tabs" role="tablist" aria-label="Results period">
+        <button type="button" role="tab" id="ps-tab-annual-btn" aria-controls="ps-tab-annual" aria-selected="true" class="ps-tab-btn" data-ps-tab="annual">Annual</button>
+        <button type="button" role="tab" id="ps-tab-month-btn" aria-controls="ps-tab-month" aria-selected="false" tabindex="-1" class="ps-tab-btn" data-ps-tab="month">Month</button>
+        <button type="button" role="tab" id="ps-tab-day-btn" aria-controls="ps-tab-day" aria-selected="false" tabindex="-1" class="ps-tab-btn" data-ps-tab="day">Day</button>
+      </div>
 
-      <table style="width:100%;border-collapse:collapse;margin-top:1rem;font-size:.85rem;" id="ps-monthly-table">
-        <thead><tr><th style="text-align:left;padding:.35rem;">Month</th><th style="text-align:right;padding:.35rem;">Generation (kWh)</th><th style="text-align:right;padding:.35rem;">Usable (kWh)</th><th style="text-align:right;padding:.35rem;">Saving vs Ofgem cap</th></tr></thead>
-        <tbody id="ps-monthly-tbody"></tbody>
-      </table>
-      <p class="download-row">
-        <button type="button" class="copy-btn" data-csv-table="ps-monthly-table" data-csv-title="plugin-solar-monthly-estimate">
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <span data-copy-label aria-live="polite">Download CSV</span>
-        </button>
-      </p>
+      <div class="ps-tab-panel" id="ps-tab-annual" role="tabpanel" aria-labelledby="ps-tab-annual-btn">
+        <dl class="status-grid" aria-label="Estimated plug-in solar savings" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat"><dt>Annual generation</dt><dd id="ps-out-generation">-</dd></div>
+          <div class="stat"><dt>Annual usable</dt><dd id="ps-out-usable">-</dd></div>
+          <div class="stat"><dt>Saving vs Ofgem cap</dt><dd id="ps-out-saving-ofgem">-</dd></div>
+          <div class="stat"><dt>Saving vs Octopus Flexible</dt><dd id="ps-out-saving-octopus">-</dd></div>
+        </dl>
+        <dl class="status-grid" aria-label="Payback" style="grid-template-columns:repeat(2,1fr);margin-top:.75rem;">
+          <div class="stat"><dt>Simple payback (Ofgem cap)</dt><dd id="ps-out-payback-ofgem">-</dd></div>
+          <div class="stat"><dt>Simple payback (Octopus Flexible)</dt><dd id="ps-out-payback-octopus">-</dd></div>
+        </dl>
 
-      <p class="chart-caption" id="ps-formula-note">How this is calculated: panel capacity is capped at the 800W/800VA inverter limit, with capacity above that derated to 45% (representing the extra low/medium-irradiance capture an oversized array gets - see the worked explanation on <a href="plugin-solar-considerations.html">Considerations</a>), then multiplied by your location's month-by-month solar irradiance (kWh/m²/day) and an industry-standard 0.80 performance ratio, then by your panel placement factor. The usable share splits generation into "up to your base load" (assumed ~95% self-consumed, since something is almost always drawing that much) and "above your base load" (only counted as used at the rate set by your daylight-occupancy answer). Savings are shown against both Ofgem's Great Britain-average price cap and Octopus Energy's Flexible tariff, since actual unit rates vary by supplier and region. This does not model shading, an export tariff, a battery, or your own home's actual tariff.</p>
+        <div class="chart-wrap" style="height:240px;margin-top:1rem;"><canvas id="ps-monthly-chart" role="img" aria-label="Estimated monthly generation and usable generation"></canvas></div>
+        <p class="chart-caption">Bars show estimated generation each month; the darker portion is the share estimated as actually usable (self-consumed) rather than lost.</p>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:1rem;font-size:.85rem;" id="ps-monthly-table">
+          <thead><tr><th style="text-align:left;padding:.35rem;">Month</th><th style="text-align:right;padding:.35rem;">Generation (kWh)</th><th style="text-align:right;padding:.35rem;">Usable (kWh)</th><th style="text-align:right;padding:.35rem;">Saving vs Ofgem cap</th></tr></thead>
+          <tbody id="ps-monthly-tbody"></tbody>
+        </table>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-csv-table="ps-monthly-table" data-csv-title="plugin-solar-monthly-estimate">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span data-copy-label aria-live="polite">Download CSV</span>
+          </button>
+        </p>
+      </div>
+
+      <div class="ps-tab-panel" id="ps-tab-month" role="tabpanel" aria-labelledby="ps-tab-month-btn" hidden>
+        <div class="compare-picker" style="align-items:flex-start;">
+          <label>Month
+            <select id="ps-month-select"></select>
+          </label>
+        </div>
+        <dl class="status-grid" aria-label="Estimated plug-in solar savings for the selected month" style="grid-template-columns:repeat(2,1fr);margin-top:1rem;">
+          <div class="stat"><dt>Generation this month</dt><dd id="ps-month-out-generation">-</dd></div>
+          <div class="stat"><dt>Usable this month</dt><dd id="ps-month-out-usable">-</dd></div>
+          <div class="stat"><dt>Saving vs Ofgem cap</dt><dd id="ps-month-out-saving-ofgem">-</dd></div>
+          <div class="stat"><dt>Saving vs Octopus Flexible</dt><dd id="ps-month-out-saving-octopus">-</dd></div>
+        </dl>
+        <p class="chart-caption">Figures for the selected month only, using the location/panel/placement/base-load/occupancy settings above.</p>
+      </div>
+
+      <div class="ps-tab-panel" id="ps-tab-day" role="tabpanel" aria-labelledby="ps-tab-day-btn" hidden>
+        <div class="compare-picker" style="align-items:flex-start;">
+          <label>Season
+            <select id="ps-day-season"></select>
+          </label>
+          <label>Weather
+            <select id="ps-day-weather"></select>
+          </label>
+        </div>
+        <dl class="status-grid" aria-label="Estimated plug-in solar savings for one day" style="grid-template-columns:repeat(2,1fr);margin-top:1rem;">
+          <div class="stat"><dt>Generation that day</dt><dd id="ps-day-out-generation">-</dd></div>
+          <div class="stat"><dt>Usable that day</dt><dd id="ps-day-out-usable">-</dd></div>
+          <div class="stat"><dt>Saving vs Ofgem cap</dt><dd id="ps-day-out-saving-ofgem">-</dd></div>
+          <div class="stat"><dt>Saving vs Octopus Flexible</dt><dd id="ps-day-out-saving-octopus">-</dd></div>
+        </dl>
+        <p class="chart-caption" id="ps-day-note">Uses the average of that season's three months' irradiance, then applies an illustrative weather multiplier - there's no citable UK dataset breaking solar irradiance down by named weather condition, so treat this tab as illustrating day-to-day variability, not a measured forecast.</p>
+      </div>
+
+      <p class="chart-caption" id="ps-formula-note">How this is calculated: panel capacity is capped at the 800W/800VA inverter limit, with capacity above that derated to 45% (representing the extra low/medium-irradiance capture an oversized array gets - see the worked explanation on <a href="plugin-solar-considerations.html">Considerations</a>), then multiplied by solar irradiance (kWh/m²/day) for the chosen period and an industry-standard 0.80 performance ratio, then by your panel placement factor. The usable share splits generation into "up to your base load" (assumed ~95% self-consumed, since something is almost always drawing that much) and "above your base load" (only counted as used at the rate set by your daylight-occupancy answer). Savings are shown against both Ofgem's Great Britain-average price cap and Octopus Energy's Flexible tariff, since actual unit rates vary by supplier and region. This does not model shading, an export tariff, a battery, or your own home's actual tariff.</p>
     </section>
 
     <section class="panel" aria-labelledby="sun-heading">
@@ -289,6 +331,19 @@
   var sunbarWrap = document.getElementById("ps-sunbar");
   var sunCaption = document.getElementById("ps-sun-caption");
 
+  var monthSelect = document.getElementById("ps-month-select");
+  var monthGenOut = document.getElementById("ps-month-out-generation");
+  var monthUsableOut = document.getElementById("ps-month-out-usable");
+  var monthSavingOfgemOut = document.getElementById("ps-month-out-saving-ofgem");
+  var monthSavingOctopusOut = document.getElementById("ps-month-out-saving-octopus");
+
+  var daySeasonSelect = document.getElementById("ps-day-season");
+  var dayWeatherSelect = document.getElementById("ps-day-weather");
+  var dayGenOut = document.getElementById("ps-day-out-generation");
+  var dayUsableOut = document.getElementById("ps-day-out-usable");
+  var daySavingOfgemOut = document.getElementById("ps-day-out-saving-ofgem");
+  var daySavingOctopusOut = document.getElementById("ps-day-out-saving-octopus");
+
   // Populate the location and placement dropdowns from the shared dataset.
   DATA.CITIES.forEach(function (c) {
     var opt = document.createElement("option");
@@ -305,6 +360,41 @@
     placementSelect.appendChild(opt);
   });
   baseloadInput.value = DATA.BASE_LOAD_DEFAULT_W;
+
+  DATA.MONTH_LABELS.forEach(function (label, i) {
+    var opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = label;
+    if (i === new Date().getMonth()) { opt.selected = true; }
+    monthSelect.appendChild(opt);
+  });
+  DATA.SEASONS.forEach(function (s) {
+    var opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.label;
+    daySeasonSelect.appendChild(opt);
+  });
+  DATA.WEATHER_CONDITIONS.forEach(function (w) {
+    var opt = document.createElement("option");
+    opt.value = w.id;
+    opt.textContent = w.label;
+    dayWeatherSelect.appendChild(opt);
+  });
+
+  // --- Results-period tabs (Annual / Month / Day) ---------------------
+  var tabButtons = Array.prototype.slice.call(document.querySelectorAll(".ps-tab-btn"));
+  function selectTab(name) {
+    tabButtons.forEach(function (btn) {
+      var active = btn.getAttribute("data-ps-tab") === name;
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+      btn.tabIndex = active ? 0 : -1;
+      var panel = document.getElementById("ps-tab-" + btn.getAttribute("data-ps-tab"));
+      if (panel) { panel.hidden = !active; }
+    });
+  }
+  tabButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () { selectTab(btn.getAttribute("data-ps-tab")); });
+  });
 
   var chartInstanceDrawn = false;
 
@@ -363,29 +453,12 @@
       );
     }
 
-    // Sun-hours strip for the selected city
+    // Sun-hours strip for the selected city - the raw monthly irradiance
+    // profile, kept separate from computeMonthly's derived kWh output on
+    // purpose, so the strip always shows the underlying climate data, not
+    // the user's own panel/placement choices.
     var city = DATA.getCity(cityId);
-    var profile = null;
-    // Recover the raw monthly irradiance profile for the sunbar (kept
-    // separate from computeMonthly's derived kWh output on purpose, so the
-    // strip always shows the underlying climate data, not the user's own
-    // panel/placement choices).
-    var profiles = {
-      cornwall:[0.82,1.61,2.80,4.47,5.43,5.81,5.36,4.56,3.47,1.96,1.04,0.65],
-      south_coast:[0.85,1.59,2.87,4.58,5.53,6.00,5.79,4.80,3.57,1.98,1.03,0.67],
-      london:[0.84,1.51,2.64,4.04,4.87,5.30,5.09,4.19,3.23,1.85,0.99,0.66],
-      bristol_sw:[0.80,1.49,2.66,4.11,5.02,5.32,5.04,4.16,3.22,1.81,0.96,0.62],
-      east_anglia:[0.75,1.45,2.62,4.10,4.93,5.16,4.99,4.19,3.18,1.81,0.92,0.60],
-      midlands:[0.77,1.48,2.60,3.98,4.91,5.13,4.99,4.11,3.12,1.78,0.95,0.63],
-      nw_england:[0.64,1.33,2.52,3.93,4.90,5.05,4.81,4.01,2.89,1.60,0.79,0.49],
-      yorkshire:[0.68,1.37,2.47,3.83,4.77,4.84,4.77,3.92,2.94,1.66,0.84,0.54],
-      ne_england:[0.62,1.26,2.37,3.74,4.73,4.73,4.62,3.78,2.81,1.53,0.76,0.46],
-      edinburgh:[0.55,1.20,2.25,3.66,4.70,4.57,4.40,3.65,2.64,1.46,0.71,0.40],
-      glasgow:[0.50,1.19,2.32,3.77,4.77,4.75,4.49,3.67,2.60,1.42,0.67,0.37],
-      aberdeen:[0.44,1.10,2.15,3.59,4.63,4.53,4.43,3.52,2.51,1.34,0.58,0.30],
-      highlands:[0.38,0.98,2.01,3.43,4.46,4.35,4.10,3.33,2.36,1.26,0.53,0.26]
-    };
-    profile = profiles[city.profile] || profiles.london;
+    var profile = DATA.getProfile(cityId);
     sunbarWrap.innerHTML = "";
     var maxIrr = Math.max.apply(null, profile);
     profile.forEach(function (v, i) {
@@ -398,12 +471,40 @@
     sunCaption.textContent = "Monthly average solar irradiance for " + city.label.replace(" (estimated - see note)", "") +
       (city.estimated ? " - estimated using Newcastle upon Tyne's climate data as the nearest latitude match; Northern Ireland isn't covered by the underlying dataset." : "") +
       " (kWh/m²/day, 20-year satellite average). Source checked " + DATA.PRICES.checked_date + ".";
+
+    // --- Month tab: pull the selected month straight out of the same
+    // "months" array the annual tab/table/chart already computed above,
+    // so both tabs always agree with each other. ---
+    var monthIndex = parseInt(monthSelect.value, 10) || 0;
+    var monthData = months[monthIndex];
+    if (monthData) {
+      var monthSavingOfgem = monthData.usableKwh * DATA.PRICES.ofgem_cap_gbp_per_kwh;
+      var monthSavingOctopus = monthData.usableKwh * DATA.PRICES.octopus_flexible_gbp_per_kwh;
+      monthGenOut.textContent = monthData.generationKwh.toFixed(1) + " kWh";
+      monthUsableOut.textContent = monthData.usableKwh.toFixed(1) + " kWh";
+      monthSavingOfgemOut.textContent = "£" + monthSavingOfgem.toFixed(2);
+      monthSavingOctopusOut.textContent = "£" + monthSavingOctopus.toFixed(2);
+    }
+
+    // --- Day tab: a single representative day for a chosen season and
+    // named weather condition, via DATA.computeDay(). ---
+    var seasonId = daySeasonSelect.value;
+    var weatherId = dayWeatherSelect.value;
+    var dayData = DATA.computeDay(panelW, cityId, placementId, baseLoadW, occupancyFactor, seasonId, weatherId);
+    var daySavingOfgem = dayData.usableKwh * DATA.PRICES.ofgem_cap_gbp_per_kwh;
+    var daySavingOctopus = dayData.usableKwh * DATA.PRICES.octopus_flexible_gbp_per_kwh;
+    dayGenOut.textContent = dayData.generationKwh.toFixed(2) + " kWh";
+    dayUsableOut.textContent = dayData.usableKwh.toFixed(2) + " kWh";
+    daySavingOfgemOut.textContent = "£" + daySavingOfgem.toFixed(2);
+    daySavingOctopusOut.textContent = "£" + daySavingOctopus.toFixed(2);
   }
 
-  [citySelect, placementSelect, panelInput, baseloadInput, occupancySelect, costInput].forEach(function (el) {
+  [citySelect, placementSelect, panelInput, baseloadInput, occupancySelect, costInput,
+    monthSelect, daySeasonSelect, dayWeatherSelect].forEach(function (el) {
     el.addEventListener("input", calculate);
     el.addEventListener("change", calculate);
   });
+  selectTab("annual");
   calculate();
 })();
 </script>
