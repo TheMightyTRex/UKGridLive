@@ -109,6 +109,34 @@
     { id: "window_angle", label: "Indoors, angled behind glass e.g. a conservatory roof/skylight (see note)",  factor: 0.65 }
   ];
 
+  // Newer three-part placement picker used by the calculator: which way the
+  // panel faces, whether it's tilted or vertical, and how it's physically
+  // fixed. Facing and orientation each carry a multiplier (combined by
+  // multiplying the two together - see computePlacementFactor below);
+  // mounting type is informational/illustrative only, since a ground frame,
+  // a balcony rail, an outside wall-hang and a wall mount can each be set up
+  // tilted or vertical, so the mounting choice itself doesn't change the
+  // output estimate. East and west are given the same factor as this
+  // dataset doesn't have a sourced east/west asymmetry to draw on.
+  var FACINGS = [
+    { id: "south", label: "South facing",                       factor: 1.00 },
+    { id: "east",  label: "East facing",                        factor: 0.62 },
+    { id: "west",  label: "West facing",                        factor: 0.62 },
+    { id: "north", label: "North facing (not recommended)",     factor: 0.35 }
+  ];
+
+  var ORIENTATIONS = [
+    { id: "tilted",   label: "Tilted (~30-40°)", factor: 1.00 },
+    { id: "vertical", label: "Vertical",         factor: 0.78 }
+  ];
+
+  var MOUNTINGS = [
+    { id: "ground_frame", label: "Outside (Ground Frame)",                            icon: "ground" },
+    { id: "balcony",      label: "Outside (Balcony)",                                 icon: "balcony" },
+    { id: "wall_hang",    label: "Outside (Wall / Hang on outside of Balcony)",       icon: "wallhang" },
+    { id: "wall_mount",   label: "Outside Wall mount",                                icon: "wallmount" }
+  ];
+
   // Manually-maintained price constants (same convention as the previous
   // single-page calculator's Ofgem constant). Refresh each time the
   // relevant cap period/tariff changes - see each page's "last checked"
@@ -138,6 +166,37 @@
       if (PLACEMENT_FACTORS[i].id === id) { return PLACEMENT_FACTORS[i]; }
     }
     return PLACEMENT_FACTORS[0];
+  }
+
+  function getFacing(id) {
+    var i;
+    for (i = 0; i < FACINGS.length; i++) {
+      if (FACINGS[i].id === id) { return FACINGS[i]; }
+    }
+    return FACINGS[0];
+  }
+
+  function getOrientation(id) {
+    var i;
+    for (i = 0; i < ORIENTATIONS.length; i++) {
+      if (ORIENTATIONS[i].id === id) { return ORIENTATIONS[i]; }
+    }
+    return ORIENTATIONS[0];
+  }
+
+  function getMounting(id) {
+    var i;
+    for (i = 0; i < MOUNTINGS.length; i++) {
+      if (MOUNTINGS[i].id === id) { return MOUNTINGS[i]; }
+    }
+    return MOUNTINGS[0];
+  }
+
+  // Combined placement multiplier for the facing+orientation picker -
+  // simply the two factors multiplied together (mounting type doesn't
+  // change this - see the MOUNTINGS comment above).
+  function computePlacementFactor(facingId, orientationId) {
+    return getFacing(facingId).factor * getOrientation(orientationId).factor;
   }
 
   function getProfile(cityId) {
@@ -193,17 +252,17 @@
    * season and a named weather condition, and returns one day's
    * {generationKwh, usableKwh, irradiance, weatherFactor}.
    */
-  function computeDay(panelW, cityId, placementId, baseLoadW, occupancyFactor, seasonId, weatherId) {
+  function computeDay(panelW, cityId, placementFactor, baseLoadW, occupancyFactor, seasonId, weatherId) {
     var profile = getProfile(cityId);
     var season = getSeason(seasonId);
     var weather = getWeather(weatherId);
-    var placement = getPlacement(placementId);
+    var factor = placementFactor != null ? placementFactor : 1.00;
 
     var seasonalIrradiance = (profile[season.months[0]] + profile[season.months[1]] + profile[season.months[2]]) / 3;
     var dayIrradiance = seasonalIrradiance * weather.factor;
 
     var clippedKw = (Math.min(panelW, 2000, 800) + Math.max(0, Math.min(panelW, 2000) - 800) * 0.45) / 1000;
-    var generationKwh = clippedKw * dayIrradiance * PERFORMANCE_RATIO * placement.factor;
+    var generationKwh = clippedKw * dayIrradiance * PERFORMANCE_RATIO * factor;
 
     var baseLoadKwhPerDay = (baseLoadW || 0) * 24 / 1000;
     var belowBaseload = Math.min(generationKwh, baseLoadKwhPerDay);
@@ -222,15 +281,17 @@
   /**
    * Core monthly-generation model.
    * panelW: nameplate DC panel capacity in watts (before the 800W inverter cap)
-   * cityId, placementId: see above
+   * cityId: see above. placementFactor: a combined facing x orientation
+   * multiplier, e.g. from computePlacementFactor() (1.00 = the ideal
+   * baseline this dataset's irradiance figures already assume).
    * baseLoadW: household "always-on" draw in watts, user-editable
    * occupancyFactor: 0-1, fraction of above-baseload generation actually used live
    * Returns an array of 12 {label, generationKwh, usableKwh} objects.
    */
-  function computeMonthly(panelW, cityId, placementId, baseLoadW, occupancyFactor) {
+  function computeMonthly(panelW, cityId, placementFactor, baseLoadW, occupancyFactor) {
     var city = getCity(cityId);
     var profile = PROFILES[city.profile];
-    var placement = getPlacement(placementId);
+    var factor = placementFactor != null ? placementFactor : 1.00;
 
     // Inverter clipping: the DESNZ interim spec caps the inverter at
     // 800VA/800W regardless of panel rating. Panels above 800W raise how
@@ -252,7 +313,7 @@
     for (m = 0; m < 12; m++) {
       var irradiance = profile[m];
       var days = DAYS_IN_MONTH[m];
-      var dailyGenKwh = clippedKw * irradiance * PERFORMANCE_RATIO * placement.factor;
+      var dailyGenKwh = clippedKw * irradiance * PERFORMANCE_RATIO * factor;
       var monthlyGenKwh = dailyGenKwh * days;
 
       var belowBaseload = Math.min(dailyGenKwh, baseLoadKwhPerDay);
@@ -279,6 +340,9 @@
     MONTH_LABELS: MONTH_LABELS,
     CITIES: CITIES,
     PLACEMENT_FACTORS: PLACEMENT_FACTORS,
+    FACINGS: FACINGS,
+    ORIENTATIONS: ORIENTATIONS,
+    MOUNTINGS: MOUNTINGS,
     SEASONS: SEASONS,
     WEATHER_CONDITIONS: WEATHER_CONDITIONS,
     PRICES: PRICES,
@@ -286,6 +350,10 @@
     PERFORMANCE_RATIO: PERFORMANCE_RATIO,
     getCity: getCity,
     getPlacement: getPlacement,
+    getFacing: getFacing,
+    getOrientation: getOrientation,
+    getMounting: getMounting,
+    computePlacementFactor: computePlacementFactor,
     getProfile: getProfile,
     getSeason: getSeason,
     getWeather: getWeather,

@@ -1125,6 +1125,53 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
 .records-list li span:first-child { color: var(--text-muted); }
 .records-list li strong { font-variant-numeric: tabular-nums; }
 
+/* Long-form fact list - same copy/CSV-button convention as .records-list
+   (<li><span>label</span><strong>value</strong></li>), but for entries
+   where the "value" is a full explanatory sentence rather than a short
+   figure. .records-list's tight space-between flex row squeezes the label
+   down to an unreadable ragged wrap once the value text gets long, so
+   this uses a fixed-width label column plus a comfortable line-height
+   instead, and stacks on narrow screens rather than squeezing. Used
+   across the Plug-in Solar section's explanatory lists (Safety,
+   Considerations, Battery power, Mounting, and similar). */
+.ps-fact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ps-fact-list li {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) 1fr;
+  gap: .2rem 1.5rem;
+  padding: .75rem .6rem;
+  border-bottom: 1px dashed var(--border);
+  font-size: .9rem;
+}
+.ps-fact-list li:last-child { border-bottom: none; }
+.ps-fact-list li span:first-child {
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.35;
+  padding-top: .1rem;
+}
+.ps-fact-list li strong {
+  font-weight: 600;
+  line-height: 1.5;
+}
+@media (max-width: 640px) {
+  .ps-fact-list li { grid-template-columns: 1fr; gap: .3rem; }
+}
+
+.ps-ring-diagram {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem 1rem;
+  margin: 1rem 0 .5rem;
+}
+
 /* Data sources page */
 .source-card {
   border-left: 4px solid var(--accent);
@@ -1648,8 +1695,8 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   background: color-mix(in srgb, #c9781f 10%, var(--bg-elevated));
 }
 .ps-warning svg { flex: none; width: 24px; height: 24px; color: #c9781f; margin-top: .1rem; }
-.ps-warning strong { display: block; margin-bottom: .2rem; }
 .ps-warning p { margin: 0; font-size: .92rem; }
+.ps-warning p:first-child strong:first-child { display: block; margin-bottom: .3rem; font-size: 1rem; }
 
 /* Government-links box, appended to most plug-in-solar pages. */
 .ps-gov-links {
@@ -1706,6 +1753,7 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
 .ps-placement-card strong { display: block; font-size: .85rem; }
 .ps-placement-card span { display: block; font-size: .78rem; color: var(--text-muted); margin-top: .15rem; }
 .ps-placement-card .ps-eff { display:inline-block; margin-top:.4rem; padding:.15rem .5rem; border-radius:999px; background:var(--bg-inset); font-size:.75rem; font-weight:700; color: var(--solar); }
+.ps-placement-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; background: var(--bg-inset); }
 
 /* Step list (Registration page). */
 .ps-steps { list-style: none; margin: 1rem 0; padding: 0; counter-reset: ps-step; }

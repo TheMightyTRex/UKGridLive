@@ -158,12 +158,17 @@
 
     <div class="ps-warning" role="note">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <p><strong>A plug-in solar kit MUST connect directly into a wall socket.</strong> Do not use extension leads, multi-way adaptors, travel adaptors or RCD adaptors - the Interim Product Specification requires a direct plug-to-socket connection. See <a href="plugin-solar-considerations.html#ext-heading">Extension leads</a> for why.</p>
+    </div>
+
+    <div class="ps-warning" role="note">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <p><strong>Never install more than one plug-in solar kit.</strong> Each kit is only risk-assessed, tested and notified to your network operator as a single, one-off connection. A second kit - even fed from a different socket - stacks two inverters' worth of injected current onto wiring that was only ever assessed for one, can put you outside your home insurance's terms, and is outside what myplugin.solar's registration actually covers. See <a href="plugin-solar-considerations.html">Considerations</a> for the ring-circuit detail and <a href="plugin-solar-registration.html">Registration</a> for the one-per-household rule.</p>
     </div>
 
     <section class="panel" aria-labelledby="builtin-heading">
       <h2 id="builtin-heading">What's already built in</h2>
-      <ul class="records-list" id="builtin-list">
+      <ul class="ps-fact-list" id="builtin-list">
         <li><span>Anti-islanding protection</span><strong>Mandatory on every compliant inverter - detects loss of mains within roughly 100 milliseconds and stops energising, discharging to a safe voltage (below 34V) within 100ms-1s, so the device can never "backfeed" a line an engineer thinks is dead</strong></li>
         <li><span>Fixed, non-rewireable plug</span><strong>Manufacturer-fitted BS 1363 plug with a BS 1362 fuse rated at no more than 5A - you can't accidentally under- or over-fuse it</strong></li>
         <li><span>Hard output ceiling</span><strong>800VA / 3.5A AC maximum, whatever the panels are rated at - the inverter itself won't push more than that into your home's wiring</strong></li>
@@ -174,7 +179,7 @@
 
     <section class="panel" aria-labelledby="checks-heading">
       <h2 id="checks-heading">What's still worth checking yourself</h2>
-      <ul class="records-list" id="checks-list">
+      <ul class="ps-fact-list" id="checks-list">
         <li><span>Before you buy</span><strong>Confirm the exact model is on the ENA's live Type Test Register - see <a href="plugin-solar-certification.html">Certification</a> - rather than trusting a retailer's own claim</strong></li>
         <li><span>Before each season / after storms</span><strong>Inspect the plug, cable and panel casing for cracks, discolouration or water ingress; stop using and unplug immediately if you see any</strong></li>
         <li><span>The socket itself</span><strong>Should be in good condition, ideally on its own or a lightly-loaded circuit - see <a href="plugin-solar-considerations.html">Considerations</a> for consumer unit and ring-circuit detail</strong></li>
