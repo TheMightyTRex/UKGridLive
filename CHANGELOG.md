@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-21 (Plug-in Solar: correct export/anti-islanding claim, reader feedback)
+
+### Fixed
+
+- **Incorrect "these kits have no mechanism to export" claim.** A reader pointed out that plug-in solar kits *can* and do export surplus generation back to the grid like any small grid-tied inverter - there's just no metering or tariff (e.g. the Smart Export Guarantee) set up to pay for it from a self-installed, unregistered system like this. The site previously stated the opposite (that there's no export mechanism at all) in three places, and additionally misattributed this to anti-islanding protection. Checked against DESNZ's July 2026 plug-in solar consultation/government response and general grid-tied inverter behaviour: confirmed the reader is correct on both points.
+  - `plugin-solar.html` ("What is it?" and "Why the power gets used by your home, not the grid" sections): reworded to say surplus generation flows out to the grid unpaid and unmetered, rather than "has no export mechanism"/"is simply lost".
+  - `plugin-solar-safety.html` ("What's already built in" list): replaced the "No hidden export" bullet (which claimed "no mechanism to export to the grid") with "No export payment, not 'no export'", explaining the surplus can flow out to the grid but isn't remunerated, and that this is unrelated to anti-islanding.
+- **Anti-islanding's purpose clarified alongside the above.** Anti-islanding protection disconnects the inverter when it can't detect a live grid connection (e.g. during a power cut), for the safety of network engineers working on what should be a dead line - it is not designed to prevent export during normal, grid-connected operation. The existing "What happens in a power cut" section on `plugin-solar-considerations.html` already described this correctly and needed no change; the fix was to stop other pages implying anti-islanding also blocks export.
+
+### Verification
+
+- HTML tag-balance checks on both edited pages; secrets grep - clean.
+- Web research against DESNZ's July 2026 plug-in solar government response, GOV.UK consultation documents, MCS's Smart Export Guarantee guidance, and independent plug-in/balcony-solar commentary, confirming: (1) these microinverters have no active zero-export/demand-following limiter, so surplus does physically flow onto the grid; (2) anti-islanding responds to loss of grid connection, not to export; (3) the barrier to being paid for that export is a metering/scheme gap (no SEG-eligible metering for a self-installed, unregistered small system), not a technical impossibility.
+
 ## 2026-09-20 (Plug-in Solar: myplugin.solar link fix, indoor mounting options, base-load section, mounting-icon redesign)
 
 ### Fixed
