@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-21 (Plug-in Solar: clearer worked example for unused generation being exported unpaid)
+
+### Changed
+
+- **Made it explicit that generation below the kit's 800W cap that isn't used is exported for nothing, with a concrete number.** Following on from the previous fix of the "no export mechanism" claim, added a direct worked example to `plugin-solar.html` ("Why the power gets used by your home, not the grid"): if a kit is putting out its full 800W maximum but the home is only drawing 300W at that moment, the other 500W flows out to the grid the same as any small grid-tied inverter's would, but earns nothing since there's no metering or export tariff for a kit like this. Also added a clarifying sentence to the Energy calculator's base-load field caption (`plugin-solar-calculator.html`) stating the same point in the context of the base-load/occupancy inputs users are actually editing.
+
+### Verification
+
+- Re-checked the 800VA/3.5A cap figure and export mechanics against DESNZ's July 2026 plug-in solar government response and interim product specification (v2.0, final): confirmed no dynamic/zero-export limiting exists in these devices, so a full-output surplus above home draw does flow to the grid uncontrolled, consistent with independent worked examples found elsewhere (e.g. "generating 500W, using 300W, 200W exported").
+- HTML tag-balance and inline JS-syntax checks on both edited pages; secrets grep - clean.
+
 ## 2026-09-21 (Plug-in Solar: correct export/anti-islanding claim, reader feedback)
 
 ### Fixed
