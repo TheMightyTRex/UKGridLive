@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-28 (Plug-in Solar: remove unreliable "clone-coded" sources, correct the registration mechanism)
+
+### Fixed - significant
+
+- **myplugin.solar was never confirmed as an official registration portal, and the site presented it as one.** It was cited across eight pages as "the" way to register a plug-in solar kit, including a "Government & official sources" list with a UK flag, and once as "the Energy Networks Association's national registration portal." Direct verification against DESNZ's July 2026 government response and Interim Product Specification (v2.0, final) found neither document names any consumer-facing portal at all - the actual requirement is that a compliant kit's own documentation must include a QR code and clear instructions to notify your electricity network operator (DNO) under the standard G98 process; the specific website that QR code leads to depends on the kit and network operator, not one fixed address. Rewrote every reference to describe the real mechanism (DNO notification via G98, per your kit's own documentation) instead of naming myplugin.solar, and removed it from both "Government & official sources" lists. Touched: `plugin-solar.html`, `plugin-solar-registration.html` (substantial rewrite - hero text, registration steps, one-per-household wording, Northern Ireland section, sources), `plugin-solar-certification.html`, `plugin-solar-battery.html`, `plugin-solar-safety.html`, `plugin-solar-mounting.html`, `plugin-solar-considerations.html`.
+- **www.pluginsolarregister.co.uk replaced with the real ENA Type Test Register** (`plugin-solar-certification.html`) - the site explicitly self-describes as an independent, unofficial tracker of the real register; now links directly to the ENA's own register instead.
+
+### Changed
+
+- **Removed commercial/unreliable sources cited as data references, per the site owner's direction not to use "clone-coded" SEO sites for factual data:**
+  - Sunsave (`plugin-solar.html`, `plugin-solar-calculator.html`) - removed; wasn't underpinning any specific figure, just listed as a cross-reference.
+  - Power NI's appliance-wattage guide (`plugin-solar-calculator.html`) - replaced the fridge-freezer figure with a transparent conversion from the Energy Saving Trust's own published running-cost figure (~£80/year for an F-rated 424L fridge-freezer, converted at this calculator's own Ofgem unit rate to ~35W average continuous draw), shown with its working rather than stated as a bare fact. No UK government or professional-body source could be found for a WiFi-router wattage figure specifically - now honestly labelled as a commonly-quoted planning estimate, not a sourced fact, rather than forcing an attribution that doesn't exist.
+  - homeenergymodel.co.uk (`plugin-solar-calculator.html`) - confirmed to be a private commercial consultancy trading on the government's "Home Energy Model" name, not the government itself. Replaced with the real GOV.UK Home Energy Model methodology page for the "base load" terminology; the by-property-size ranges and the overnight-meter-reading technique are now honestly labelled as this site's own practical guidance, since no single external authority for those specific figures could be confirmed.
+- **sunhours.app flagged as under review, not yet replaced.** This is the dataset behind the calculator's core generation numbers (13 regions x 12 months). Attempted to source a replacement from MCS's own published Irradiance Datasets or the EU JRC's PVGIS tool, but this session's network access could not reach either host to retrieve the actual figures. The existing sunhours.app-sourced numbers are unchanged for now - both pages that cite it now say so plainly rather than silently keeping the old citation. Needs the site owner to supply the MCS spreadsheet or equivalent data before this can be completed.
+
+### Verification
+
+- HTML tag-balance and inline JS-syntax checks on all eight touched pages; secrets grep - clean.
+- Two DESNZ PDFs (government response and Interim Product Specification v2.0 final) fetched and quoted directly before rewriting any registration-mechanism content, rather than relying on secondary summaries.
+
 ## 2026-09-28 (Plug-in Solar: source audit + kit-comparison callout on calculator)
 
 ### Added
