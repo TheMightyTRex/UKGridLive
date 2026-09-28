@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-28 (Plug-in Solar: source audit + kit-comparison callout on calculator)
+
+### Added
+
+- **Callout on the Energy calculator linking to PluginSolarCalculator.com/products**, placed after the payback stats so it appears right where a reader has just seen a payback estimate using a placeholder kit cost. Disclosed plainly as an independent third-party comparison site, not run by us or by government, per this site's usual practice of not overstating another site's status.
+
+### Investigated (no page changes yet - see chat writeup for full detail and open questions)
+
+- Audited every external source cited across the Plug-in Solar pages against "is this a UK government body or a recognised professional/industry body." Most pass (GOV.UK/devolved-nation-government pages, Ofgem, HSE, MCS, Energy Networks Association, Planning Portal, legislation.gov.uk). Flagged several that don't: sunhours.app, Sunsave, Power NI, homeenergymodel.co.uk, Octopus Energy, and pluginsolarregister.co.uk are all commercial/independent, not government or professional-body sources. Citizens Advice and Electrical Safety First are registered charities, not government bodies, though both are widely treated as authoritative. Most significantly, myplugin.solar - used throughout the Registration/Safety/What-is-it pages as "the" registration portal for the DESNZ scheme - could not be confirmed as an officially designated government portal; research suggests it may be an independent commercial site. This needs the site owner's input before editing, since it's presented as a compliance step, not just a citation.
+
 ## 2026-09-21 (Plug-in Solar: bring Considerations' placement icons in line with the calculator's redesign)
 
 ### Changed
