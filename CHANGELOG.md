@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-21 (Plug-in Solar: bring Considerations' placement icons in line with the calculator's redesign)
+
+### Changed
+
+- **Updated the six "Best panel placement" example icons on `plugin-solar-considerations.html`** to match the refined side-profile, line-panel style now used for the mounting-type icons on the Energy calculator, instead of the older filled-box panel icons. South-facing tilted reuses the calculator's ground-frame icon; south-facing vertical, east/west-facing and north-facing all reuse the calculator's close-to-wall bracket composition (keeping each card's existing colour-coding: accent for south, the wind colour for east/west, muted for north); the two indoor cards reuse the calculator's indoor-flat and indoor-tilted window icons directly. No wording or percentage figures changed - icons only.
+
+### Verification
+
+- HTML tag-balance check on the edited page; secrets grep - clean.
+- Playwright screenshot of the updated placement grid reviewed and approved before rolling in.
+
 ## 2026-09-21 (Plug-in Solar: clearer worked example for unused generation being exported unpaid)
 
 ### Changed
