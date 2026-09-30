@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-30 (Fix every live page sticking on "Loading live data…" after the v24/v25 upload)
+
+### Fixed
+
+- **Every page with live data sat at "Data as of: Loading live data…" after deploying v24/v25.** The new pages call `GridPreview.autoRefresh()`, which only exists in the new `assets/app.js`. The asset URLs had no version string, so browsers that had visited recently kept using their cached old `app.js`. The call threw `TypeError: GridPreview.autoRefresh is not a function` before any data loaded. Reproduced exactly by serving the new HTML with the previous commit's `app.js`/`data.js`. The v24 audit had tested new HTML with new JS only, never with a cached old script as a real returning visitor gets it.
+  - Every `assets/*.js` / `assets/*.css` reference in `index.html` and `pages/*.html` now carries `?v=20260930`, so a new upload makes browsers fetch matching scripts. Bump this string whenever `assets/` changes. `data.js` already works out the API base from its own URL with any query string.
+  - Each page's `autoRefresh` call now falls back to a plain one-off call if an older `app.js` without it is loaded, so a mismatched cache can't freeze a page again. Re-tested: the France page with the old cached `app.js` now loads normally, and the full three-pass mix audit still passes (51/51).
+
 ## 2026-09-30 (tools/full-refresh.php: fix "500 Internal Server Error" after a site upload)
 
 ### Fixed
