@@ -52,7 +52,7 @@ See `pages/data-sources.html` for exactly which figure on the site comes from wh
 
 Written for shared hosting (cPanel/Plesk, no SSH assumed) - see [`README-DEPLOY.md`](README-DEPLOY.md) for the full step-by-step: create the database, import `sql/schema.sql`, upload the files, fill in `includes/config.php` from `includes/config.php.example`, and choose on-demand or cron-based refresh.
 
-`includes/config.php` (real database credentials and API keys) and `tools/.htpasswd` (the operator-tools login) are deployment-specific and intentionally left out of this repository - see `.gitignore`.
+`includes/config.php` (real database credentials, API keys and the operator-tools password hash, `tools_password_hash`) is deployment-specific and intentionally left out of this repository - see `.gitignore`. The tools/ login is checked in PHP (`tools/_auth.php`) against that hash; the first visit to `tools/full-refresh.php` with no hash set shows a form that generates the line to paste into `config.php`.
 
 ## License
 

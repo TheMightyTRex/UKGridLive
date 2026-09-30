@@ -21,6 +21,14 @@ return [
   // db_connection_failed error with everything else looking right, try
   // 'host' => '127.0.0.1' instead of 'localhost' (a common fix - some
   // hosts' PHP has trouble with the "localhost" socket shortcut).
+  // --- Operator tools password ---------------------------------------------
+  // Protects tools/full-refresh.php (see tools/_auth.php). Leave it empty and
+  // that page shows a form that turns a password you choose into the hash
+  // to paste here - it won't run anything until this is set. It's a one-way
+  // hash, never the password itself. Kept here (not in tools/.htaccess) so a
+  // site re-upload can never overwrite or remove it.
+  'tools_password_hash' => '',
+
   'db' => [
     'host'    => 'localhost',
     'name'    => 'cpaneluser_ukgrid',

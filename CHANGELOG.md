@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-30 (tools/full-refresh.php: fix "500 Internal Server Error" after a site upload)
+
+### Fixed
+
+- **`tools/full-refresh.php` returned Apache's generic "500 Internal Server Error ... misconfiguration" page.** `tools/` was protected by HTTP Basic Auth in `tools/.htaccess`, which needs the absolute server path to a `.htpasswd` file. The shipped `.htaccess` only holds a placeholder (`/REPLACE-WITH-ABSOLUTE-SERVER-PATH-TO/tools/.htpasswd`) that had to be edited by hand on the server. `.htpasswd` itself is gitignored, so it isn't in the deploy zips either. Uploading the whole site folder again puts the placeholder back, and Apache then can't open the password file and fails every request to `tools/` with a 500, before PHP runs. (The server's error log should show "Could not open password file" to confirm this.)
+- **The login is now in PHP** (`tools/_auth.php`): a password form checked with `password_verify()` against a new `tools_password_hash` setting in `includes/config.php`.
+  - `config.php` never goes up with a site upload, so re-deploying can't break or remove the protection, and there's no server path to fill in.
+  - It fails closed. Until the hash is set, the page runs nothing and instead shows a form that turns a chosen password into the line to paste into `config.php`.
+  - Sessions use an HttpOnly, SameSite=Strict cookie scoped to `tools/`, the session id is regenerated at login, and a failed attempt waits 1 second.
+  - The page's AJAX calls get a JSON 401 when not logged in, and the page now has a "Log out" link.
+  - `tools/.htaccess` now has no directives at all, so it can't cause a 500 whatever the host allows.
+- Tested with PHP's built-in server against the local test database:
+  - The setup form refuses short passwords and generates a line that works when pasted into `config.php`.
+  - Before logging in, the page and its AJAX endpoint are both refused (401).
+  - A wrong password is refused; the right one redirects (302) to the page (200).
+  - AJAX calls work once logged in, and logging out locks the page again.
+
 ## 2026-09-30 (Generation mix: donuts and source tables now always match, and keep updating)
 
 Reported: on the location/country pages the "Generation mix right now" donut and the Source/GW/% table beside it didn't agree and didn't stay up to date. Audited every page with a mix donut (GB, Ireland, France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal, Poland, the EU aggregate, USA, Canada, Australia). There were real differences on every one of them, and several data bugs in the backend underneath.
