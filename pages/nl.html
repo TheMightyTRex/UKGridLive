@@ -165,7 +165,7 @@
           <tbody id="mix-tbody">
             <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">5.9</td><td class="num">35.1</td></tr>
             <tr><td>Gas</td><td class="num">5.2</td><td class="num">31.0</td></tr>
-            <tr><td>Coal</td><td class="num">0.7</td><td class="num">4.1</td></tr>
+            <tr><td>Coal</td><td class="num">0.7</td><td class="num">4.2</td></tr>
             <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">8.4</td><td class="num">50.0</td></tr>
             <tr><td>Wind (offshore)</td><td class="num">3.6</td><td class="num">21.4</td></tr>
             <tr><td>Wind (onshore)</td><td class="num">1.8</td><td class="num">10.7</td></tr>
@@ -323,7 +323,7 @@
 
   GridPreview.renderDonutChart(
     document.getElementById("mix-donut"), SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-legend", unit: "GW", centerLabel: "16.8GW", centerSub: "generated (illustrative)" }
+    { legendTarget: "mix-donut-legend", unit: "GW", decimals: 1, pctDecimals: 1, centerLabel: "16.8GW", centerSub: "generated (illustrative)" }
   );
 
   (function () {
@@ -399,6 +399,7 @@
             ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
             : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#nl-sources">data sources</a>.',
           sourceLabel: "ENTSO-E Transparency Platform (Netherlands bidding zone)",
+          mixTs: current.mix_ts,
         });
       }
     }
@@ -452,7 +453,9 @@
     });
   }
 
-  initCountryStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initCountryStatusStrip);
 
   (async function () {
     // Unlike every other ENTSO-E country page, this chart was never wired

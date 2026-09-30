@@ -32,7 +32,26 @@ $pdo = ukgrid_db();
 $config = ukgrid_load_config();
 $stalenessMinutes = (int) ($config['staleness_minutes'] ?? 90);
 
-$latestTs = $pdo->query('SELECT MAX(ts) FROM readings_generation')->fetchColumn();
+// The snapshot's timestamp is the latest ELEXON (FUELINST) reading, not
+// MAX(ts) over the whole table. readings_generation mixes two feeds on
+// different clocks: Elexon's FUELINST every 5 minutes, and NESO's embedded
+// solar/wind every 30 minutes (one row per settlement-period start). Taking
+// a blind MAX(ts) and then "WHERE ts = that" meant:
+//   - at any 5-minute point that isn't :00/:30 (5 in every 6), there are no
+//     NESO rows at that ts at all, so Solar and embedded wind silently
+//     vanished from the mix table and donut, and the Renewables figure
+//     dropped; and
+//   - just after a settlement period starts, NESO's row for it can land
+//     before FUELINST's does, so MAX(ts) pointed at a timestamp holding ONLY
+//     the two embedded rows - a "mix" of solar and embedded wind alone.
+// Falls back to MAX(ts) over everything only if there's no Elexon row yet.
+// ORDER BY ts DESC LIMIT 1 (rather than MAX(ts) with a WHERE on the
+// unindexed source column) walks the ts index backwards and stops at the
+// first Elexon row, instead of scanning the whole, ever-growing table.
+$latestTs = $pdo->query("SELECT ts FROM readings_generation WHERE source = 'ELEXON' ORDER BY ts DESC LIMIT 1")->fetchColumn();
+if (!$latestTs) {
+    $latestTs = $pdo->query('SELECT MAX(ts) FROM readings_generation')->fetchColumn();
+}
 
 if (!$latestTs) {
     echo json_encode([
@@ -50,12 +69,29 @@ if (!$latestTs) {
 
 $isStale = (strtotime($latestTs) < time() - $stalenessMinutes * 60);
 
-// Generation by fuel type at the latest available timestamp.
-$stmt = $pdo->prepare('SELECT fuel_type, mw FROM readings_generation WHERE ts = :ts');
+// Generation by fuel type at that timestamp (Elexon's own fuel types and
+// interconnectors)...
+$stmt = $pdo->prepare("SELECT fuel_type, mw FROM readings_generation WHERE ts = :ts AND source <> 'NESO'");
 $stmt->execute(['ts' => $latestTs]);
 $generation = [];
 foreach ($stmt->fetchAll() as $row) {
     $generation[$row['fuel_type']] = (float) $row['mw'];
+}
+// ...plus NESO's embedded solar/wind for the half-hour settlement period
+// that timestamp falls in: the latest NESO row at or before it, no more
+// than an hour older (so a stalled NESO feed drops out rather than an old
+// figure being passed off as current).
+$embStmt = $pdo->prepare(
+    "SELECT mw FROM readings_generation
+     WHERE fuel_type = :fuel AND source = 'NESO' AND ts <= :ts1 AND ts > DATE_SUB(:ts2, INTERVAL 60 MINUTE)
+     ORDER BY ts DESC LIMIT 1"
+);
+foreach (['SOLAR_EMBEDDED', 'WIND_EMBEDDED'] as $embFuel) {
+    $embStmt->execute(['fuel' => $embFuel, 'ts1' => $latestTs, 'ts2' => $latestTs]);
+    $v = $embStmt->fetchColumn();
+    if ($v !== false && $v !== null) {
+        $generation[$embFuel] = (float) $v;
+    }
 }
 
 // Nearest demand/price/emissions readings within the staleness window (each

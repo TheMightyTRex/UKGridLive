@@ -1357,6 +1357,11 @@ function ukgrid_entsoe_parse_points(string $xmlBody, string $valueField): array
     foreach ($xml->TimeSeries as $series) {
         $seriesCount++;
         $psrType = isset($series->MktPSRType->psrType) ? (string) $series->MktPSRType->psrType : null;
+        // In an A75 (actual generation per type) document, a TimeSeries
+        // carrying outBiddingZone_Domain.mRID (and no inBiddingZone one) is
+        // CONSUMPTION for that type - e.g. pumped storage while pumping -
+        // not generation. See the generation branch of ukgrid_ingest_entsoe().
+        $isConsumption = isset($series->{'outBiddingZone_Domain.mRID'}) && !isset($series->{'inBiddingZone_Domain.mRID'});
         foreach ($series->Period as $period) {
             $start = (string) ($period->timeInterval->start ?? '');
             $resolutionRaw = (string) ($period->resolution ?? 'PT60M');
@@ -1377,6 +1382,7 @@ function ukgrid_entsoe_parse_points(string $xmlBody, string $valueField): array
                     'psrType' => $psrType,
                     'ts' => gmdate('Y-m-d H:i:s', $ts),
                     'value' => (float) $value,
+                    'consumption' => $isConsumption,
                 ];
             }
         }
@@ -1609,6 +1615,16 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
                 } elseif ($kind === 'demand') {
                     $demandStmt->execute(['ts' => $point['ts'], 'cc' => $countryCode, 'v' => $point['value']]);
                 } else { // generation
+                    // Skip consumption series (see ukgrid_entsoe_parse_points()).
+                    // They share the same psrType as the generation series,
+                    // so with the (ts, country, psr) unique key and ON
+                    // DUPLICATE KEY UPDATE, whichever of the two came last in
+                    // the document used to overwrite the other - which could
+                    // put pumped storage's PUMPING load into the mix table and
+                    // donut as if it were generation.
+                    if (!empty($point['consumption'])) {
+                        continue;
+                    }
                     $psr = $point['psrType'] ?? 'UNK';
                     $genStmt->execute(['ts' => $point['ts'], 'cc' => $countryCode, 'psr' => $psr, 'v' => $point['value']]);
                 }

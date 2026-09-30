@@ -2,6 +2,56 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-09-30 (Generation mix: donuts and source tables now always match, and keep updating)
+
+Reported: on the location/country pages the "Generation mix right now" donut and the Source/GW/% table beside it didn't agree and didn't stay up to date. Audited every page with a mix donut (GB, Ireland, France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal, Poland, the EU aggregate, USA, Canada, Australia). There were real differences on every one of them, and several data bugs in the backend underneath.
+
+### Fixed - frontend (table vs donut)
+
+- **One renderer for every mix section.** New `GridPreview.renderMixBreakdown()` (`assets/app.js`) builds the table, donut, donut legend and bar chart from one list of rows. `renderPsrMixSection()` (all ENTSO-E pages and the EU aggregate) now wraps it, and `index.html`, `pages/usa.html`, `pages/canada.html` and `pages/australia.html` were rewritten to use it. Rules, applied identically everywhere:
+  - The donut's slices are exactly the table's positive rows, in the same order, with the same labels and colours. Each table row now carries its slice's colour swatch.
+  - Every % (table rows, group subtotals, donut tooltip, legend) is a share of one total, which is the donut's centre figure.
+  - Negative readings (pumping load, battery charging, net exports) go in a clearly labelled "Consuming or exporting right now" group with "-" for %, never as a slice. They used to reduce the table's total while being silently dropped from the donut's.
+  - Zero readings are left out of both and named in the caption.
+  - Fuel codes with no group now appear under "Other" in the table. They used to appear in the donut only.
+- **GB (`index.html`).**
+  - The table's % was a share of demand while the donut's was a share of generation.
+  - Interconnectors and pumped storage were table rows with no donut slice.
+  - The category donut's centre showed demand, not its own total.
+  - Now both donuts and the table show the same rows and the same total supply (generation + pumped storage + net imports).
+  - The illustrative battery preview figure is no longer added onto the live pumped-storage row. It's a separate row, shown only while its toggle is on and excluded from exports while hidden.
+- **Ireland.**
+  - The GB-interconnect line was `Math.abs()`'d into an "import" slice even while Ireland was exporting. It's now signed: an import is a slice, an export is listed separately.
+  - A failed ENTSO-E or EirGrid fetch no longer wipes a cached mix to "No data".
+  - The caption now says why the headline Generation figure (from EirGrid) can differ from the ENTSO-E breakdown.
+- **Rounding.** The legend and tooltip rounded to 1 decimal place and whole percentages while the table showed 2 decimals. They now use the table's precision: GW to the same decimals, % to 1 decimal. The bar chart labels match too. Two illustrative first-paint tables (France, Netherlands) had % values off by 0.1.
+- **USA:** now shows every EIA fuel category it has, including the newer battery, pumped-storage and geothermal codes (see backend below), with storage in its own group.
+- **Canada:** switched to 2 decimals, so small sources (e.g. 13MW of biofuel) show as small rather than "0.0".
+- **Australia:** Open Electricity's `pumps` is pumped-hydro pumping *load*; pumped hydro's output is already inside `hydro`. It was being shown as a "Pumped hydro" generation slice. It and battery charging are now listed as consumption. `api/australia_current.php`'s `generation_mw` and `api/australia_series.php` no longer count `pumps` as generation.
+- **Charts that once showed "No data" stayed invisible.** `showChartError()` hid the canvas and nothing un-hid it, so a later successful render drew an invisible donut beside a populated table. `registerChart()` now clears that state. It also keeps one registry entry per canvas instead of replaying every stale earlier render on resize or theme change.
+- **Staying up to date.** Every page's stats, mix table and donuts used to load exactly once. They now re-fetch every 5 minutes while the tab is visible (`GridPreview.autoRefresh`). A failed refresh keeps the last good figures on screen instead of blanking them.
+- Upstream-supplied labels are now HTML-escaped in the mix table and legends.
+
+### Fixed - backend (the data under the donut)
+
+- **`api/current.php` (GB): solar was usually missing from the donut and table.** `readings_generation` mixes Elexon's 5-minute FUELINST rows with NESO's 30-minute embedded solar/wind rows. The snapshot took `MAX(ts)` and then read rows "at exactly that ts". So at 5 of every 6 timestamps, Solar and embedded wind vanished. Just after each half hour it could also return a "mix" of only those two NESO rows (reproduced against a real MariaDB with fixture data: the old endpoint returned `{SOLAR_EMBEDDED, WIND_EMBEDDED}` and nothing else). It now uses the latest Elexon timestamp plus the embedded figures for the settlement period it falls in, found by index scan rather than a full-table `MAX()`.
+- **`api/series.php` (GB history, sparklines, 24h stack): same root cause.** The "sum per timestamp, then average per bucket" queries counted embedded solar/wind at only 1 in every 6 timestamps. The solar series averaged about a sixth to a third of the real figure, and the generation, renewable, wind and mix series dipped and jumped every half hour. They now pair every Elexon timestamp with its settlement period's embedded values. The generation series also no longer includes pumped storage, matching the headline Generation figure.
+- **`api/country_current.php`, `api/usa_current.php`, `api/canada_current.php`, `api/australia_current.php`: one timestamp per mix.** Each fuel was looked up on its own as "nearest reading within +/- the window" (4 hours for ENTSO-E, 2 days for the EIA), so one donut could combine readings from different hours. Now every value is read at a single timestamp: the latest one with at least three-quarters of the fuel types published. A type missing there falls back to its latest reading at or before it, never a later one. The endpoints return this as `mix_ts`, and the donut caption shows "mix as of ...". Shared helper: `ukgrid_coherent_mix()` in `api/_bootstrap.php`. The headline generation figure now sums the same positive values as the donut.
+- **`api/usa_current.php`** now returns every stored fuel category, not just the original nine, and `api/usa_series.php` groups the newer codes.
+- **`includes/ingest.php` (ENTSO-E): pumping could overwrite generation.** An A75 response carries a second, *consumption* TimeSeries for types such as pumped storage (it has `outBiddingZone_Domain.mRID`). It shares the psrType of the generation series, so the upsert let whichever came last win, which could put pumping load into the mix as generation. Consumption series are now skipped. Rows already stored this way outside the normal re-fetch window stay as they are until re-ingested.
+
+### Verification
+
+- **Automated donut-vs-table audit** (Playwright, fixture API data), all 17 pages, run three times:
+  1. Normal data.
+  2. Edge cases: negative pumping and battery values, zero solar, Ireland exporting, GB net-exporting, unknown fuel codes.
+  3. Load, switch the API to different numbers, fire the 5-minute refresh, and confirm table and donut both moved to the new data and still match.
+
+  Each check compares the table's rows, order, GW and % against the donut's slices, legend, tooltip values and centre total, and checks group subtotals and that % adds to 100. On the old code, every page failed at least one check. On the new code, all 51 page-checks pass.
+- **Backend** endpoints run against a local MariaDB loaded with `sql/schema.sql` and fixture rows that reproduce each bug (5-minute vs 30-minute GB rows, a half-published ENTSO-E hour, a lagging psrType, new EIA codes, partial IESO and Open Electricity intervals). Old and new outputs were compared side by side.
+- **Independent code review** of the full diff by a separate reviewer. Its findings were addressed: the index-friendly latest-timestamp query, Canada and Australia coherence, positive-only generation sums, Ireland refresh edge cases, label escaping, and export of hidden rows.
+- PHP lint on every changed endpoint, `node --check` on `assets/*.js` and every inline script, HTML tag balance, CSS brace balance and a secrets grep all pass.
+
 ## 2026-09-28 (Plug-in Solar: remove unreliable "clone-coded" sources, correct the registration mechanism)
 
 ### Fixed - significant

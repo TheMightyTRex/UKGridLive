@@ -121,6 +121,29 @@ function ukgrid_bucketed(PDO $pdo, string $sql, array $params): array
 // api/current.php's ukgrid_nearest() for the full story (this exact pattern
 // caused a 500 on every call once real data existed to query).
 $params = ['from' => $from, 'to' => $to, 'bucket1' => $bucket, 'bucket2' => $bucket];
+
+// Generation readings with NESO's embedded solar/wind spread onto every
+// Elexon timestamp. readings_generation holds Elexon FUELINST rows every 5
+// minutes but NESO's embedded solar/wind only every 30 (one row per
+// settlement-period start), so the "SUM per ts, then AVG per bucket"
+// queries below used to count embedded solar/wind at only 1 in every 6
+// timestamps - the solar series averaged about a sixth of the real figure,
+// and the generation, renewable, wind and mix series dipped the same way
+// (and jumped every half hour on the 3-hour sparklines). This derived table
+// gives each Elexon timestamp the embedded values of the settlement period
+// it falls in - the same pairing api/current.php now uses for the live
+// snapshot - so every per-timestamp sum is a complete one.
+$GEN_TABLE = '(
+    SELECT ts, fuel_type, mw FROM readings_generation
+     WHERE source <> "NESO" AND ts BETWEEN :from AND :to
+    UNION ALL
+    SELECT e.ts, n.fuel_type, n.mw
+      FROM (SELECT DISTINCT ts FROM readings_generation WHERE source = "ELEXON" AND ts BETWEEN :from2 AND :to2) e
+      JOIN readings_generation n
+        ON n.source = "NESO" AND n.ts = FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(e.ts) / 1800) * 1800)
+  ) g';
+$genParams = $params + ['from2' => $from, 'to2' => $to];
+
 $unit = 'GW';
 
 switch ($metric) {
@@ -159,12 +182,12 @@ switch ($metric) {
             'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(t.ts)/:bucket1)*:bucket2) AS bucket_ts, AVG(t.total_mw)/1000 AS v
              FROM (
                SELECT ts, SUM(mw) AS total_mw
-               FROM readings_generation
-               WHERE ts BETWEEN :from AND :to AND fuel_type NOT LIKE "INT%"
+               FROM ' . $GEN_TABLE . '
+               WHERE fuel_type NOT LIKE "INT%" AND fuel_type <> "PS"
                GROUP BY ts
              ) t
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
-            $params
+            $genParams
         );
         $unit = 'GW';
         break;
@@ -199,12 +222,11 @@ switch ($metric) {
                  SUM(CASE WHEN fuel_type IN ("WIND","WIND_EMBEDDED","SOLAR_EMBEDDED","NPSHYD") THEN mw ELSE 0 END) AS renewable_mw,
                  SUM(CASE WHEN fuel_type IN ("CCGT","OCGT","COAL","OIL","NUCLEAR","BIOMASS","OTHER") THEN mw ELSE 0 END) AS non_renewable_mw,
                  SUM(CASE WHEN fuel_type = "PS" THEN mw ELSE 0 END) AS storage_mw
-               FROM readings_generation
-               WHERE ts BETWEEN :from AND :to
+               FROM ' . $GEN_TABLE . '
                GROUP BY ts
              ) t
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
-            $params
+            $genParams
         );
         $unit = 'GW';
         break;
@@ -236,12 +258,11 @@ switch ($metric) {
             'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(t.ts)/:bucket1)*:bucket2) AS bucket_ts, AVG(t.renewable_mw)/1000 AS v
              FROM (
                SELECT ts, SUM(CASE WHEN fuel_type IN ("WIND","WIND_EMBEDDED","SOLAR_EMBEDDED","NPSHYD") THEN mw ELSE 0 END) AS renewable_mw
-               FROM readings_generation
-               WHERE ts BETWEEN :from AND :to
+               FROM ' . $GEN_TABLE . '
                GROUP BY ts
              ) t
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
-            $params
+            $genParams
         );
         $unit = 'GW';
         break;
@@ -306,10 +327,10 @@ switch ($metric) {
             'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(t.ts)/:bucket1)*:bucket2) AS bucket_ts, AVG(t.v_mw)/1000 AS v
              FROM (
                SELECT ts, SUM(CASE WHEN fuel_type IN ("WIND","WIND_EMBEDDED") THEN mw ELSE 0 END) AS v_mw
-               FROM readings_generation WHERE ts BETWEEN :from AND :to GROUP BY ts
+               FROM ' . $GEN_TABLE . ' GROUP BY ts
              ) t
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
-            $params
+            $genParams
         );
         $unit = 'GW';
         break;
@@ -319,10 +340,10 @@ switch ($metric) {
             'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(t.ts)/:bucket1)*:bucket2) AS bucket_ts, AVG(t.v_mw)/1000 AS v
              FROM (
                SELECT ts, SUM(CASE WHEN fuel_type = "SOLAR_EMBEDDED" THEN mw ELSE 0 END) AS v_mw
-               FROM readings_generation WHERE ts BETWEEN :from AND :to GROUP BY ts
+               FROM ' . $GEN_TABLE . ' GROUP BY ts
              ) t
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
-            $params
+            $genParams
         );
         $unit = 'GW';
         break;

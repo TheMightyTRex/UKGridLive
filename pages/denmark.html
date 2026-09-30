@@ -322,7 +322,7 @@
 
   GridPreview.renderDonutChart(
     document.getElementById("mix-donut"), SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-legend", unit: "GW", centerLabel: "4.2GW", centerSub: "generated (illustrative)" }
+    { legendTarget: "mix-donut-legend", unit: "GW", decimals: 1, pctDecimals: 1, centerLabel: "4.2GW", centerSub: "generated (illustrative)" }
   );
 
   (function () {
@@ -398,6 +398,7 @@
             ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
             : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#dk-sources">data sources</a>.',
           sourceLabel: "ENTSO-E Transparency Platform (Denmark (DK1) bidding zone)",
+          mixTs: current.mix_ts,
         });
       }
     }
@@ -451,7 +452,9 @@
     });
   }
 
-  initCountryStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initCountryStatusStrip);
 
   (async function () {
     const canvas = document.getElementById("mix-stack");
