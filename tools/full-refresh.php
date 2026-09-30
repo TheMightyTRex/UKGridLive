@@ -2,9 +2,9 @@
 /**
  * tools/full-refresh.php - manual, one-off "pull everything right now"
  * diagnostic page. NOT part of the regular site - nothing on the site
- * links to this, and the whole tools/ folder is password-protected via
- * tools/.htaccess (HTTP Basic Auth) since it's for the site operator's own
- * use only, not visitors.
+ * links to this, and it's password-protected by tools/_auth.php (a login
+ * form checked against 'tools_password_hash' in includes/config.php) since
+ * it's for the site operator's own use only, not visitors.
  *
  * Runs every configured source's ingest function - Elexon, Carbon
  * Intensity, NESO, EirGrid, EIA, ENTSO-E (once per configured country),
@@ -42,12 +42,17 @@
 
 require __DIR__ . '/../includes/db.php';
 require __DIR__ . '/../includes/ingest.php';
+require __DIR__ . '/_auth.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 date_default_timezone_set('UTC');
 
 $config = ukgrid_load_config();
+// Password check before anything else runs - see tools/_auth.php for why
+// this replaced tools/.htaccess's Basic Auth (a placeholder server path in
+// that file caused a blank 500 error after every full-site upload).
+ukgrid_tools_require_login($config);
 $pdo = ukgrid_db();
 
 function ukgrid_tool_h(string $s): string
@@ -249,7 +254,7 @@ if (empty($config['refresh']['on_demand'])) {
 <body>
 <div class="wrap">
   <h1>Full refresh - all sources</h1>
-  <p class="sub">Runs each source one small request at a time (rather than one long request) so a slow or hanging source can't take the whole page down. Results stream in below as each one finishes.</p>
+  <p class="sub">Runs each source one small request at a time (rather than one long request) so a slow or hanging source can't take the whole page down. Results stream in below as each one finishes. <a href="?logout=1">Log out</a></p>
 
   <?php if (!empty($configWarnings)): ?>
     <div class="config-check">
