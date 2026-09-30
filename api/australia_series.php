@@ -27,10 +27,12 @@
  *
  * metric=mix groups the same way as api/australia_current.php's mix_mw:
  * fossil = coal+gas+distillate, renewable = wind+solar+hydro+bioenergy,
- * other = pumps+battery_discharging (dispatchable storage, not a primary
+ * other = battery_discharging (dispatchable storage, not a primary
  * fuel - biomass counts as renewable here to match this project's existing
  * ENTSO-E convention, see api/country_series.php's psr_type groupings).
- * battery_charging is excluded from every metric here, same reasoning as
+ * battery_charging and pumps (pumped-hydro pumping load - pumped hydro's
+ * generation is already inside "hydro") are excluded from every metric
+ * here, same reasoning as
  * api/australia_current.php's generation_mw (it's a draw, not supply).
  *
  * Response shape matches api/series.php:
@@ -116,7 +118,7 @@ switch ($metric) {
              FROM (
                SELECT ts, SUM(mw) AS v_mw
                FROM readings_au_generation
-               WHERE category IN ("coal","gas","wind","solar","hydro","distillate","bioenergy","pumps","battery_discharging")
+               WHERE category IN ("coal","gas","wind","solar","hydro","distillate","bioenergy","battery_discharging")
                  AND ts BETWEEN :from AND :to
                GROUP BY ts
              ) t
@@ -136,9 +138,9 @@ switch ($metric) {
                SELECT ts,
                  SUM(CASE WHEN category IN ("coal","gas","distillate") THEN mw ELSE 0 END) AS fossil_mw,
                  SUM(CASE WHEN category IN ("wind","solar","hydro","bioenergy") THEN mw ELSE 0 END) AS renewable_mw,
-                 SUM(CASE WHEN category IN ("pumps","battery_discharging") THEN mw ELSE 0 END) AS other_mw
+                 SUM(CASE WHEN category IN ("battery_discharging") THEN mw ELSE 0 END) AS other_mw
                FROM readings_au_generation
-               WHERE ts BETWEEN :from AND :to AND category != "battery_charging"
+               WHERE ts BETWEEN :from AND :to AND category NOT IN ("battery_charging", "pumps")
                GROUP BY ts
              ) t
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
@@ -152,7 +154,7 @@ switch ($metric) {
     case 'fossil':
         $groupCodes = [
             'renewable' => ['wind', 'solar', 'hydro', 'bioenergy'],
-            'non_renewable' => ['coal', 'gas', 'distillate', 'pumps', 'battery_discharging'],
+            'non_renewable' => ['coal', 'gas', 'distillate', 'battery_discharging'],
             'fossil' => ['coal', 'gas', 'distillate'],
         ][$metric];
         $placeholders = implode(',', array_map(fn($c) => $pdo->quote($c), $groupCodes));

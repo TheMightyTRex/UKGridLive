@@ -336,70 +336,36 @@
   // Elexon feed does - NUC/OTH/UNK get lumped together here, same as the
   // page's original static markup did.
   const USA_MIX_GROUPS = [
-    { key: "fossil", label: "Fossil fuels", color: "var(--fossil)", codes: ["NG", "COL", "OIL"] },
-    { key: "renewable", label: "Renewables", color: "var(--renewable)", codes: ["WND", "SUN", "WAT"] },
-    { key: "other", label: "Nuclear & other", color: "var(--other)", codes: ["NUC", "OTH", "UNK"] },
+    { key: "fossil", label: "Fossil fuels", color: "#8a5a3c", codes: ["NG", "COL", "OIL"] },
+    { key: "renewable", label: "Renewables", color: "#1f9d5a", codes: ["WND", "SUN", "WAT", "GEO", "SNB"] },
+    { key: "other", label: "Nuclear & other", color: "#6a5acd", codes: ["NUC", "OTH", "UNK"] },
+    { key: "storage", label: "Storage", color: "#0e8f7a", codes: ["BAT", "PS", "OES", "UES"] },
   ];
-  const USA_FUEL_COLORS = { NG: "#8a5a3c", COL: "#4a4a4a", OIL: "#5c4b3c", WND: "#2fa876", SUN: "#e0a800", WAT: "#2a8fbd", NUC: "#6a5acd", OTH: "#6b5847", UNK: "#9a9a9a" };
+  const USA_FUEL_COLORS = {
+    NG: "#8a5a3c", COL: "#4a4a4a", OIL: "#5c4b3c", WND: "#2fa876", SUN: "#e0a800", WAT: "#2a8fbd", NUC: "#6a5acd", OTH: "#6b5847", UNK: "#9a9a9a",
+    GEO: "#b5651d", SNB: "#c9a227", BAT: "#0e8f7a", PS: "#3f8fa0", OES: "#5aa39a", UES: "#8aa39f",
+  };
 
-  function renderUsaMix(mixMw, isLive) {
-    // Works directly off the raw { fuelCode: MW } object rather than
-    // round-tripping through summarizeUsaMix()'s label strings, so
-    // grouping/colouring stays keyed on the actual EIA fuel codes - no
-    // fragile "look up which code has this label" reverse search.
-    const codes = Object.keys(mixMw || {}).filter((c) => mixMw[c] != null).sort((a, b) => mixMw[b] - mixMw[a]);
-    const tbody = document.getElementById("mix-tbody");
+  // Table, donut, legend and bar are all built by the shared
+  // GridPreview.renderMixBreakdown (assets/app.js) from one list of rows,
+  // so they always show the same sources, values and percentages.
+  function renderUsaMix(mixMw, isLive, mixTs) {
     const statusCaption = document.getElementById("mix-status-caption");
-    const donutCaption = document.getElementById("mix-donut-caption");
-
-    if (!codes.length) {
-      if (tbody) tbody.innerHTML = "";
-      GridPreview.showChartError(document.getElementById("mix-donut"), "Not available yet.");
-      GridPreview.showChartError(document.getElementById("mix-bar"), "Not available yet.");
+    const labelFor = (c) => (window.GridData.USA_FUEL_LABELS && window.GridData.USA_FUEL_LABELS[c]) || c;
+    const groupFor = (c) => { const g = USA_MIX_GROUPS.find((grp) => grp.codes.includes(c)); return g ? g.key : "other"; };
+    const rows = Object.keys(mixMw || {}).filter((c) => mixMw[c] != null).map((c) => ({
+      label: labelFor(c), mw: mixMw[c], group: groupFor(c), color: USA_FUEL_COLORS[c] || "#7a7a7a",
+    }));
+    const summary = GridPreview.renderMixBreakdown(rows, {
+      tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+      donutCaptionId: "mix-donut-caption",
+      groups: USA_MIX_GROUPS, decimals: 1, centerSub: "generated",
+      captionFn: (sm) => `Generation ${sm.gw(sm.totalMw)}GW by fuel type, live from the EIA's Hourly Electric Grid Monitor${mixTs ? " (mix as of " + GridPreview.formatClockTime(mixTs) + ")" : ""}. The headline Generation figure above is the EIA's own reported total, which can differ slightly from the sum of individual fuel types.`,
+    });
+    if (!summary) {
       if (statusCaption) statusCaption.textContent = "Not available yet - no live EIA fuel-type reading has been recorded on this install.";
-      if (donutCaption) donutCaption.textContent = "";
       return;
     }
-
-    const totalMw = codes.reduce((sum, c) => sum + mixMw[c], 0);
-    const gw = (mw) => (mw / 1000).toFixed(1);
-    const pct = (mw) => totalMw > 0 ? (mw / totalMw * 100).toFixed(1) : "0.0";
-    const labelFor = (c) => (window.GridData.USA_FUEL_LABELS && window.GridData.USA_FUEL_LABELS[c]) || c;
-
-    if (tbody) {
-      tbody.innerHTML = "";
-      USA_MIX_GROUPS.forEach((group) => {
-        const groupCodes = codes.filter((c) => group.codes.includes(c));
-        const groupMw = groupCodes.reduce((sum, c) => sum + mixMw[c], 0);
-        if (groupMw <= 0) return;
-        const groupRow = document.createElement("tr");
-        groupRow.className = "group-row";
-        groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${group.color}"></span>${group.label}</th><td class="num">${gw(groupMw)}</td><td class="num">${pct(groupMw)}</td>`;
-        tbody.appendChild(groupRow);
-        groupCodes.forEach((c) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${labelFor(c)}</td><td class="num">${gw(mixMw[c])}</td><td class="num">${pct(mixMw[c])}</td>`;
-          tbody.appendChild(row);
-        });
-      });
-    }
-
-    const donutCanvas = document.getElementById("mix-donut");
-    if (donutCanvas) {
-      donutCanvas.closest(".chart-wrap").classList.remove("is-loading");
-      const labels = codes.map(labelFor);
-      const values = codes.map((c) => mixMw[c] / 1000);
-      const colors = codes.map((c) => USA_FUEL_COLORS[c] || "#7a7a7a");
-      GridPreview.renderDonutChart(donutCanvas, labels, values, colors, {
-        legendTarget: "mix-donut-legend", unit: "GW", centerLabel: gw(totalMw) + "GW", centerSub: "generated",
-      });
-      const barCanvas = document.getElementById("mix-bar");
-      if (barCanvas) {
-        barCanvas.closest(".chart-wrap").classList.remove("is-loading");
-        GridPreview.renderBarChart(barCanvas, labels, values, colors, { unit: "GW" });
-      }
-    }
-    if (donutCaption) donutCaption.textContent = `Generation ${gw(totalMw)}GW, live from the EIA's Hourly Electric Grid Monitor.`;
     if (statusCaption) statusCaption.textContent = isLive ? "Live from the EIA's per-fuel-type feed (typically about a day behind)." : "Showing the last recorded reading.";
   }
 
@@ -454,7 +420,7 @@
           : "Live demand, generation and total interchange from the EIA's Hourly Electric Grid Monitor (lower-48 aggregate)" +
             (current.stale ? ". This is running later than its usual ~1 day lag; check the site's cron jobs or EIA API status." : ", typically about a day behind - not real-time.");
       }
-      renderUsaMix(current.mix_mw, !isCached);
+      renderUsaMix(current.mix_mw, !isCached, current.mix_ts);
     }
 
     const { usedCache, promise } = GridPreview.withCachedFallback(
@@ -498,7 +464,9 @@
     });
   }
 
-  initUsaStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initUsaStatusStrip);
 
   // Generation mix over the last 24 hours: real per-fuel-type history from
   // api/usa_series.php's metric=mix, same renderStackedAreaChart component

@@ -10,8 +10,9 @@
  * ukgrid_ingest_openelectricity().
  *
  * generation_mw is the sum of every fueltech group that supplies power to
- * the grid (coal, gas, wind, solar, hydro, distillate, bioenergy, pumps,
- * battery_discharging) - battery_charging is deliberately excluded from
+ * the grid (coal, gas, wind, solar, hydro, distillate, bioenergy,
+ * battery_discharging) - battery_charging and pumps (pumped-hydro pumping
+ * load) are deliberately excluded from
  * that total (it's a draw, not supply) and returned separately instead, in
  * battery_charging_mw, the same way api/usa_current.php keeps
  * interconnection_mw separate from generation_mw.
@@ -55,6 +56,7 @@ if (!$latestTs) {
         'price_aud_mwh' => null,
         'battery_charging_mw' => null,
         'mix_mw' => new stdClass(),
+        'mix_ts' => null,
     ]);
     exit;
 }
@@ -98,21 +100,38 @@ function ukgrid_au_nearest_price(PDO $pdo, string $ts, int $windowMinutes)
 // battery_charging is handled separately, and includes/ingest.php's
 // ukgrid_ingest_openelectricity() for why the raw "battery" net rollup
 // isn't stored at all.
-$generationGroups = ['coal', 'gas', 'wind', 'solar', 'hydro', 'distillate', 'bioenergy', 'pumps', 'battery_discharging'];
+// 'pumps' is NOT in this list any more: in Open Electricity's (ex-OpenNEM)
+// fueltech taxonomy "pumps" is pumped-hydro PUMPING LOAD - a draw, the same
+// kind of thing as battery_charging - while pumped hydro's generation is
+// already inside "hydro". Summing it into generation_mw (and showing it as
+// a "Pumped hydro" generation slice) overstated generation. It's still
+// returned in mix_mw so the page can list it as consumption, clearly
+// separated from the generation mix (see pages/australia.html).
+$generationGroups = ['coal', 'gas', 'wind', 'solar', 'hydro', 'distillate', 'bioenergy', 'battery_discharging'];
 
+// One coherent snapshot for every fueltech group, including the two loads
+// (battery_charging, pumps) - see ukgrid_coherent_mix() in _bootstrap.php.
+// Each group used to be looked up independently as "nearest within +/- the
+// window", so one donut could combine different 5-minute intervals.
+$snapshot = ukgrid_coherent_mix($pdo, 'readings_au_generation', 'category', array_merge($generationGroups, ['battery_charging', 'pumps']), $latestTs, $stalenessMinutes);
+$mixTs = $snapshot['ts'];
 $mix = [];
 $generationMw = 0.0;
 $anyGeneration = false;
 foreach ($generationGroups as $group) {
-    $v = ukgrid_au_nearest_generation($pdo, $latestTs, $stalenessMinutes, $group);
-    if ($v !== null) {
-        $mix[$group] = $v;
-        $generationMw += $v;
+    if (array_key_exists($group, $snapshot['mix'])) {
+        $mix[$group] = $snapshot['mix'][$group];
+        if ($mix[$group] >= 0.5) {
+            $generationMw += $mix[$group];
+        }
         $anyGeneration = true;
     }
 }
-
-$batteryChargingMw = ukgrid_au_nearest_generation($pdo, $latestTs, $stalenessMinutes, 'battery_charging');
+$batteryChargingMw = $snapshot['mix']['battery_charging'] ?? null;
+$pumpsMw = $snapshot['mix']['pumps'] ?? null;
+if ($pumpsMw !== null) {
+    $mix['pumps'] = $pumpsMw; // consumption - deliberately NOT added to $generationMw above
+}
 $priceAudMwh = ukgrid_au_nearest_price($pdo, $latestTs, $stalenessMinutes);
 
 echo json_encode([
@@ -125,4 +144,5 @@ echo json_encode([
     'price_aud_mwh' => $priceAudMwh,
     'battery_charging_mw' => $batteryChargingMw,
     'mix_mw' => empty($mix) ? new stdClass() : $mix,
+    'mix_ts' => $mixTs !== null ? gmdate('Y-m-d\TH:i:s\Z', strtotime($mixTs)) : null,
 ]);

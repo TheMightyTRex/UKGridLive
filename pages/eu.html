@@ -347,6 +347,9 @@
 
     const currents = await Promise.all(EU_COUNTRIES.map((cc) => window.GridData.fetchCountryCurrent(cc)));
     const live = currents.filter(Boolean);
+    // A failed periodic refresh (GridPreview.autoRefresh) keeps the last
+    // good figures on screen rather than switching to "not available".
+    if (!live.length && GridPreview._refreshing) return;
 
     if (!live.length) {
       if (banner) { banner.className = "chart-caption data-status-banner is-illustrative"; banner.innerHTML = '<span class="dot" aria-hidden="true"></span>None of the tracked EU countries have live data yet on this install'; }
@@ -401,7 +404,9 @@
     });
   }
 
-  initEuStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initEuStatusStrip);
 
   // Generation mix over the last 24 hours: fetches each tracked country's
   // own real renewable/fossil/nuclear/other mix history (see

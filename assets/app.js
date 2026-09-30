@@ -415,8 +415,26 @@
     // failure path; this mirrors it for every success path in one spot
     // instead of requiring every call site to remember it individually.
     const wrap = canvas.closest(".chart-wrap");
-    if (wrap) wrap.classList.remove("is-loading");
-    chartRegistry.push({ canvas, draw });
+    if (wrap) {
+      wrap.classList.remove("is-loading");
+      // Also clear a previous "No data available" state. showChartError()
+      // hides the canvas (.has-error canvas { visibility: hidden }) and
+      // nothing ever un-hid it, so a chart that had once shown "no data"
+      // stayed invisible even after real data arrived and was drawn -
+      // leaving e.g. a populated mix table beside a blank donut.
+      if (wrap.classList.contains("has-error")) {
+        wrap.classList.remove("has-error");
+        const msg = wrap.querySelector(".chart-error-msg");
+        if (msg) msg.remove();
+      }
+    }
+    // One registry entry per canvas: re-rendering the same chart (a live
+    // update, a periodic refresh) replaces its draw() rather than stacking
+    // another one, which used to replay every stale earlier render on each
+    // resize/theme change before the current one.
+    const existing = chartRegistry.findIndex((entry) => entry.canvas === canvas);
+    if (existing !== -1) chartRegistry[existing].draw = draw;
+    else chartRegistry.push({ canvas, draw });
   }
 
   function redrawAll() {
@@ -496,13 +514,35 @@
     return Array.from(new Set(out));
   }
 
-  function buildLegend(target, labels, colors, values, unit) {
+  /** Escapes text for safe use inside innerHTML - labels can come straight
+      from an upstream feed's own codes when this site has no display label
+      for them (a new ENTSO-E psrType, EIA fuel code, etc). */
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  window.GridPreview.escapeHtml = escapeHtml;
+
+  // fmt (optional): { decimals, pctDecimals } - when given, legend values
+  // use exactly that many decimal places and show each entry's share of
+  // the (positive) total too, so a donut's legend reads the same numbers
+  // as the mix table beside it (see renderMixBreakdown below). Without it,
+  // the original axis-style rounding is kept for every other caller.
+  function buildLegend(target, labels, colors, values, unit, fmt) {
     const el = typeof target === "string" ? document.getElementById(target) : target;
     if (!el) return;
+    const total = values ? values.reduce((a, b) => a + Math.max(Number(b) || 0, 0), 0) : 0;
     el.innerHTML = labels
       .map((l, i) => {
-        const v = values ? ` <strong>${formatAxisValue(values[i], unit)}</strong>` : "";
-        return `<li><span class="swatch" style="background:${colors[i]}"></span>${l}${v}</li>`;
+        let v = "";
+        if (values) {
+          if (fmt && fmt.decimals != null) {
+            const share = total > 0 ? (Math.max(values[i], 0) / total * 100).toFixed(fmt.pctDecimals != null ? fmt.pctDecimals : 1) : "0.0";
+            v = ` <strong>${Number(values[i]).toFixed(fmt.decimals)}${unit || ""}</strong> <span class="chart-legend__pct">(${share}%)</span>`;
+          } else {
+            v = ` <strong>${formatAxisValue(values[i], unit)}</strong>`;
+          }
+        }
+        return `<li><span class="swatch" style="background:${colors[i]}"></span>${escapeHtml(l)}${v}</li>`;
       })
       .join("");
   }
@@ -1188,6 +1228,7 @@
     if (!wrap) return;
     wrap.classList.remove("is-loading");
     wrap.classList.add("has-error");
+    canvas._donutMeta = null; // no longer showing any slices
     const ctx = canvas.getContext && canvas.getContext("2d");
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (message === null) return;
@@ -1367,6 +1408,19 @@
   function withCachedFallback(cacheKey, fetchFn, renderFn) {
     const storageKey = "ukgl-cache-" + cacheKey;
     let usedCache = false;
+    // A periodic refresh (see autoRefresh) - the page is already showing
+    // the last good figures, so don't repaint them as "cached/refreshing",
+    // and report usedCache so a failed fetch keeps them rather than
+    // switching the page to "No data available".
+    if (window.GridPreview && window.GridPreview._refreshing) {
+      return { usedCache: true, promise: fetchFn().then((fresh) => {
+        if (fresh) {
+          renderFn(fresh, false);
+          try { localStorage.setItem(storageKey, JSON.stringify(fresh)); } catch (e) {}
+        }
+        return fresh;
+      }) };
+    }
     try {
       const raw = localStorage.getItem(storageKey);
       if (raw) {
@@ -1515,7 +1569,7 @@
           ctx.textBaseline = "middle";
           ctx.fillText(labels[i], pad.l - 8, y + barH / 2);
           ctx.textAlign = "left";
-          ctx.fillText(formatAxisValue(v, opts.unit), pad.l + bw + 6, y + barH / 2);
+          ctx.fillText(opts.decimals != null ? `${Number(v).toFixed(opts.decimals)}${opts.unit || ""}` : formatAxisValue(v, opts.unit), pad.l + bw + 6, y + barH / 2);
         });
       } else {
         const pad = { l: 40, r: 10, t: 16, b: 24 };
@@ -1603,6 +1657,19 @@
     // same shared state the listeners update.
     if (canvas._donutHoverIndex === undefined) canvas._donutHoverIndex = -1;
     if (canvas._donutPointer === undefined) canvas._donutPointer = null; // {x, y} in canvas-local CSS px - drives the floating tooltip
+    // A re-render with fewer slices than before (e.g. a source dropping to
+    // zero on the next refresh) would otherwise leave a hover index
+    // pointing past the end of the new arcs array and throw mid-draw.
+    if (canvas._donutHoverIndex >= values.length) canvas._donutHoverIndex = -1;
+
+    // Value/share text for the centre readout and hover tooltip. With
+    // opts.decimals set (every "Generation mix right now" donut, via
+    // renderMixBreakdown), this uses exactly the same rounding as the mix
+    // table beside it - GW to that many decimals, share to one decimal
+    // place - so hovering a slice shows the very same two numbers as its
+    // table row. Without it, the original axis-style rounding is kept.
+    const fmtValue = (v) => opts.decimals != null ? `${Number(v).toFixed(opts.decimals)}${opts.unit || ""}` : formatAxisValue(v, opts.unit);
+    const fmtShare = (frac) => opts.decimals != null ? `${(frac * 100).toFixed(opts.pctDecimals != null ? opts.pctDecimals : 1)}%` : `${Math.round(frac * 100)}%`;
 
     function draw() {
       const { ctx, w, h } = prepareCanvas(canvas);
@@ -1661,7 +1728,7 @@
         const a = arcs[canvas._donutHoverIndex];
         ctx.fillText(a.label, cx, cy - 6);
         ctx.font = '11px "Open Sans", sans-serif';
-        ctx.fillText(`${formatAxisValue(a.value, opts.unit)} · ${Math.round(a.frac * 100)}%`, cx, cy + 12);
+        ctx.fillText(`${fmtValue(a.value)} · ${fmtShare(a.frac)}`, cx, cy + 12);
       } else {
         if (opts.centerLabel) ctx.fillText(opts.centerLabel, cx, cy - 6);
         if (opts.centerSub) {
@@ -1676,7 +1743,7 @@
         const a = arcs[canvas._donutHoverIndex];
         const pointer = canvas._donutPointer;
         const labelLine = a.label;
-        const valueLine = `${formatAxisValue(a.value, opts.unit)} · ${Math.round(a.frac * 100)}%`;
+        const valueLine = `${fmtValue(a.value)} · ${fmtShare(a.frac)}`;
         ctx.font = '700 12px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
         let boxW = ctx.measureText(labelLine).width;
         ctx.font = '11px "Open Sans", -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -1713,13 +1780,17 @@
     }
 
     registerChart(canvas, draw);
-    if (opts.legendTarget) buildLegend(opts.legendTarget, labels, colors, values, opts.unit);
+    // What this donut is currently showing, kept on the element so it can
+    // be checked against the table beside it (the automated donut-vs-table
+    // audit reads this) without having to decode canvas pixels.
+    canvas._donutMeta = { labels: labels.slice(), values: values.slice(), centerLabel: opts.centerLabel || null, centerSub: opts.centerSub || null, decimals: opts.decimals };
+    if (opts.legendTarget) buildLegend(opts.legendTarget, labels, colors, values, opts.unit, opts.decimals != null ? { decimals: opts.decimals, pctDecimals: opts.pctDecimals } : null);
 
     if (!opts.noExport) {
       attachChartExport(canvas, {
         title: opts.exportTitle,
         kind: "categories",
-        data: { labels, values, colors, unit: opts.unit },
+        data: { labels, values, colors, unit: opts.unit, decimals: opts.decimals, pctDecimals: opts.pctDecimals },
       });
     }
 
@@ -1825,99 +1896,257 @@
   window.GridPreview.showNoMixData = showNoMixData;
 
   /**
-   * Rebuilds a "generation mix right now" section (grouped table + donut +
-   * bar) from a live ENTSO-E psrType -> MW breakdown (see
-   * assets/data.js's summarizeEntsoeMix()) - shared by pages/ireland.html
-   * and every ENTSO-E-sourced country page (France, Netherlands, Belgium,
-   * Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal) so this logic
-   * exists exactly once rather than once per page. Replaces the page's
-   * markup with an explicit "No data available" state (via showNoMixData
-   * above) rather than leaving old illustrative numbers in place, if
-   * there's nothing usable to render.
+   * THE single renderer behind every "Generation mix right now" section on
+   * the site (GB, Ireland, every ENTSO-E country page, the EU aggregate,
+   * the USA, Canada and Australia) - table, donut, donut legend, bar chart
+   * and captions are all built here from ONE list of rows, so they cannot
+   * drift apart. Before this existed, each page built its table and its
+   * donut separately and they genuinely disagreed in several ways (see
+   * CHANGELOG.md, 2026-09-30): the GB table's % was "of demand" while its
+   * donut's % was "of generation"; interconnectors and pumped storage were
+   * table rows with no donut slice; Ireland's GB-interconnect line was
+   * added as a positive "import" wedge even while Ireland was exporting;
+   * negative readings (pumping, battery charging, net export) cut the
+   * table's total but were silently dropped from the donut's; the table
+   * showed 2 decimal places while the donut legend/tooltip rounded to 1
+   * and to whole percentages; and fuel codes with no table group appeared
+   * in the donut only.
    *
-   * opts:
-   *   tbodyId, donutId, legendId, barId  - element IDs (required)
-   *   donutCaptionId, statusCaptionId    - element IDs (optional)
-   *   statusCaptionHtml                  - HTML for statusCaptionId once live (optional)
-   *   sourceLabel                        - e.g. "ENTSO-E Transparency Platform (France bidding zone)", used in the default donut caption
-   *   extraLine                          - { label, mw, color } - one additional row/wedge appended after the psrType groups, e.g. Ireland's EirGrid-sourced GB interconnection figure (optional)
+   * The rules, applied identically to the table and the donut:
+   *   - A row counts towards the mix if it rounds to a non-zero positive
+   *     figure at the table's own precision. Those rows, and only those,
+   *     are the donut's slices, the legend's entries and the bar chart's
+   *     bars, in the same order as the table.
+   *   - Every % (table rows, group subtotals, donut tooltip, legend) is a
+   *     share of the same total: the sum of those positive rows - which is
+   *     also the donut's centre figure.
+   *   - Negative rows (pumping load, battery charging, net exports) are
+   *     listed in their own clearly-labelled table group, with "-" for %,
+   *     since a negative can't be a slice of a donut. They're excluded
+   *     from the total, and the caption says so.
+   *   - Rows that are exactly zero (e.g. solar at night) are left out of
+   *     both, and named in the caption instead.
+   *   - A row whose group isn't one of opts.groups lands in an "Other"
+   *     group rather than vanishing from the table.
+   *
+   * rows: [{ label, mw, group, color }] - color must be a literal hex (it
+   *       feeds the donut's canvas gradient, which can't resolve var()).
+   * opts: tbodyId, donutId, legendId, barId (required); donutCaptionId,
+   *       statusCaptionId, statusCaptionHtml (optional);
+   *       groups: [{ key, label, color }] in table order;
+   *       decimals: GW decimal places (default 2);
+   *       centerSub: text under the donut's centre total (default "generated");
+   *       captionFn(summary): returns the donut caption text (optional);
+   *       exportTitle: donut export title (optional).
+   * Returns a summary { totalMw, positive, negative, zero } or null.
    */
-  function renderPsrMixSection(mixMw, opts) {
-    if (!window.GridData || typeof window.GridData.summarizeEntsoeMix !== "function") { showNoMixData(opts); return false; }
-    const summary = window.GridData.summarizeEntsoeMix(mixMw || {});
-    if (!summary.entries.length) { showNoMixData(opts); return false; }
+  function renderMixBreakdown(rows, opts) {
+    opts = opts || {};
+    const decimals = opts.decimals != null ? opts.decimals : 2;
+    // Under half a megawatt either way counts as zero. (Deliberately not
+    // "anything that rounds to 0.0GW": a real 13MW biofuel reading on a
+    // 1-decimal page is small, not zero, and belongs in both the table and
+    // the donut rather than being named as "currently at zero".)
+    const epsMw = 0.5;
+    const groups = (opts.groups || []).slice();
+    const knownGroup = (key) => groups.some((g) => g.key === key);
 
-    const tbody = document.getElementById(opts.tbodyId);
-    if (!tbody) return false;
+    const clean = (rows || [])
+      .filter((r) => r && r.mw != null && isFinite(Number(r.mw)))
+      .map((r) => ({ label: r.label, mw: Number(r.mw), color: r.color || "#7a7a7a", group: knownGroup(r.group) ? r.group : "__other" }));
+    if (clean.some((r) => r.group === "__other") && !knownGroup("__other")) {
+      groups.push({ key: "__other", label: "Other", color: "#7a7a7a" });
+    }
 
-    const extraMw = (opts.extraLine && opts.extraLine.mw) ? Math.abs(opts.extraLine.mw) : 0;
-    const totalMw = summary.totalMw + extraMw;
-    const gw = (mw) => (mw / 1000).toFixed(2);
+    const positive = clean.filter((r) => r.mw >= epsMw);
+    const negative = clean.filter((r) => r.mw <= -epsMw);
+    const zero = clean.filter((r) => r.mw > -epsMw && r.mw < epsMw);
+    if (!positive.length) { showNoMixData(opts); return null; }
+
+    const totalMw = positive.reduce((sum, r) => sum + r.mw, 0);
+    const gw = (mw) => (mw / 1000).toFixed(decimals);
     const pct = (mw) => totalMw > 0 ? (mw / totalMw * 100).toFixed(1) : "0.0";
 
-    const GROUP_META = {
-      renewable: { label: "Renewables", color: "var(--renewable)" },
-      fossil: { label: "Fossil fuels", color: "var(--fossil)" },
-      nuclear: { label: "Nuclear", color: "var(--other)" },
-      other: { label: "Other & storage", color: "var(--other)" },
-    };
-    const groupMw = { renewable: summary.renewableMw, fossil: summary.fossilMw, nuclear: summary.nuclearMw, other: summary.otherMw };
-
-    tbody.innerHTML = "";
-    ["renewable", "fossil", "nuclear", "other"].forEach((groupKey) => {
-      if (groupMw[groupKey] <= 0) return;
-      const meta = GROUP_META[groupKey];
-      const groupRow = document.createElement("tr");
-      groupRow.className = "group-row";
-      groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${meta.color}"></span>${meta.label}</th><td class="num">${gw(groupMw[groupKey])}</td><td class="num">${pct(groupMw[groupKey])}</td>`;
-      tbody.appendChild(groupRow);
-      summary.entries.filter((e) => e.group === groupKey).forEach((e) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${e.label}</td><td class="num">${gw(e.mw)}</td><td class="num">${pct(e.mw)}</td>`;
-        tbody.appendChild(row);
-      });
+    // Table order = donut order = legend order: groups in opts.groups
+    // order, largest row first within each group.
+    const ordered = [];
+    groups.forEach((g) => {
+      positive.filter((r) => r.group === g.key).sort((a, b) => b.mw - a.mw).forEach((r) => ordered.push(r));
     });
-    if (extraMw > 0 && opts.extraLine) {
-      const row = document.createElement("tr");
-      row.className = "group-row";
-      row.innerHTML = `<th scope="row"><span class="swatch" style="background:${opts.extraLine.color}"></span>${opts.extraLine.label}</th><td class="num">${gw(extraMw)}</td><td class="num">${pct(extraMw)}</td>`;
-      tbody.appendChild(row);
+
+    const tbody = document.getElementById(opts.tbodyId);
+    if (tbody) {
+      tbody.innerHTML = "";
+      groups.forEach((g) => {
+        const members = ordered.filter((r) => r.group === g.key);
+        if (!members.length) return;
+        const groupMw = members.reduce((sum, r) => sum + r.mw, 0);
+        const groupRow = document.createElement("tr");
+        groupRow.className = "group-row";
+        groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${g.color}"></span>${escapeHtml(g.label)}</th><td class="num">${gw(groupMw)}</td><td class="num">${pct(groupMw)}</td>`;
+        tbody.appendChild(groupRow);
+        members.forEach((r) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td><span class="swatch swatch--row" style="background:${r.color}"></span>${escapeHtml(r.label)}</td><td class="num">${gw(r.mw)}</td><td class="num">${pct(r.mw)}</td>`;
+          tbody.appendChild(row);
+        });
+      });
+      if (negative.length) {
+        const negRow = document.createElement("tr");
+        negRow.className = "group-row";
+        negRow.innerHTML = `<th scope="row"><span class="swatch" style="background:var(--text-muted)"></span>Consuming or exporting right now</th><td class="num">${gw(negative.reduce((s, r) => s + r.mw, 0))}</td><td class="num" title="Not part of the generation mix, so not included in the percentages">-</td>`;
+        tbody.appendChild(negRow);
+        negative.sort((a, b) => a.mw - b.mw).forEach((r) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td><span class="swatch swatch--row" style="background:${r.color}"></span>${escapeHtml(r.label)}</td><td class="num">${gw(r.mw)}</td><td class="num">-</td>`;
+          tbody.appendChild(row);
+        });
+      }
     }
 
-    const labels = summary.entries.map((e) => e.label);
-    const values = summary.entries.map((e) => e.mw / 1000);
-    const colors = summary.entries.map((e) => (window.GridData.ENTSOE_PSR_COLORS && window.GridData.ENTSOE_PSR_COLORS[e.code]) || "#7a7a7a");
-    if (extraMw > 0 && opts.extraLine) {
-      labels.push(opts.extraLine.label);
-      values.push(extraMw / 1000);
-      colors.push(opts.extraLine.color);
-    }
+    const labels = ordered.map((r) => r.label);
+    const values = ordered.map((r) => r.mw / 1000);
+    const colors = ordered.map((r) => r.color);
 
     const donutCanvas = document.getElementById(opts.donutId);
     if (donutCanvas) {
+      const wrap = donutCanvas.closest(".chart-wrap");
+      if (wrap) wrap.classList.remove("is-loading");
       renderDonutChart(donutCanvas, labels, values, colors, {
-        legendTarget: opts.legendId, unit: "GW", centerLabel: gw(summary.totalMw) + "GW", centerSub: "generated",
+        legendTarget: opts.legendId, unit: "GW", decimals, pctDecimals: 1,
+        centerLabel: gw(totalMw) + "GW", centerSub: opts.centerSub || "generated",
+        exportTitle: opts.exportTitle,
       });
     }
     const barCanvas = document.getElementById(opts.barId);
     if (barCanvas) {
-      const paired = labels.map((l, i) => ({ l, v: values[i], c: colors[i] })).sort((a, b) => b.v - a.v);
-      renderBarChart(barCanvas, paired.map((p) => p.l), paired.map((p) => p.v), paired.map((p) => p.c), { unit: "GW" });
+      const wrap = barCanvas.closest(".chart-wrap");
+      if (wrap) wrap.classList.remove("is-loading");
+      const paired = ordered.slice().sort((a, b) => b.mw - a.mw);
+      renderBarChart(barCanvas, paired.map((p) => p.label), paired.map((p) => p.mw / 1000), paired.map((p) => p.color), { unit: "GW", decimals });
     }
 
+    const summary = { totalMw, positive: ordered, negative, zero, gw, pct };
     if (opts.donutCaptionId) {
       const el = document.getElementById(opts.donutCaptionId);
       if (el) {
-        el.textContent = `Generation ${gw(summary.totalMw)}GW` + (extraMw > 0 ? ` plus ${gw(extraMw)}GW imported` : "") + `, live from the ${opts.sourceLabel || "ENTSO-E Transparency Platform"}.`;
+        let text = opts.captionFn ? opts.captionFn(summary) : `Total ${gw(totalMw)}GW.`;
+        text += " Percentages in the table, legend and donut are all shares of this same total.";
+        if (negative.length) {
+          text += ` ${negative.map((r) => r.label).join(", ")} ${negative.length === 1 ? "is" : "are"} currently negative (consuming or exporting), so listed separately in the table and not counted in the total.`;
+        }
+        if (zero.length) {
+          text += ` Currently at zero: ${zero.map((r) => r.label).join(", ")}.`;
+        }
+        el.textContent = text;
       }
     }
     if (opts.statusCaptionId && opts.statusCaptionHtml) {
       const el = document.getElementById(opts.statusCaptionId);
       if (el) el.innerHTML = opts.statusCaptionHtml;
     }
-    return true;
+    return summary;
+  }
+  window.GridPreview.renderMixBreakdown = renderMixBreakdown;
+
+  /**
+   * ENTSO-E flavour of renderMixBreakdown above - shared by pages/
+   * ireland.html, pages/eu.html and every ENTSO-E-sourced country page.
+   * Turns a live psrType -> MW breakdown (api/country_current.php's
+   * mix_mw) into renderMixBreakdown's rows, using the site-wide canonical
+   * psrType labels/colours from assets/data.js.
+   *
+   * opts: everything renderMixBreakdown takes, plus
+   *   sourceLabel - e.g. "ENTSO-E Transparency Platform (France bidding zone)", used in the caption
+   *   mixTs       - the mix's own timestamp (api/country_current.php's mix_ts), shown in the caption when given
+   *   extraLine   - { label, mw, color } - one extra row, e.g. Ireland's EirGrid-sourced GB interconnection
+   *                 (positive = importing; a negative value is shown as an export, not as a slice)
+   *   captionNote - extra sentence appended to the caption (optional)
+   */
+  function renderPsrMixSection(mixMw, opts) {
+    opts = opts || {};
+    if (!window.GridData || !window.GridData.ENTSOE_PSR_LABELS) { showNoMixData(opts); return false; }
+    const D = window.GridData;
+    const groupOf = (code) => {
+      if (D.ENTSOE_FOSSIL_PSR && D.ENTSOE_FOSSIL_PSR.indexOf(code) !== -1) return "fossil";
+      if (D.ENTSOE_RENEWABLE_PSR && D.ENTSOE_RENEWABLE_PSR.indexOf(code) !== -1) return "renewable";
+      if (D.ENTSOE_NUCLEAR_PSR && D.ENTSOE_NUCLEAR_PSR.indexOf(code) !== -1) return "nuclear";
+      return "other";
+    };
+    const rows = Object.keys(mixMw || {}).map((code) => ({
+      label: D.ENTSOE_PSR_LABELS[code] || code,
+      mw: mixMw[code],
+      group: groupOf(code),
+      color: (D.ENTSOE_PSR_COLORS && D.ENTSOE_PSR_COLORS[code]) || "#7a7a7a",
+    }));
+    const groups = [
+      { key: "renewable", label: "Renewables", color: "#1f9d5a" },
+      { key: "fossil", label: "Fossil fuels", color: "#8a5a3c" },
+      { key: "nuclear", label: "Nuclear", color: "#6a5acd" },
+      { key: "other", label: "Other & storage", color: "#7a7a7a" },
+    ];
+    if (opts.extraLine && opts.extraLine.mw != null && isFinite(Number(opts.extraLine.mw))) {
+      const mw = Number(opts.extraLine.mw);
+      groups.push({ key: "interconnection", label: "Imports", color: opts.extraLine.color });
+      rows.push({ label: mw >= 0 ? opts.extraLine.label + " (importing)" : opts.extraLine.label + " (exporting)", mw, group: "interconnection", color: opts.extraLine.color });
+    }
+    const asOf = opts.mixTs ? ` (mix as of ${formatClockTime(opts.mixTs)})` : "";
+    const summary = renderMixBreakdown(rows, Object.assign({}, opts, {
+      groups,
+      decimals: 2,
+      // "supply" only when an import is actually part of the total.
+      centerSub: (opts.extraLine && Number(opts.extraLine.mw) > 0) ? "supply" : "generated",
+      captionFn: (sm) => {
+        const imported = sm.positive.filter((r) => r.group === "interconnection").reduce((s, r) => s + r.mw, 0);
+        const generated = sm.totalMw - imported;
+        return `Generation ${sm.gw(generated)}GW` + (imported > 0 ? ` plus ${sm.gw(imported)}GW imported (${sm.gw(sm.totalMw)}GW total)` : "") +
+          `, live from the ${opts.sourceLabel || "ENTSO-E Transparency Platform"}${asOf}.` + (opts.captionNote ? " " + opts.captionNote : "");
+      },
+    }));
+    return !!summary;
   }
   window.GridPreview.renderPsrMixSection = renderPsrMixSection;
+
+  /** "14:05"-style local time for an ISO timestamp ("29 Sep, 14:05" if it
+      isn't today, so an older reading can't pass for a fresh one), or "". */
+  function formatClockTime(iso) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return d.toDateString() === new Date().toDateString() ? time : d.toLocaleDateString([], { day: "numeric", month: "short" }) + ", " + time;
+  }
+  window.GridPreview.formatClockTime = formatClockTime;
+
+  /**
+   * Keeps a page's live figures current while it stays open: calls fn()
+   * now, then again every intervalMs (default 5 minutes) while the tab is
+   * visible, and straight away when a hidden tab becomes visible again if
+   * it's due. Every page's status strip + mix section used to load exactly
+   * once, so a tab left open showed an ever-older table and donut. During
+   * a refresh (GridPreview._refreshing), withCachedFallback skips its
+   * cached first paint - the page is already showing those figures - and
+   * treats them as "already showing something", so a failed refresh
+   * leaves the last good figures in place instead of blanking them.
+   */
+  function autoRefresh(fn, intervalMs) {
+    const every = intervalMs || 5 * 60 * 1000;
+    let last = Date.now();
+    let running = false;
+    Promise.resolve().then(fn);
+    function tick() {
+      if (running || document.visibilityState === "hidden" || Date.now() - last < every) return;
+      last = Date.now();
+      running = true;
+      window.GridPreview._refreshing = true;
+      Promise.resolve()
+        .then(fn)
+        .catch(() => {})
+        .then(() => { window.GridPreview._refreshing = false; running = false; });
+    }
+    setInterval(tick, 30 * 1000);
+    document.addEventListener("visibilitychange", tick);
+  }
+  window.GridPreview.autoRefresh = autoRefresh;
 
   /* ==========================================================================
      Universal chart export toolbar - Copy as text / Download PNG / Download CSV
@@ -2005,12 +2234,14 @@
       chart's own title already says what it is. */
   function buildLegendEntries(spec) {
     if (spec.kind === "categories") {
-      const { labels, values, colors, unit } = spec.data;
+      const { labels, values, colors, unit, decimals, pctDecimals } = spec.data;
       const total = (values || []).reduce((a, b) => a + Math.max(Number(b) || 0, 0), 0) || 1;
-      return labels.map((l, i) => ({
-        color: (colors && colors[i]) || "#7a7a7a",
-        text: `${l}: ${formatAxisValue(values[i], unit)} (${Math.round((Math.max(Number(values[i]) || 0, 0) / total) * 100)}%)`,
-      }));
+      return labels.map((l, i) => {
+        const frac = Math.max(Number(values[i]) || 0, 0) / total;
+        const valueText = decimals != null ? `${Number(values[i]).toFixed(decimals)}${unit || ""}` : formatAxisValue(values[i], unit);
+        const shareText = decimals != null ? (frac * 100).toFixed(pctDecimals != null ? pctDecimals : 1) : String(Math.round(frac * 100));
+        return { color: (colors && colors[i]) || "#7a7a7a", text: `${l}: ${valueText} (${shareText}%)` };
+      });
     }
     const cols = (spec.data.columns || []).filter((c) => c && c.color);
     if (cols.length > 1) {
@@ -2261,7 +2492,9 @@
     const headers = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
     const lines = [];
     if (title) lines.push(title, '');
-    table.querySelectorAll('tbody tr').forEach((tr) => {
+    // Skips rows inside a hidden <tbody> (e.g. index.html's battery preview
+    // row while its toggle is off), so exports match what's on screen.
+    table.querySelectorAll('tbody:not([hidden]) tr').forEach((tr) => {
       const cells = Array.from(tr.children).map((c) => c.textContent.replace(/\s+/g, ' ').trim());
       if (!cells[0]) return;
       const indent = tr.classList.contains('group-row') ? '' : '  ';
@@ -2287,7 +2520,9 @@
   function tableToCsv(table) {
     const headers = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
     const lines = [headers.map(csvField).join(',')];
-    table.querySelectorAll('tbody tr').forEach((tr) => {
+    // Skips rows inside a hidden <tbody> (e.g. index.html's battery preview
+    // row while its toggle is off), so exports match what's on screen.
+    table.querySelectorAll('tbody:not([hidden]) tr').forEach((tr) => {
       const cells = Array.from(tr.children).map((c) => c.textContent.replace(/\s+/g, ' ').trim());
       if (!cells[0]) return;
       lines.push(cells.map(csvField).join(','));

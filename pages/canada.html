@@ -335,65 +335,31 @@
   // renewable = hydro+wind+solar, non-renewable = nuclear+gas+biofuel+other
   // (biofuel counted as non-renewable, matching GB's own convention).
   const CANADA_MIX_GROUPS = [
-    { key: "renewable", label: "Renewables", color: "var(--renewable)", codes: ["HYDRO", "WIND", "SOLAR"] },
-    { key: "non_renewable", label: "Non-renewable", color: "var(--fossil)", codes: ["NUCLEAR", "GAS", "BIOFUEL", "OTHER"] },
+    { key: "renewable", label: "Renewables", color: "#1f9d5a", codes: ["HYDRO", "WIND", "SOLAR"] },
+    { key: "non_renewable", label: "Non-renewable", color: "#8a5a3c", codes: ["NUCLEAR", "GAS", "BIOFUEL", "OTHER"] },
   ];
   const CANADA_FUEL_COLORS = { NUCLEAR: "#6a5acd", GAS: "#8a5a3c", HYDRO: "#2a8fbd", WIND: "#2fa876", SOLAR: "#e0a800", BIOFUEL: "#7a8f3f", OTHER: "#6b5847" };
 
-  function renderCanadaMix(mixMw, isLive) {
-    const codes = Object.keys(mixMw || {}).filter((c) => mixMw[c] != null).sort((a, b) => mixMw[b] - mixMw[a]);
-    const tbody = document.getElementById("mix-tbody");
+  // Table, donut, legend and bar are all built by the shared
+  // GridPreview.renderMixBreakdown (assets/app.js) from one list of rows,
+  // so they always show the same sources, values and percentages.
+  function renderCanadaMix(mixMw, isLive, mixTs) {
     const statusCaption = document.getElementById("mix-status-caption");
-    const donutCaption = document.getElementById("mix-donut-caption");
-
-    if (!codes.length) {
-      if (tbody) tbody.innerHTML = "";
-      GridPreview.showChartError(document.getElementById("mix-donut"), "Not available yet.");
-      GridPreview.showChartError(document.getElementById("mix-bar"), "Not available yet.");
+    const labelFor = (c) => (window.GridData.CANADA_FUEL_LABELS && window.GridData.CANADA_FUEL_LABELS[c]) || c;
+    const groupFor = (c) => { const g = CANADA_MIX_GROUPS.find((grp) => grp.codes.includes(c)); return g ? g.key : "non_renewable"; };
+    const rows = Object.keys(mixMw || {}).filter((c) => mixMw[c] != null).map((c) => ({
+      label: labelFor(c), mw: mixMw[c], group: groupFor(c), color: CANADA_FUEL_COLORS[c] || "#7a7a7a",
+    }));
+    const summary = GridPreview.renderMixBreakdown(rows, {
+      tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+      donutCaptionId: "mix-donut-caption",
+      groups: CANADA_MIX_GROUPS, decimals: 2, centerSub: "generated",
+      captionFn: (sm) => `Generation ${sm.gw(sm.totalMw)}GW, live from IESO's per-fuel-type feed${mixTs ? " (mix as of " + GridPreview.formatClockTime(mixTs) + ")" : ""}.`,
+    });
+    if (!summary) {
       if (statusCaption) statusCaption.textContent = "Not available yet - no live IESO fuel-type reading has been recorded on this install.";
-      if (donutCaption) donutCaption.textContent = "";
       return;
     }
-
-    const totalMw = codes.reduce((sum, c) => sum + mixMw[c], 0);
-    const gw = (mw) => (mw / 1000).toFixed(1);
-    const pct = (mw) => totalMw > 0 ? (mw / totalMw * 100).toFixed(1) : "0.0";
-    const labelFor = (c) => (window.GridData.CANADA_FUEL_LABELS && window.GridData.CANADA_FUEL_LABELS[c]) || c;
-
-    if (tbody) {
-      tbody.innerHTML = "";
-      CANADA_MIX_GROUPS.forEach((group) => {
-        const groupCodes = codes.filter((c) => group.codes.includes(c));
-        const groupMw = groupCodes.reduce((sum, c) => sum + mixMw[c], 0);
-        if (groupMw <= 0) return;
-        const groupRow = document.createElement("tr");
-        groupRow.className = "group-row";
-        groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${group.color}"></span>${group.label}</th><td class="num">${gw(groupMw)}</td><td class="num">${pct(groupMw)}</td>`;
-        tbody.appendChild(groupRow);
-        groupCodes.forEach((c) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${labelFor(c)}</td><td class="num">${gw(mixMw[c])}</td><td class="num">${pct(mixMw[c])}</td>`;
-          tbody.appendChild(row);
-        });
-      });
-    }
-
-    const donutCanvas = document.getElementById("mix-donut");
-    if (donutCanvas) {
-      donutCanvas.closest(".chart-wrap").classList.remove("is-loading");
-      const labels = codes.map(labelFor);
-      const values = codes.map((c) => mixMw[c] / 1000);
-      const colors = codes.map((c) => CANADA_FUEL_COLORS[c] || "#7a7a7a");
-      GridPreview.renderDonutChart(donutCanvas, labels, values, colors, {
-        legendTarget: "mix-donut-legend", unit: "GW", centerLabel: gw(totalMw) + "GW", centerSub: "generated",
-      });
-      const barCanvas = document.getElementById("mix-bar");
-      if (barCanvas) {
-        barCanvas.closest(".chart-wrap").classList.remove("is-loading");
-        GridPreview.renderBarChart(barCanvas, labels, values, colors, { unit: "GW" });
-      }
-    }
-    if (donutCaption) donutCaption.textContent = `Generation ${gw(totalMw)}GW, live from IESO's per-fuel-type feed.`;
     if (statusCaption) statusCaption.textContent = isLive ? "Live from IESO's per-fuel-type feed." : "Showing the last recorded reading.";
   }
 
@@ -431,7 +397,7 @@
           ? "Showing the last successfully loaded figures while this page fetches the latest data."
           : "Live demand from IESO (Ontario only)" + (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
-      renderCanadaMix(current.mix_mw, !isCached);
+      renderCanadaMix(current.mix_mw, !isCached, current.mix_ts);
     }
 
     const { usedCache, promise } = GridPreview.withCachedFallback(
@@ -466,7 +432,9 @@
     });
   }
 
-  initCanadaStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initCanadaStatusStrip);
 
   (async function () {
     const canvas = document.getElementById("mix-stack");

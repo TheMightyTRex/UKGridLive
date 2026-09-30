@@ -346,7 +346,7 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  const SOURCE_LABELS = ["Wind", "Gas", "Solar", "GB interconnect", "Hydro", "Battery", "Oil peakers"];
+  const SOURCE_LABELS = ["Wind", "Gas", "Solar", "GB interconnect", "Hydro", "Battery storage", "Oil / distillate peakers"];
   const SOURCE_VALUES = [2.11, 1.78, 0.28, 0.22, 0.09, 0.07, 0.06];
   // From GridData's canonical label->colour map (assets/data.js) - this
   // array used to hardcode Hydro and Battery to the exact same blue,
@@ -355,7 +355,7 @@
 
   GridPreview.renderDonutChart(
     document.getElementById("mix-donut"), SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-legend", unit: "GW", centerLabel: "4.61GW", centerSub: "generated" }
+    { legendTarget: "mix-donut-legend", unit: "GW", decimals: 2, pctDecimals: 1, centerLabel: "4.61GW", centerSub: "generated" }
   );
 
   (function () {
@@ -399,7 +399,11 @@
     // instead. Called once immediately with whatever's cached (either
     // source may be missing or stale independently) and again once each
     // fetch resolves.
-    function renderIeSnapshot(current, entsoe, isCached) {
+    function renderIeSnapshot(current, entsoe, isCached, entsoeIsCached, icSource) {
+      // icSource: which EirGrid snapshot supplies the GB-interconnect line -
+      // normally `current`, but the cached one if EirGrid just failed, so a
+      // failed EirGrid refresh doesn't drop that row from the mix.
+      const ic = icSource !== undefined ? icSource : current;
       if (entsoe && entsoe.price_eur_mwh != null) {
         const priceEl = document.getElementById("stat-price");
         if (priceEl) priceEl.textContent = entsoe.price_eur_mwh.toFixed(2);
@@ -410,15 +414,23 @@
       GridPreview.renderPsrMixSection(entsoe && entsoe.mix_mw, {
         tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
         donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
-        statusCaptionHtml: isCached
-          ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
+        statusCaptionHtml: (isCached || entsoeIsCached)
+          ? "Showing the last successfully loaded generation mix" + (entsoeIsCached ? " - ENTSO-E couldn't be reached just now." : " while this page fetches the latest data.")
           : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#ie-sources">data sources</a>.',
         sourceLabel: "ENTSO-E Transparency Platform (Ireland/SEM bidding zone)",
+        mixTs: entsoe && entsoe.mix_ts,
+        // The headline "Generation" stat comes from EirGrid, a different
+        // source to this ENTSO-E breakdown - say so, rather than leave two
+        // different totals on the page unexplained.
+        captionNote: "The headline Generation figure above comes from EirGrid's own dashboard rather than ENTSO-E, so the two totals can differ slightly.",
         // ENTSO-E's generation-per-type data doesn't split interconnector
         // flow out by individual cable - EirGrid's own interconnection_mw
         // reading is folded in as one combined line instead (see the
-        // ie-sources section's copy for why).
-        extraLine: current && current.interconnection_mw != null
+        // ie-sources section's copy for why). Passed signed: positive is an
+        // import and becomes a donut slice; negative is an export and is
+        // listed separately (it used to be Math.abs()'d into an "import"
+        // slice even while Ireland was exporting).
+        extraLine: ic && ic.interconnection_mw != null
           // A literal hex, not var(--interconnector) - this colour also
           // feeds the donut chart's canvas gradient below (see
           // renderPsrMixSection in app.js), and canvas fillStyle/gradient
@@ -426,7 +438,7 @@
           // element style does, so a var() reference here would throw
           // partway through drawing the donut every time GB interconnection
           // data is present. #d98e04 is this site's --interconnector value.
-          ? { label: "GB interconnect", mw: current.interconnection_mw, color: "#d98e04" }
+          ? { label: "GB interconnect", mw: ic.interconnection_mw, color: "#d98e04" }
           : null,
       });
 
@@ -464,13 +476,17 @@
           ? "Showing the last successfully loaded figures while this page fetches the latest data."
           : "Live demand, generation, emissions and GB interconnection from EirGrid's Smart Grid Dashboard" +
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".") +
-            (entsoe ? " SEM price and the generation-mix breakdown below are live from ENTSO-E too." : " SEM price and the generation-mix breakdown below show no data available for now - see data sources below.");
+            (entsoe && !entsoeIsCached ? " SEM price and the generation-mix breakdown below are live from ENTSO-E too."
+              : entsoe ? " ENTSO-E couldn't be reached just now, so SEM price and the generation-mix breakdown below are the last successfully loaded figures."
+              : " SEM price and the generation-mix breakdown below show no data available for now - see data sources below.");
       }
     }
 
     const cachedCurrent = GridPreview.cacheGet("ireland-current");
     const cachedEntsoe = GridPreview.cacheGet("ireland-entsoe");
-    if (cachedCurrent || cachedEntsoe) renderIeSnapshot(cachedCurrent, cachedEntsoe, true);
+    // On a periodic refresh (GridPreview.autoRefresh) the page is already
+    // showing these figures - don't repaint them as "cached".
+    if ((cachedCurrent || cachedEntsoe) && !GridPreview._refreshing) renderIeSnapshot(cachedCurrent, cachedEntsoe, true);
 
     // EirGrid (demand/generation/wind/interconnection/emissions) and
     // ENTSO-E (SEM price + generation mix) are two independent sources -
@@ -482,7 +498,9 @@
     ]);
     if (current) GridPreview.cacheSet("ireland-current", current);
     if (entsoe) GridPreview.cacheSet("ireland-entsoe", entsoe);
-    renderIeSnapshot(current, entsoe, false);
+    // If ENTSO-E failed but a cached mix was just painted above, keep
+    // showing it (labelled as such) rather than wiping it to "No data".
+    renderIeSnapshot(current, entsoe || cachedEntsoe, false, !entsoe && !!cachedEntsoe, current || cachedCurrent);
 
     // SEM price sparkline and price-mock fallback still need their own
     // handling below - renderIeSnapshot only sets the price figure itself.
@@ -574,7 +592,9 @@
     });
   }
 
-  initIeStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initIeStatusStrip);
 
   (async function () {
     // Same renderStackedAreaChart component (per-band gradient fade +

@@ -278,6 +278,13 @@
   const USA_FUEL_LABELS = {
     NG: "Natural gas", COL: "Coal", NUC: "Nuclear", WND: "Wind", SUN: "Solar",
     WAT: "Hydro", OIL: "Oil", OTH: "Other", UNK: "Unknown",
+    // Newer EIA-930 energy-source codes. api/usa_current.php now returns
+    // every fuel category it has stored (not just the original nine), so
+    // any of these the EIA reports shows up in the mix table and donut
+    // together rather than being silently left out of both - which also
+    // made the fuel-type total fall short of the headline generation total.
+    BAT: "Battery storage", PS: "Pumped storage", GEO: "Geothermal",
+    SNB: "Solar with battery", OES: "Other energy storage", UES: "Unknown energy storage",
   };
 
   /**
@@ -347,13 +354,14 @@
 
   // Open Electricity fueltech_group codes, mapped to display labels - keep
   // in sync with includes/ingest.php's ukgrid_ingest_openelectricity() and
-  // api/australia_current.php's $generationGroups list. battery_charging
-  // is deliberately not included here - it's never part of mix_mw (see
-  // that file's docblock).
+  // api/australia_current.php's $generationGroups list. pumps (pumped-hydro
+  // pumping load) and battery_charging are loads, not generation - the
+  // page lists them in the mix table's "Consuming or exporting right now"
+  // group, never as donut slices (see pages/australia.html).
   const AUSTRALIA_FUEL_LABELS = {
     coal: "Coal", gas: "Gas", wind: "Wind", solar: "Solar", hydro: "Hydro",
-    distillate: "Distillate", bioenergy: "Bioenergy", pumps: "Pumped hydro",
-    battery_discharging: "Battery storage",
+    distillate: "Distillate", bioenergy: "Bioenergy", pumps: "Pumped hydro (pumping)",
+    battery_discharging: "Battery storage", battery_charging: "Battery (charging)",
   };
 
   /**
@@ -691,6 +699,9 @@
     CANADA_FUEL_LABELS,
     ENTSOE_PSR_LABELS,
     ENTSOE_PSR_COLORS,
+    ENTSOE_RENEWABLE_PSR,
+    ENTSOE_NUCLEAR_PSR,
+    ENTSOE_FOSSIL_PSR,
     LABEL_COLORS,
     colorFor,
     colorsFor,

@@ -318,69 +318,45 @@
   // renderUsaMix. battery_charging is never passed in here at all (see
   // api/australia_current.php's docblock) - it's a draw, not generation.
   const AU_MIX_GROUPS = [
-    { key: "fossil", label: "Fossil fuels", color: "var(--fossil)", codes: ["coal", "gas", "distillate"] },
-    { key: "renewable", label: "Renewables", color: "var(--renewable)", codes: ["wind", "solar", "hydro", "bioenergy"] },
-    { key: "other", label: "Other & storage", color: "var(--storage)", codes: ["pumps", "battery_discharging"] },
+    { key: "fossil", label: "Fossil fuels", color: "#8a5a3c", codes: ["coal", "gas", "distillate"] },
+    { key: "renewable", label: "Renewables", color: "#1f9d5a", codes: ["wind", "solar", "hydro", "bioenergy"] },
+    { key: "other", label: "Other & storage", color: "#0e8f7a", codes: ["battery_discharging"] },
   ];
+  // Loads, not generation: "pumps" is pumped-hydro pumping load in Open
+  // Electricity's fueltech taxonomy (pumped hydro's output is already in
+  // "hydro"), and battery charging is a draw too. Both are listed in the
+  // table's "Consuming or exporting right now" group, never as slices.
+  const AU_LOAD_CODES = ["pumps", "battery_charging"];
+  // Canonical site-wide colours (assets/data.js LABEL_COLORS) wherever one
+  // exists, so the same fuel reads the same on every page's donut.
   const AU_FUEL_COLORS = {
     coal: "#4a4a4a", gas: "#8a5a3c", distillate: "#5c4b3c",
-    wind: "#2fa876", solar: "#e0a800", hydro: "#2a8fbd", bioenergy: "#6b8f3c",
-    pumps: "#3f8fa0", battery_discharging: "#9a5ac9",
+    wind: "#2fa876", solar: "#e0a800", hydro: "#2a8fbd", bioenergy: "#7a8f3f",
+    pumps: "#3f8fa0", battery_discharging: "#0e8f7a", battery_charging: "#0e8f7a",
   };
 
-  function renderAuMix(mixMw, isLive) {
-    const codes = Object.keys(mixMw || {}).filter((c) => mixMw[c] != null && mixMw[c] > 0).sort((a, b) => mixMw[b] - mixMw[a]);
-    const tbody = document.getElementById("mix-tbody");
+  // Table, donut, legend and bar are all built by the shared
+  // GridPreview.renderMixBreakdown (assets/app.js) from one list of rows,
+  // so they always show the same sources, values and percentages.
+  function renderAuMix(mixMw, isLive, batteryChargingMw, mixTs) {
     const statusCaption = document.getElementById("mix-status-caption");
-    const donutCaption = document.getElementById("mix-donut-caption");
-
-    if (!codes.length) {
-      GridPreview.showNoMixData({
-        tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
-        donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
-      });
-      return;
-    }
-
-    const totalMw = codes.reduce((sum, c) => sum + mixMw[c], 0);
-    const gw = (mw) => (mw / 1000).toFixed(2);
-    const pct = (mw) => totalMw > 0 ? (mw / totalMw * 100).toFixed(1) : "0.0";
     const labelFor = (c) => (window.GridData.AUSTRALIA_FUEL_LABELS && window.GridData.AUSTRALIA_FUEL_LABELS[c]) || c;
-
-    if (tbody) {
-      tbody.innerHTML = "";
-      AU_MIX_GROUPS.forEach((group) => {
-        const groupCodes = codes.filter((c) => group.codes.includes(c));
-        const groupMw = groupCodes.reduce((sum, c) => sum + mixMw[c], 0);
-        if (groupMw <= 0) return;
-        const groupRow = document.createElement("tr");
-        groupRow.className = "group-row";
-        groupRow.innerHTML = `<th scope="row"><span class="swatch" style="background:${group.color}"></span>${group.label}</th><td class="num">${gw(groupMw)}</td><td class="num">${pct(groupMw)}</td>`;
-        tbody.appendChild(groupRow);
-        groupCodes.forEach((c) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${labelFor(c)}</td><td class="num">${gw(mixMw[c])}</td><td class="num">${pct(mixMw[c])}</td>`;
-          tbody.appendChild(row);
-        });
-      });
-    }
-
-    const donutCanvas = document.getElementById("mix-donut");
-    if (donutCanvas) {
-      donutCanvas.closest(".chart-wrap").classList.remove("is-loading");
-      const labels = codes.map(labelFor);
-      const values = codes.map((c) => mixMw[c] / 1000);
-      const colors = codes.map((c) => AU_FUEL_COLORS[c] || "#7a7a7a");
-      GridPreview.renderDonutChart(donutCanvas, labels, values, colors, {
-        legendTarget: "mix-donut-legend", unit: "GW", centerLabel: gw(totalMw) + "GW", centerSub: "generated",
-      });
-      const barCanvas = document.getElementById("mix-bar");
-      if (barCanvas) {
-        barCanvas.closest(".chart-wrap").classList.remove("is-loading");
-        GridPreview.renderBarChart(barCanvas, labels, values, colors, { unit: "GW" });
-      }
-    }
-    if (donutCaption) donutCaption.textContent = `Generation ${gw(totalMw)}GW, live from the Open Electricity API. Rooftop solar isn't included - see data sources.`;
+    const groupFor = (c) => { const g = AU_MIX_GROUPS.find((grp) => grp.codes.includes(c)); return g ? g.key : "other"; };
+    const all = Object.assign({}, mixMw || {});
+    if (batteryChargingMw != null && Object.keys(all).length) all.battery_charging = batteryChargingMw;
+    const rows = Object.keys(all).filter((c) => all[c] != null).map((c) => ({
+      label: labelFor(c),
+      // Loads always read as negative, whichever sign the feed uses.
+      mw: AU_LOAD_CODES.includes(c) ? -Math.abs(all[c]) : all[c],
+      group: groupFor(c), color: AU_FUEL_COLORS[c] || "#7a7a7a",
+    }));
+    const summary = GridPreview.renderMixBreakdown(rows, {
+      tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
+      donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
+      groups: AU_MIX_GROUPS, decimals: 2, centerSub: "generated",
+      captionFn: (sm) => `Generation ${sm.gw(sm.totalMw)}GW, live from the Open Electricity API${mixTs ? " (mix as of " + GridPreview.formatClockTime(mixTs) + ")" : ""}. Rooftop solar isn't included - see data sources.`,
+    });
+    if (!summary) return;
     if (statusCaption) statusCaption.textContent = isLive ? "Live from the Open Electricity API." : "Showing the last recorded reading.";
   }
 
@@ -424,7 +400,7 @@
           : "Live demand, generation and a demand-weighted average spot price across the NEM's five regions, from the Open Electricity API" +
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
-      renderAuMix(current.mix_mw, !isCached);
+      renderAuMix(current.mix_mw, !isCached, current.battery_charging_mw, current.mix_ts);
     }
 
     const { usedCache, promise } = GridPreview.withCachedFallback(
@@ -466,7 +442,9 @@
     });
   }
 
-  initAuStatusStrip();
+  // Re-fetches every 5 minutes while the page stays open, so the stats, mix
+  // table and donut keep updating together (see GridPreview.autoRefresh).
+  GridPreview.autoRefresh(initAuStatusStrip);
 
   (async function () {
     const canvas = document.getElementById("mix-stack");

@@ -726,6 +726,7 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   margin-right: .35rem;
 }
 .chart-legend strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.chart-legend__pct { font-variant-numeric: tabular-nums; }
 
 /* Toggle switch */
 .toggle-row {
@@ -1051,6 +1052,9 @@ table.mix .swatch {
   border-radius: 2px;
   margin-right: .5rem;
 }
+/* Per-source rows carry the same colour as their donut slice, so each
+   table row can be matched to its slice at a glance. */
+table.mix .swatch--row { width: .55rem; height: .55rem; margin-left: .15rem; }
 table.mix tr.group-row { font-weight: 700; }
 table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var(--border); }
 
