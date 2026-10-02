@@ -232,14 +232,15 @@
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
-      <h2 id="records-heading">Context</h2>
+      <h2 id="records-heading">Records &amp; context</h2>
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Renewable share of generation</span><strong>~56% in 2024 - first year renewables outpaced non-renewables</strong></li>
-            <li><span>Wind capacity</span><strong>~33GW installed (2025) - overtaken by solar PV (~50GW) as Spain's largest installed generation technology since January 2025</strong></li>
-            <li><span>Nuclear fleet</span><strong>7 reactors, ~20% of generation in 2024</strong></li>
-            <li><span>Iberian Peninsula blackout</span><strong>28 April 2025 - grid collapse across Spain, Portugal and parts of southern France</strong></li>
+            <li><span>Renewable share of generation</span><strong>Record 56.8% in 2024 - first passed 50% in 2023</strong></li>
+            <li><span>Installed capacity</span><strong>Solar PV overtook wind as the largest technology during 2024 - ~33GW wind and ~43GW grid-connected solar by 2025</strong></li>
+            <li><span>All-time peninsular peak demand</span><strong>45,450MW - 17 December 2007</strong></li>
+            <li><span>Nuclear fleet</span><strong>7 reactors, ~20% of generation in 2024 (19% in 2025)</strong></li>
+            <li><span>Iberian Peninsula blackout</span><strong>28 April 2025, 12:33pm - grid collapse across Spain and Portugal</strong></li>
           </ul>
           <p class="download-row">
             <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Spain context - UK Grid: Live+">
@@ -253,11 +254,11 @@
           </p>
         </div>
         <div>
-          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Spain's approximate renewable generation share, 2022 to 2025"></canvas></div>
-          <p class="chart-caption">Approximate renewable share of Spanish generation by year - renewables passed the halfway mark for the first time in 2024.</p>
+          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Spain's renewable generation share, 2023 and 2024"></canvas></div>
+          <p class="chart-caption">Renewable share of Spanish generation (REE) - renewables passed the halfway mark for the first time in 2023, then set a record in 2024.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are approximate, gathered from public Red Eléctrica (REE)/ENTSO-E reporting rather than a long-run historical feed. Last checked: 20 September 2026.</p>
+      <p class="chart-caption">Sources: <a href="https://www.ree.es/en/press-office/news/press-release/2025/03/electricity-generation-from-renewable-energies-in-spain-grows-by-10-3-in-2024-reaching-record-levels">REE (2024)</a>, <a href="https://www.ree.es/en/press-office/news/press-release/2023/12/Renewable-energy-breaks-records-and-accounts-for-more-than-50-per-cent-of-electricity-generation-Spain-2023">REE (2023)</a>, <a href="https://www.ree.es/en/press-office/news/press-release/2026/03/the-spanish-electricity-system-in-2025-electricity-demand-generation-and-installed-power-capacity-increase">REE (2025 system)</a>, <a href="https://www.sistemaelectrico-ree.es/en/spanish-electricity-system/demand/annual-maximums">REE demand maximums</a>, <a href="https://www.sistemaelectrico-ree.es/sites/default/files/informes/2026/ise-2025.pdf">REE 2025 system report</a>. Last checked: 2 October 2026.</p>
     </section>
 
     <section class="panel" id="es-sources" aria-labelledby="es-sources-heading">
@@ -478,8 +479,8 @@
 
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
-    ["2022", "2023", "2024", "2025"],
-    [46, 50, 56, 56],
+    ["2023", "2024"],
+    [50.3, 56.8],
     "#c0392b",
     { unit: "%", horizontal: false, thickness: 32 }
   );

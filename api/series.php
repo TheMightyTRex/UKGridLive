@@ -160,8 +160,11 @@ switch ($metric) {
     case 'price':
         $rows = ukgrid_bucketed($pdo,
             'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(ts)/:bucket1)*:bucket2) AS bucket_ts, AVG(price) AS v
-             FROM readings_price WHERE provider = "APXMIDP" AND ts BETWEEN :from AND :to
+             FROM readings_price WHERE provider = "APXMIDP" AND volume > 0 AND ts BETWEEN :from AND :to
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
+            // volume > 0: zero-volume half-hours carry a placeholder price of
+            // exactly 0 (Elexon: below the liquidity threshold, the Market Index
+            // Price "will be set to zero"), which used to drag averages down.
             $params
         );
         $unit = '£';

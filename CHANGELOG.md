@@ -2,6 +2,58 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-02 (Records re-checked on every page; dated records added for every country; notable moments fixed)
+
+### Records panels - re-verified against official/reputable sources (all "Last checked" now 2 October 2026)
+
+- **GB (`index.html`, `renewables.html`, topic pages):**
+  - Wind (23,880MW, 25 March 2026) and solar (15,427MW, 12 July 2026) records confirmed. A note now says Carbon Brief's dataset puts the solar peak at ~15.2GW (23 April 2026).
+  - Wind curtailment is now credited to Montel EnAppSys, which produced the estimate.
+  - **Carbon intensity corrected.** The "record" 39g/kWh (2021) has been beaten: NESO reported 20g/kWh on 7 April 2026 and 26g on 25 March 2026. The "near-record 89g/kWh on 23 May 2026" was wrong (May 2026's low was 32g). The unsourced "~500g in 2012" average was replaced with Carbon Brief's 419g (2014) to 126g (2025). The chart was updated to match.
+  - Winter 2026/27 early-view margin added (5.5GW, 8.8%).
+  - The 2025 renewables share is now labelled 47% UK / 44% GB.
+  - Peak coal share corrected to ~76% (1980).
+  - Viking Link is "longest land-and-subsea", not "longest subsea"; North Sea Link was added as the longest subsea interconnector at opening.
+  - Dinorwig: "0 to 1,320MW in about 12 seconds", per its owner ENGIE, replacing "under 16 seconds"; opening date is 9 May 1984.
+  - CfD AR6/AR7 figures and AR8's results window were made precise, and a dubious Energy UK link was replaced with DESNZ sources.
+  - "This year" Elexon figures are relabelled "past 12 months", since one dated from December 2025.
+- **Corrections elsewhere:**
+  - Ireland: last peat-fired generation was the end of 2023 (Edenderry), not 2020. Also fixed in two prose captions.
+  - Belgium: nuclear extension runs to 2035, not 2036; there are 9 offshore farms, not 8; the Princess Elisabeth tender status is updated.
+  - Germany: "wind + solar first became the largest source in 2025" corrected to "solar first overtook lignite in 2025"; the renewables share is ~59% in both 2024 and 2025.
+  - Spain: renewables first passed 50% in 2023, not 2024; solar overtook wind during 2024, not January 2025. The chart now uses REE's 2023/2024 figures only.
+  - Italy: the Larderello site still generates, not the 1913 unit itself.
+  - Poland: 31.4% renewables in 2025, not 29.4%. The chart's 2024/2025 values were corrected.
+  - Ontario: nuclear was 48.2% in 2025, and the unverifiable hydro range was removed.
+  - Australia: the Waratah Super Battery is now the largest, and Eraring now closes in 2029.
+  - Brazil: hydro ~52% (2025).
+  - Argentina: three reactors on two sites, with Atucha I offline; the unsourced Yacyretá "60%" was removed.
+  - Chile: coal is down to ~2.8GW.
+  - Colombia: the Venezuela link status is updated.
+  - Unverifiable claims were removed: the Dutch and Belgian winter-demand "records", Norway reservoir months and the Ontario hydro range.
+- **Dated, sourced records added for every country page**, renamed from "Context" to "Records & context". Each panel's caption now lists its actual sources:
+  - France: demand 102.1GW (2012), wind 20.1GW, solar 23.8GW and record net exports.
+  - Netherlands, Belgium, Norway, Denmark: annual records, plus Norway's 25,309MWh/h consumption record (January 2026).
+  - Germany: solar 50.4GW, onshore wind 46.4GW and negative-price hours.
+  - Spain: peninsular peak 45,450MW (2007).
+  - Italy: July 2026 record month.
+  - Sweden: 99% fossil-free.
+  - Portugal: first time above 10GW demand (January 2026).
+  - Poland: solar 14,565MW.
+  - USA: ERCOT 91.1GW and PJM ~168.2GW (both July 2026).
+  - Ontario: highest demand since 2007.
+  - Australia: record 78.6% renewable share and record minimum demand.
+  - Ireland: solar 1,222MW and battery 396MW.
+
+### Notable moments (GB, computed from this site's own stored data) - fixed
+
+- **One empty source table broke the whole panel.** The helper's `?array` type hint made `PDOStatement::fetch()`'s `false` (no rows) a fatal TypeError, so an empty table stopped every moment from being computed.
+- **The lowest price could read £0.00.** Elexon sets the Market Index Price to exactly 0 for half-hours below its liquidity threshold. Zero-volume rows are now excluded here, from the live price in `api/current.php`, and from the price series in `api/series.php`, where they had been dragging averages down.
+- **The price was mislabelled as "day-ahead".** It is Elexon's market index (MID/APX). Fixed on the price-history caption too.
+- **Highest wind** now pairs each 5-minute Elexon reading with its half-hour's embedded wind; before, only :00 and :30 readings included embedded wind.
+- **Solar** is labelled as a NESO estimate.
+- Verified against MariaDB fixtures. Old: fatal on an empty emissions table. New: correct values, including -£5.20 rather than £0 for the lowest price, and 14,000MW wind at a 5-minute timestamp.
+
 ## 2026-09-30 (Fix every live page sticking on "Loading live data…" after the v24/v25 upload)
 
 ### Fixed

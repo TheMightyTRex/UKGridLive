@@ -283,8 +283,8 @@
 
       <div id="rpanel-wind" role="tabpanel" aria-labelledby="rtab-wind" tabindex="0">
         <ul class="records-list" id="records-list-wind">
-          <li><span>Highest wind generation ever</span><strong>23,880MW - 25 March 2026</strong></li>
-          <li><span>Wind curtailed, Q1 2026</span><strong>3.6TWh (11% of potential output), due to transmission constraints</strong></li>
+          <li><span>Highest wind generation ever</span><strong>23,880MW - 25 March 2026, 1:30-2pm</strong></li>
+          <li><span>Wind curtailed, Q1 2026</span><strong>3.6TWh (about 11% of potential wind output), due to transmission constraints - Montel EnAppSys estimate</strong></li>
           <li><span>Previous record</span><strong>23,825MW - 5 Dec 2025, 5:30pm</strong></li>
         </ul>
         <p class="download-row">
@@ -298,14 +298,15 @@
           </button>
         </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-wind" role="img" aria-label="Bar chart of the two most recent wind generation records"></canvas></div>
-        <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a>, reported by <a href="https://www.edie.net/uk-soars-past-wind-power-generation-record-for-second-time-in-two-months/">Edie</a>, March 2026. Last checked: 20 September 2026.</p>
+        <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a>, reported by <a href="https://www.edie.net/uk-soars-past-wind-power-generation-record-for-second-time-in-two-months/">Edie</a> and <a href="https://www.renewableuk.com/news-and-resources/press-releases/new-british-wind-energy-record-set-as-gas-generation-falls-to-two-year-low/">RenewableUK</a>, March 2026; curtailment from Montel EnAppSys via <a href="https://www.energyvoice.com/renewables-energy-transition/wind/uk-wind/595979/wind-power-sets-new-generation-record-in-great-britain/">Energy Voice</a>. Last checked: 2 October 2026.</p>
       </div>
 
       <div id="rpanel-solar" role="tabpanel" aria-labelledby="rtab-solar" tabindex="0" hidden>
         <ul class="records-list" id="records-list-solar">
           <li><span>Highest solar generation ever</span><strong>15,427MW - 12 July 2026, late morning</strong></li>
           <li><span>Solar's share of the mix at that moment</span><strong>44%</strong></li>
-          <li><span>First time above 9.5GW</span><strong>May 2019</strong></li>
+          <li><span>First time above 9.5GW</span><strong>9,550MW - 14 May 2019</strong></li>
+          <li><span>Different dataset, different answer</span><strong>Carbon Brief's analysis puts the record at ~15.2GW on 23 April 2026, with no new peak over summer 2026 - estimates of GB solar vary by source</strong></li>
         </ul>
         <p class="download-row">
           <button type="button" class="copy-btn" data-copy-list="records-list-solar" data-copy-title="Solar records - UK Grid: Live+">
@@ -318,14 +319,15 @@
           </button>
         </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-solar" role="img" aria-label="Bar chart of solar generation records rising from 9.55GW in 2019 to 15.4GW in 2026"></canvas></div>
-        <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a>, reported by <a href="https://www.solarpowerportal.co.uk/solar-installations/summer-sun-boosted-uk-s-solar-generation-record-in-july">Solar Power Portal</a>, July 2026. Last checked: 20 September 2026.</p>
+        <p class="chart-caption">Source: <a href="https://www.neso.energy/">National Energy System Operator</a>, reported by <a href="https://www.solarpowerportal.co.uk/solar-installations/summer-sun-boosted-uk-s-solar-generation-record-in-july">Solar Power Portal</a>, July 2026; <a href="https://www.neso.energy/news/eso-data-shows-record-breaking-year-britains-electricity">NESO</a> (2019); <a href="https://www.carbonbrief.org/analysis-uk-solar-power-hits-record-high-over-summer-2026">Carbon Brief</a> (alternative estimate). Last checked: 2 October 2026.</p>
       </div>
 
       <div id="rpanel-emissions" role="tabpanel" aria-labelledby="rtab-emissions" tabindex="0" hidden>
         <ul class="records-list" id="records-list-emissions">
-          <li><span>Record lowest carbon intensity</span><strong>39g/kWh - Easter Monday 2021</strong></li>
-          <li><span>Near-record low</span><strong>89g/kWh - 23 May 2026</strong></li>
-          <li><span>Average intensity, 2012 vs 2025</span><strong>~500g → &lt;150g</strong></li>
+          <li><span>Lowest carbon intensity reported</span><strong>20g/kWh - 1:30pm, 7 April 2026</strong></li>
+          <li><span>Earlier 2026 low</span><strong>26g/kWh - 3pm, 25 March 2026</strong></li>
+          <li><span>Previous headline record</span><strong>39g/kWh - Easter Monday, 5 April 2021</strong></li>
+          <li><span>Average intensity, 2014 vs 2025</span><strong>419g → 126g/kWh</strong></li>
         </ul>
         <p class="download-row">
           <button type="button" class="copy-btn" data-copy-list="records-list-emissions" data-copy-title="Emissions records - UK Grid: Live+">
@@ -337,14 +339,15 @@
             <span data-copy-label aria-live="polite">Download CSV</span>
           </button>
         </p>
-        <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-emissions" role="img" aria-label="Bar chart of carbon intensity falling from around 500 grams per kilowatt hour in 2012 to under 150 in 2025"></canvas></div>
-        <p class="chart-caption">Source: <a href="https://www.carbonintensity.org.uk/">Carbon Intensity API</a> and NESO decarbonisation reporting. Last checked: 20 September 2026.</p>
+        <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-emissions" role="img" aria-label="Bar chart of carbon intensity falling from 419 grams per kilowatt hour on average in 2014 to 126 in 2025, with a low of 20 in April 2026"></canvas></div>
+        <p class="chart-caption">Source: NESO monthly electricity reports for <a href="https://www.neso.energy/document/381591/download">March 2026</a> and <a href="https://www.neso.energy/document/382556/download">April 2026</a>, <a href="https://www.carbonintensity.org.uk/">Carbon Intensity API</a>, and <a href="https://www.carbonbrief.org/analysis-uk-renewables-enjoy-record-year-in-2025-but-gas-power-still-rises">Carbon Brief</a> (annual averages). Last checked: 2 October 2026.</p>
       </div>
 
       <div id="rpanel-demand" role="tabpanel" aria-labelledby="rtab-demand" tabindex="0" hidden>
         <ul class="records-list" id="records-list-demand">
-          <li><span>Winter 2025/26 peak demand</span><strong>47.32GW - 5 Jan 2026</strong></li>
+          <li><span>Winter 2025/26 peak demand</span><strong>47.3GW - 5 Jan 2026, the highest since March 2018</strong></li>
           <li><span>Winter 2025/26 operating margin</span><strong>6.1GW (10.0%) - highest since 2019/20</strong></li>
+          <li><span>Winter 2026/27, early view</span><strong>5.5GW (8.8%) expected margin - full Winter Outlook due October 2026</strong></li>
         </ul>
         <p class="download-row">
           <button type="button" class="copy-btn" data-copy-list="records-list-demand" data-copy-title="Demand records - UK Grid: Live+">
@@ -357,7 +360,7 @@
           </button>
         </p>
         <div class="chart-wrap" style="height:200px;"><canvas id="records-bar-demand" role="img" aria-label="Bar chart contrasting a typical summer demand trough with the winter 2025/26 peak"></canvas></div>
-        <p class="chart-caption">Source: <a href="https://www.neso.energy/neso-sets-out-expectations-strongest-winter-electricity-margins-six-years">NESO Winter Outlook 2025/26</a>. The "summer low" bar is a rough comparison, not a specific sourced figure. Last checked: 20 September 2026.</p>
+        <p class="chart-caption">Source: <a href="https://www.neso.energy/neso-sets-out-expectations-strongest-winter-electricity-margins-six-years">NESO Winter Outlook 2025/26</a>, <a href="https://www.neso.energy/document/383456/download">NESO winter review</a> and <a href="https://www.neso.energy/publications/winter-watch">NESO Winter Early View 2026/27</a>. The "summer low" bar is a rough comparison, not a specific sourced figure. Last checked: 2 October 2026.</p>
       </div>
     </section>
 
@@ -1027,7 +1030,7 @@
       } else if (category === "emissions") {
         GridPreview.renderBarChart(
           document.getElementById("records-bar-emissions"),
-          ["2012 (avg.)", "2025 (avg.)", "23 May 2026"], [500, 145, 89], "#8a5a3c",
+          ["2014 (avg.)", "2025 (avg.)", "7 Apr 2026 (low)"], [419, 126, 20], "#8a5a3c",
           { unit: "g", horizontal: false, thickness: 44 }
         );
       } else if (category === "demand") {

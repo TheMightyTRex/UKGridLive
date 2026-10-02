@@ -370,7 +370,12 @@ function ukgrid_compute_notable_moments(PDO $pdo, array $config, int $timeoutSec
 {
     $moments = [];
 
-    $add = function (string $key, ?array $row, string $label, string $unit, string $direction, string $valueCol = 'v') use (&$moments) {
+    // $row is untyped on purpose: PDOStatement::fetch() returns false (not
+    // null) when a table has no matching row, and the previous `?array`
+    // type hint turned that into a fatal TypeError - so a single empty
+    // source table (e.g. no carbon-intensity readings yet) stopped EVERY
+    // notable moment from being computed, leaving the panel "not available".
+    $add = function (string $key, $row, string $label, string $unit, string $direction, string $valueCol = 'v') use (&$moments) {
         if ($row === false || $row === null || $row[$valueCol] === null) {
             return;
         }
@@ -383,14 +388,18 @@ function ukgrid_compute_notable_moments(PDO $pdo, array $config, int $timeoutSec
         ];
     };
 
-    // Day-ahead price (Elexon MID) - highest and lowest recorded. Negative
-    // prices are a real, interesting grid event (surplus low-carbon
-    // generation paying to keep running) rather than a data error, so the
-    // lowest figure is shown as-is, sign included.
-    $add('price_highest', $pdo->query("SELECT ts, price AS v FROM readings_price ORDER BY price DESC LIMIT 1")->fetch(),
-        'Highest day-ahead price recorded', 'GBP/MWh', 'highest');
-    $add('price_lowest', $pdo->query("SELECT ts, price AS v FROM readings_price ORDER BY price ASC LIMIT 1")->fetch(),
-        'Lowest day-ahead price recorded', 'GBP/MWh', 'lowest');
+    // Wholesale market index price (Elexon MID, APX - a short-term traded
+    // price, not the day-ahead auction it was previously labelled as) -
+    // highest and lowest recorded. Negative prices are a real, interesting
+    // grid event (surplus low-carbon generation paying to keep running)
+    // rather than a data error, so the lowest figure is shown as-is, sign
+    // included. Zero-volume half-hours are excluded: Elexon sets the price
+    // to exactly 0 when too little traded to form one, which used to make
+    // "lowest price" read as a meaningless GBP 0.00.
+    $add('price_highest', $pdo->query("SELECT ts, price AS v FROM readings_price WHERE volume > 0 ORDER BY price DESC LIMIT 1")->fetch(),
+        'Highest wholesale price recorded (market index)', 'GBP/MWh', 'highest');
+    $add('price_lowest', $pdo->query("SELECT ts, price AS v FROM readings_price WHERE volume > 0 ORDER BY price ASC LIMIT 1")->fetch(),
+        'Lowest wholesale price recorded (market index)', 'GBP/MWh', 'lowest');
 
     // Carbon intensity (Carbon Intensity API).
     $add('emissions_lowest', $pdo->query("SELECT ts, actual_gco2 AS v FROM readings_emissions WHERE actual_gco2 IS NOT NULL ORDER BY actual_gco2 ASC LIMIT 1")->fetch(),
@@ -404,18 +413,26 @@ function ukgrid_compute_notable_moments(PDO $pdo, array $config, int $timeoutSec
     $add('demand_lowest', $pdo->query("SELECT ts, mw AS v FROM readings_demand ORDER BY mw ASC LIMIT 1")->fetch(),
         'Lowest demand recorded (usually an overnight trough)', 'MW', 'lowest');
 
-    // Wind (transmission-connected WIND plus embedded WIND_EMBEDDED, summed
-    // per settlement period) - same fuel_type set index.html's own wind
-    // stat card uses.
+    // Wind = transmission-connected WIND (Elexon, every 5 minutes) plus
+    // NESO's embedded wind for the half-hour settlement period each reading
+    // falls in. Summing "per ts" only paired the two at :00/:30 - the
+    // other 5-minute readings counted transmission wind alone - the same
+    // mismatch api/series.php and api/current.php now handle.
     $add('wind_highest', $pdo->query(
-        "SELECT ts, SUM(mw) AS v FROM readings_generation WHERE fuel_type IN ('WIND','WIND_EMBEDDED') GROUP BY ts ORDER BY v DESC LIMIT 1"
+        "SELECT w.ts, w.mw + COALESCE(e.mw, 0) AS v
+           FROM readings_generation w
+           LEFT JOIN readings_generation e
+             ON e.fuel_type = 'WIND_EMBEDDED' AND e.ts = FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(w.ts) / 1800) * 1800)
+          WHERE w.fuel_type = 'WIND'
+          ORDER BY v DESC LIMIT 1"
     )->fetch(), 'Highest wind generation recorded', 'MW', 'highest');
 
     // Solar is entirely embedded (distribution-connected, not directly
-    // metered by Elexon) - single fuel_type, no SUM needed.
+    // metered by Elexon) - NESO's half-hourly embedded estimate, so it's
+    // labelled as an estimate rather than a metered reading.
     $add('solar_highest', $pdo->query(
         "SELECT ts, mw AS v FROM readings_generation WHERE fuel_type = 'SOLAR_EMBEDDED' ORDER BY mw DESC LIMIT 1"
-    )->fetch(), 'Highest solar generation recorded', 'MW', 'highest');
+    )->fetch(), 'Highest solar generation recorded (NESO estimate)', 'MW', 'highest');
 
     $stmt = $pdo->prepare(
         'INSERT INTO notable_moments (metric_key, label, value, unit, ts, direction)

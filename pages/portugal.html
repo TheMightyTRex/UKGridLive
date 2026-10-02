@@ -231,14 +231,15 @@
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
-      <h2 id="records-heading">Context</h2>
+      <h2 id="records-heading">Records &amp; context</h2>
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Renewable share of consumption</span><strong>~71% in 2024 (record year)</strong></li>
-            <li><span>2022 drought dip</span><strong>Fell to ~49% that year as low rainfall cut hydro output</strong></li>
-            <li><span>Hydro + wind combined</span><strong>Supplied over half of 2024 demand (28% hydro, 27% wind)</strong></li>
-            <li><span>Solar PV capacity</span><strong>Grew from ~1GW (2020) to over 6GW (2025)</strong></li>
+            <li><span>All-time peak demand</span><strong>10,168MW (provisional) - 6 January 2026, 7:45pm, the first time above 10GW</strong></li>
+            <li><span>Peak renewable output</span><strong>10,845MW - 27 January 2025</strong></li>
+            <li><span>Record annual consumption</span><strong>53.1TWh in 2025</strong></li>
+            <li><span>Renewable share of consumption</span><strong>Record ~71% in 2024 (68% in 2025), after a drought dip to ~49% in 2022</strong></li>
+            <li><span>Solar PV capacity</span><strong>~6.95GW by end of 2025</strong></li>
           </ul>
           <p class="download-row">
             <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Portugal context - UK Grid: Live+">
@@ -252,11 +253,11 @@
           </p>
         </div>
         <div>
-          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Portugal's approximate renewable share of electricity consumption, 2020 to 2024"></canvas></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Portugal's approximate renewable share of electricity consumption, 2020 to 2025"></canvas></div>
           <p class="chart-caption">Approximate renewable share of Portuguese electricity consumption by year - the 2022 dip shows how exposed hydro-heavy grids are to drought years.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are approximate, gathered from public REN (Redes Energéticas Nacionais)/ENTSO-E reporting rather than a long-run historical feed. Last checked: 20 September 2026.</p>
+      <p class="chart-caption">Sources: <a href="https://www.ren.pt/media/noticias/consumo-do-sistema-eletrico-nacional-ultrapassa-pela-primera-vez-os-10-gw">REN (peak demand)</a>, <a href="https://www.ren.pt/en-gb/media/news/renewable-energy-generation-sets-new-record">REN (renewable output)</a>, <a href="https://www.ren.pt/en-gb/media/news/electricity-consumption-reaches-highest-ever-level-in-2025">REN (2025 consumption)</a>, <a href="https://www.rtp.pt/noticias/economia/renovaveis-em-recorde-abasteceram-71-do-consumo-de-eletricidade-em-2024_n1624761">RTP (2024 share)</a>, <a href="https://www.pv-magazine.com/2026/08/17/portugal-installs-372-mw-of-solar-in-h1/">pv magazine (solar capacity)</a>. Last checked: 2 October 2026.</p>
     </section>
 
     <section class="panel" id="pt-sources" aria-labelledby="pt-sources-heading">
@@ -477,8 +478,8 @@
 
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
-    ["2020", "2021", "2022", "2023", "2024"],
-    [60, 65, 49, 61, 71],
+    ["2020", "2021", "2022", "2023", "2024", "2025"],
+    [60, 65, 49, 61, 71, 68],
     "#1e8f89",
     { unit: "%", horizontal: false, thickness: 32 }
   );
