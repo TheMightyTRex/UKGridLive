@@ -227,14 +227,15 @@
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
-      <h2 id="records-heading">Context</h2>
+      <h2 id="records-heading">Records &amp; context</h2>
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Hydro share of generation</span><strong>~90% nationally, similar in NO2</strong></li>
-            <li><span>Reservoir storage capacity</span><strong>Enough for several months of demand</strong></li>
-            <li><span>NSL cable length</span><strong>~720km, world's longest subsea interconnector at opening</strong></li>
-            <li><span>NSL capacity</span><strong>1,400MW to Great Britain</strong></li>
+            <li><span>All-time consumption record</span><strong>25,309MWh/h - 7 January 2026, 8-9am (previous: 25,230, February 2021)</strong></li>
+            <li><span>Record production</span><strong>161.8TWh in 2025</strong></li>
+            <li><span>Record net exports</span><strong>22.8TWh in 2025</strong></li>
+            <li><span>Hydro share of generation</span><strong>89.9% in 2025 (national)</strong></li>
+            <li><span>North Sea Link</span><strong>~720km - the world's longest subsea interconnector when it opened in 2021; 1,400MW to Great Britain</strong></li>
           </ul>
           <p class="download-row">
             <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Norway context - UK Grid: Live+">
@@ -248,11 +249,11 @@
           </p>
         </div>
         <div>
-          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of NO2's approximate generation mix trend, 2020 to 2025"></canvas></div>
-          <p class="chart-caption">Approximate hydro share of NO2 generation by year - consistently dominant, varying slightly with rainfall and reservoir levels.</p>
+          <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Norway's approximate hydro share of generation, 2020 to 2025"></canvas></div>
+          <p class="chart-caption">Approximate hydro share of Norway's generation by year (national, not NO2-specific) - consistently dominant, varying slightly with rainfall and reservoir levels.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are approximate, gathered from public Statnett/ENTSO-E reporting rather than a long-run historical feed. Last checked: 20 September 2026.</p>
+      <p class="chart-caption">Sources: <a href="https://www.statnett.no/om-statnett/nyheter-og-pressemeldinger/nyhetsarkiv-2026/aldri-for-er-det-brukt-mer-strom-i-norge/">Statnett (consumption record)</a>, <a href="https://www.ssb.no/energi-og-industri/energi/statistikk/elektrisitet/artikler/hoyeste-stromproduksjon-noensinne-05052026">Statistics Norway (2025 production)</a>, <a href="https://www.statnett.no/en/about-statnett/news-and-press-releases/news-archive-2020/installation-of-the-worlds-longest-subsea-interconnector/">Statnett (North Sea Link)</a>. Last checked: 2 October 2026.</p>
     </section>
 
     <section class="panel" id="no-sources" aria-labelledby="no-sources-heading">
@@ -474,7 +475,7 @@
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
     ["2020", "2021", "2022", "2023", "2024", "2025"],
-    [89, 90, 88, 91, 90, 92],
+    [89, 90, 88, 91, 90, 90],
     "#2a8fbd",
     { unit: "%", horizontal: false, thickness: 32 }
   );

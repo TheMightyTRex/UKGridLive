@@ -103,11 +103,11 @@ foreach (['SOLAR_EMBEDDED', 'WIND_EMBEDDED'] as $embFuel) {
 // (this path never ran without live data to feed it) but throws
 // "SQLSTATE[HY093]: Invalid parameter number" the moment it actually runs -
 // see includes/refresh.log if this ever regresses.
-function ukgrid_nearest(PDO $pdo, string $table, string $valueCol, string $ts, int $windowMinutes)
+function ukgrid_nearest(PDO $pdo, string $table, string $valueCol, string $ts, int $windowMinutes, string $extraWhere = '')
 {
     $stmt = $pdo->prepare(
         "SELECT {$valueCol} AS v, ts FROM {$table}
-         WHERE ts BETWEEN DATE_SUB(:ts1, INTERVAL :window1 MINUTE) AND DATE_ADD(:ts2, INTERVAL :window2 MINUTE)
+         WHERE ts BETWEEN DATE_SUB(:ts1, INTERVAL :window1 MINUTE) AND DATE_ADD(:ts2, INTERVAL :window2 MINUTE)" . ($extraWhere !== '' ? " AND {$extraWhere}" : '') . "
          ORDER BY ABS(TIMESTAMPDIFF(SECOND, ts, :ts3)) ASC LIMIT 1"
     );
     $stmt->execute(['ts1' => $ts, 'window1' => $windowMinutes, 'ts2' => $ts, 'window2' => $windowMinutes, 'ts3' => $ts]);
@@ -116,7 +116,10 @@ function ukgrid_nearest(PDO $pdo, string $table, string $valueCol, string $ts, i
 }
 
 $demand = ukgrid_nearest($pdo, 'readings_demand', 'mw', $latestTs, $stalenessMinutes);
-$price = ukgrid_nearest($pdo, 'readings_price', 'price', $latestTs, $stalenessMinutes);
+// volume > 0: Elexon sets the Market Index Price to exactly 0 for any
+// half-hour where too little traded to form a price, so a zero-volume
+// row isn't a real "£0" price and mustn't be shown as one.
+$price = ukgrid_nearest($pdo, 'readings_price', 'price', $latestTs, $stalenessMinutes, 'volume > 0');
 $emissions = ukgrid_nearest($pdo, 'readings_emissions', 'COALESCE(actual_gco2, forecast_gco2)', $latestTs, $stalenessMinutes);
 
 echo json_encode([

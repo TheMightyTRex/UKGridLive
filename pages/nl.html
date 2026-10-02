@@ -233,13 +233,15 @@
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
-      <h2 id="records-heading">Context</h2>
+      <h2 id="records-heading">Records &amp; context</h2>
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Offshore wind capacity</span><strong>Several GW and rising fast, North Sea buildout ongoing</strong></li>
-            <li><span>Solar capacity per capita</span><strong>Among the highest in the world</strong></li>
-            <li><span>Approx. winter demand record</span><strong>~19-20GW range</strong></li>
+            <li><span>Renewable share of production</span><strong>Record 49% in 2025</strong></li>
+            <li><span>Wind + solar</span><strong>46% of generation in 2025 - more than all fossil fuels combined, a first</strong></li>
+            <li><span>Electricity exports</span><strong>Record 30TWh in 2025 (net exports 14TWh)</strong></li>
+            <li><span>Offshore wind capacity</span><strong>~4.7GW at end of 2024 and rising - Hollandse Kust West VI (760MW) began generating in July 2026</strong></li>
+            <li><span>Solar generation per person</span><strong>Highest in the EU</strong></li>
             <li><span>BritNed capacity</span><strong>1,000MW to Great Britain</strong></li>
           </ul>
           <p class="download-row">
@@ -258,7 +260,7 @@
           <p class="chart-caption">Approximate combined wind and solar share of Dutch generation by year - rising quickly.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are approximate, gathered from public TenneT/ENTSO-E reporting rather than a long-run historical feed. Last checked: 20 September 2026.</p>
+      <p class="chart-caption">Sources: <a href="https://www.cbs.nl/nl-nl/nieuws/2026/11/elektriciteitsproductie-en-uitvoer-op-recordniveau">CBS (2025 production and exports)</a>, <a href="https://www.cbs.nl/nl-nl/longread/rapportages/2025/hernieuwbare-energie-in-nederland-2024/4-windenergie">CBS (offshore wind)</a>, <a href="https://www.renews.biz/offshore-wind/ecowende-notches-hollandse-kust-west-first-power/">reNEWS (Hollandse Kust West VI)</a>, <a href="https://ember-energy.org/countries-and-regions/the-netherlands/">Ember</a>, <a href="https://www.tennet.eu/nl-en/news/britned-marks-15-years-cross-border-electricity-trading">TenneT (BritNed)</a>. Last checked: 2 October 2026.</p>
     </section>
 
     <section class="panel" id="nl-sources" aria-labelledby="nl-sources-heading">
@@ -484,7 +486,7 @@
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
     ["2020", "2021", "2022", "2023", "2024", "2025"],
-    [24, 29, 33, 38, 44, 50],
+    [24, 29, 33, 38, 44, 46],
     "#2fa876",
     { unit: "%", horizontal: false, thickness: 32 }
   );

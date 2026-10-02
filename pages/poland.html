@@ -232,14 +232,16 @@
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
-      <h2 id="records-heading">Context</h2>
+      <h2 id="records-heading">Records &amp; context</h2>
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Renewable share of generation</span><strong>~29.4% in 2025 (record, though nearly flat vs. 2024's 29.0%)</strong></li>
+            <li><span>Record demand</span><strong>29.2GW gross (27.6GW net) - 9 January 2026, 11:45am, amid a severe cold spell</strong></li>
+            <li><span>Solar output record</span><strong>14,565MW - 20 May 2026, 11:45am</strong></li>
+            <li><span>Renewable share of generation</span><strong>Record 31.4% in 2025 - the first time above 30% (30.7% in 2024)</strong></li>
+            <li><span>Renewables share of installed capacity</span><strong>Passed 50% for the first time at the end of 2025</strong></li>
             <li><span>Coal share of generation</span><strong>~52% in 2025 (hard coal and lignite combined)</strong></li>
-            <li><span>First offshore wind power</span><strong>Baltic Power delivered its first electricity to the grid in July 2026</strong></li>
-            <li><span>Record electricity demand</span><strong>29.2GW gross, 9 January 2026, amid a severe cold spell</strong></li>
+            <li><span>First offshore wind power</span><strong>Baltic Power, 10 July 2026</strong></li>
           </ul>
           <p class="download-row">
             <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Poland context - UK Grid: Live+">
@@ -254,10 +256,10 @@
         </div>
         <div>
           <div class="chart-wrap" style="height:220px;"><canvas id="records-bar" role="img" aria-label="Bar chart of Poland's approximate renewable share of electricity generation, 2021 to 2025"></canvas></div>
-          <p class="chart-caption">Approximate renewable share of generation by year - growth has slowed since the sharp rise of 2022-2023.</p>
+          <p class="chart-caption">Approximate renewable share of generation by year (2024-2025 from Forum Energii) - passing 30% for the first time in 2025.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are approximate, gathered from public Fraunhofer ISE/Energy-Charts and PSE reporting rather than a long-run historical feed. Last checked: 19 September 2026.</p>
+      <p class="chart-caption">Sources: <a href="https://www.pse.pl/-/rekord-zapotrzebowania-na-m-3">PSE (demand record)</a>, <a href="https://www.wnp.pl/energia/fotowoltaika-pobila-w-polsce-nowy-rekord,1064093.html">WNP.pl (PSE solar record)</a>, <a href="https://www.gov.pl/web/klimat/polska-osiaga-50-mocy-z-oze--historyczny-przelom">Ministry of Climate (gov.pl)</a>, <a href="https://www.forum-energii.eu/en/yearbook-energy-data-1">Forum Energii</a>, <a href="https://www.orlen.pl/en/about-the-company/media/press-releases/current/2026/July-2026/a-historic-milestone-the-wind-farm-in-the-baltic-sea-delivers-first-power-to-the-polish-grid">ORLEN (Baltic Power)</a>. Last checked: 2 October 2026.</p>
     </section>
 
     <section class="panel" id="pl-sources" aria-labelledby="pl-sources-heading">
@@ -480,7 +482,7 @@
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
     ["2021", "2022", "2023", "2024", "2025"],
-    [14.7, 19.3, 26.0, 29.0, 29.4],
+    [14.7, 19.3, 26.0, 30.7, 31.4],
     "#2e8b57",
     { unit: "%", horizontal: false, thickness: 32 }
   );

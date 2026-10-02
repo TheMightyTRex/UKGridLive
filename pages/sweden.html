@@ -229,14 +229,15 @@
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
-      <h2 id="records-heading">Context</h2>
+      <h2 id="records-heading">Records &amp; context</h2>
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Hydro + nuclear + wind combined</span><strong>~90% of Sweden's electricity generation in 2024 (national figure)</strong></li>
-            <li><span>Nuclear fleet</span><strong>6 reactors across 3 sites - Forsmark, Oskarshamn and Ringhals (national)</strong></li>
-            <li><span>Wind capacity growth</span><strong>Roughly doubled nationally, ~10GW (2020) to ~17GW (2024)</strong></li>
-            <li><span>Bidding zones</span><strong>Four zones, SE1 (north) to SE4 (south), since 2011 - this page tracks SE3 (Stockholm/central Sweden)</strong></li>
+            <li><span>Fossil-free electricity</span><strong>Record 99% in 2024</strong></li>
+            <li><span>Hydro + nuclear + wind combined</span><strong>90.6% of generation in 2024 (national)</strong></li>
+            <li><span>Wind capacity</span><strong>~10GW (2020) to ~17GW (2024) - overtook installed hydro capacity for the first time in 2024</strong></li>
+            <li><span>Nuclear fleet</span><strong>6 reactors (~7GW) at Forsmark, Oskarshamn and Ringhals</strong></li>
+            <li><span>Bidding zones</span><strong>Four zones, SE1 (north) to SE4 (south), since 1 November 2011 - this page tracks SE3</strong></li>
           </ul>
           <p class="download-row">
             <button type="button" class="copy-btn" data-copy-list="records-list" data-copy-title="Sweden context - UK Grid: Live+">
@@ -254,7 +255,7 @@
           <p class="chart-caption">Approximate national wind power capacity by year - not SE3-specific, as Sweden's wind buildout has been concentrated more in the northern zones.</p>
         </div>
       </div>
-      <p class="chart-caption">Figures are national (not SE3-specific) approximate figures, gathered from public Svenska kraftnät/Swedish Wind Energy Association and ENTSO-E reporting rather than a long-run historical feed. Last checked: 20 September 2026.</p>
+      <p class="chart-caption">Sources: <a href="https://www.energiforetagen.se/pressrum/pressmeddelanden/2025/nytt-rekord-svensk-el-till-99-procent-fossilfri/">Energiföretagen (fossil-free share)</a>, <a href="https://www.energimyndigheten.se/nyhetsarkiv/2025/slutgiltig-statistik-for-el-och-fjarrvarme-2024/">Energimyndigheten (2024 statistics)</a>, <a href="https://www.energiforetagen.se/pressrum/nyheter/2025/april/ny-statistik-visar-vindkraften-har-storst-installerad-effekt/">Energiföretagen (wind capacity)</a>, <a href="https://world-nuclear.org/information-library/country-profiles/countries-o-s/sweden">World Nuclear Association</a>, <a href="https://ei.se/download/18.d4c49f01764cbd6062189fd/1608302969190/Elomr%C3%A5den-i-Sverige-Ei-R2012-06.pdf">Energimarknadsinspektionen (bidding zones)</a>. Last checked: 2 October 2026.</p>
     </section>
 
     <section class="panel" id="se-sources" aria-labelledby="se-sources-heading">
@@ -476,7 +477,7 @@
   GridPreview.renderBarChart(
     document.getElementById("records-bar"),
     ["2020", "2021", "2022", "2023", "2024"],
-    [10.0, 12.1, 14.3, 16.4, 17.4],
+    [10.1, 12.1, 14.3, 16.4, 17.0],
     "#2f6fed",
     { unit: "GW", horizontal: false, thickness: 32 }
   );
