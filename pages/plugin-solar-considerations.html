@@ -163,7 +163,7 @@
 
     <div class="ps-warning" role="note">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      <p><strong>Don't plug in more than one kit.</strong> This matters most on a shared ring final circuit (see below): two solar kits feeding the same ring, or a solar kit sharing a ring with something else drawing hard at the same time, is exactly the scenario the "one device per household" limit exists to avoid.</p>
+      <p><strong>Don't plug in more than one kit.</strong> The product specification allows one device per circuit, for wiring safety, but the network rules (G98, amended in August 2026) allow only one per household - so a second kit anywhere in your home isn't permitted, whichever circuit it's on. On the circuit you do use, avoid heavy loads running at the same time (see below).</p>
     </div>
 
     <section class="panel" aria-labelledby="cu-heading">
@@ -174,25 +174,25 @@
         <li><span>Older MCB board, no RCD or a single whole-board RCD</span><strong>Modern circuit breakers, but if there's only one RCD covering the whole board, a fault anywhere trips everything - inconvenient, and a sign the board predates 18th Edition wiring regulations</strong></li>
         <li><span>Modern dual-RCD or RCBO board</span><strong>Each circuit (or small group of circuits) has its own RCBO - a combined residual-current + overcurrent device - so a fault on one socket circuit won't take out your lighting or your fridge circuit too. This is what an 18th Edition-compliant installation looks like today.</strong></li>
       </ul>
-      <p>Plug-in solar doesn't need a modern board to work, but if yours is the first type, or you don't know which type you have, get a qualified electrician to take a look before you add anything new to it - not because the solar kit is unusually risky, but because an old board is a general red flag worth addressing regardless.</p>
+      <p>The Interim Product Specification requires kit instructions to tell you to check that your installation has modern residual current protection (an RCBO), and to test it periodically by pressing its test button while the kit is generating. If your board is the first or second type above, or you don't know which type you have, get a qualified electrician to check it before you fit a kit. The instructions must also explain how to identify which sockets share a circuit, and when to get professional advice.</p>
     </section>
 
     <section class="panel" aria-labelledby="ext-heading">
       <h2 id="ext-heading">Extension leads</h2>
-      <p>The Interim Product Specification is explicit: a plug-in solar kit connects <strong>directly</strong> into a wall socket via its own manufacturer-supplied plug. Extension leads, multi-way adaptors, travel adaptors and RCD adaptors are all prohibited for this connection - not a recommendation, a rule. An extension lead adds extra plug/socket junctions (extra points that can loosen, overheat or arc), and most aren't rated or tested for a semi-permanent outdoor-to-indoor run.</p>
+      <p>The Interim Product Specification is explicit: a plug-in solar kit connects <strong>directly</strong> into a wall socket via its own manufacturer-supplied plug. Extension leads, multi-way adaptors, travel adaptors, RCD adaptors and plug convertors are all prohibited for this connection - not a recommendation, a rule, and the plug itself must carry the warning. An extension lead adds extra plug/socket junctions (extra points that can loosen, overheat or arc), and most aren't rated or tested for a semi-permanent outdoor-to-indoor run.</p>
       <p>If you need to use extension leads elsewhere in the room for other appliances, make sure any lead is fully unwound (a coiled lead under load can overheat), rated for at least 13A, and not itself daisy-chained into another extension lead.</p>
     </section>
 
     <section class="panel" aria-labelledby="aircon-heading">
       <h2 id="aircon-heading">Air conditioning and other high loads at the same time</h2>
       <p>Running a portable air conditioner, a tumble dryer, an immersion heater or an electric heater on the same ring as your plug-in solar socket doesn't create a new electrical hazard by itself - your ring/socket circuit's own protection (its RCBO and the ring's 32A rating) is what's protecting against overload from those appliances, exactly as it would without any solar kit plugged in at all. What it does do is make the solar kit practically irrelevant at that moment: an 800W kit's output is small next to a 2-3kW air conditioner or heater, so on the accounting side you'll simply be importing almost all of what that appliance needs regardless of whether the sun's out.</p>
-      <p>The one genuine interaction worth knowing: never treat "there's spare capacity on the ring" as a reason to add a <em>second</em> plug-in solar kit to the same ring - see the ring final circuit section below.</p>
+      <p>The one genuine interaction worth knowing: never treat "there's spare capacity on the ring" as a reason to add a <em>second</em> plug-in solar kit - a second kit isn't permitted anywhere in your home (see the warning above).</p>
     </section>
 
     <section class="panel" aria-labelledby="ring-heading">
       <h2 id="ring-heading">Ring final circuits, and the risk of sharing one</h2>
       <p>Most UK homes wire their socket outlets as a "ring final circuit" - a single cable that loops out from the consumer unit, around the room(s), and back again, with both ends landing on the same 32A MCB/RCBO. This ring topology is exactly what lets a 2.5mm² cable safely serve a whole floor's worth of sockets: the assumption behind the 32A rating is that normal domestic use is spread out, not that every socket draws hard at once.</p>
-      <p>Plugging in a single ~800W solar kit on a ring doesn't change that assumption meaningfully - it's a small injection, well within the ring's normal headroom. The situations actually worth avoiding are: two solar kits feeding sockets on the <strong>same ring</strong> at once (see the warning above); a solar kit sharing a ring with something that's already close to the ring's limit on its own (a space heater plus a kettle plus a tumble dryer, for instance); or an older property where the ring has had unauthorised extra sockets ("spurs") added over the years without checking the total load - which is a pre-existing risk plug-in solar doesn't cause, but is worth having checked regardless if you're not sure of your home's wiring history.</p>
+      <p>Plugging in a single ~800W solar kit on a ring doesn't change that assumption meaningfully - it's a small injection, well within the ring's normal headroom. The situations actually worth avoiding (a second kit isn't allowed at all - see the warning above) are: a solar kit sharing a ring with something that's already close to the ring's limit on its own (a space heater plus a kettle plus a tumble dryer, for instance); or an older property where the ring has had unauthorised extra sockets ("spurs") added over the years without checking the total load - which is a pre-existing risk plug-in solar doesn't cause, but is worth having checked regardless if you're not sure of your home's wiring history.</p>
     </section>
 
     <section class="panel" aria-labelledby="aircon-ring-heading">
@@ -243,13 +243,14 @@
 
     <section class="panel" aria-labelledby="cut-heading">
       <h2 id="cut-heading">What happens in a power cut</h2>
-      <p>A common misconception: your plug-in solar panel will <strong>not</strong> keep any of your home running during a power cut, even on a sunny day. Every compliant kit has mandatory "anti-islanding" protection - the inverter constantly checks for the presence of grid mains, and if that disappears, it detects the loss within roughly 100 milliseconds and shuts itself off, discharging to a safe voltage within a further fraction of a second. This is a deliberate, non-optional safety feature: it exists so that a network engineer working on what they believe is a dead line during a fault or planned outage isn't put at risk by your panel quietly "islanding" and re-energising it.</p>
-      <p>If you want genuine backup power during an outage, that's a different product category entirely - an off-grid/battery system with a proper transfer switch, professionally installed and certified for that purpose - not something a plug-in solar kit provides, with or without a battery bolted on (see <a href="plugin-solar-battery.html">Battery power</a>).</p>
+      <p>A common misconception: your plug-in solar panel will <strong>not</strong> keep any of your home running during a power cut, even on a sunny day. Every compliant kit has mandatory "anti-islanding" protection - the inverter constantly checks for the presence of grid mains, and its loss-of-mains protection (required under G98) shuts it off if the supply disappears. The specification also requires it to disconnect within 100 milliseconds of losing the mains, with the plug pins below 34V within 100ms. This is a deliberate, non-optional safety feature: it exists so that a network engineer working on what they believe is a dead line during a fault or planned outage isn't put at risk by your panel quietly "islanding" and re-energising it.</p>
+      <p>If you want genuine backup power during an outage, that's a different product category entirely - an off-grid/battery system with a proper transfer switch, professionally installed and certified for that purpose - not something a plug-in solar kit provides, and plug-in batteries aren't permitted (see <a href="plugin-solar-battery.html">Battery power</a>).</p>
     </section>
 
     <section class="panel" aria-labelledby="oversize-heading">
       <h2 id="oversize-heading">Why bigger panels can still help, even though the inverter is capped at 800W</h2>
       <p>The inverter's 800VA/800W ceiling is fixed no matter how many watts of panel you connect (up to the 2,000W maximum). So why does the Interim Product Specification allow panels rated well above 800W at all? Because irradiance is rarely at its peak - most of the day, a panel is producing well under its nameplate rating, and a bigger array means the inverter reaches its 800W ceiling <em>earlier in the morning, later in the evening, and more often on hazy or overcast days</em>, rather than only for a couple of hours around solar noon on a clear day.</p>
+      <p>The specification's limits on the panel side: no more than 2,000W of panels, up to four panels with no more than two in series, no more than 120V DC (open circuit) at the inverter, and no Y-connectors. Above 960W of panels, manufacturers must advise you to consider a professional assessment of your existing wiring before fitting.</p>
       <div class="ps-placement-grid">
         <div class="ps-placement-card">
           <strong>800W of panels</strong>
@@ -264,7 +265,7 @@
           <span>Holds the 800W ceiling for the longest stretch of the day, clipping the most excess DC capacity on the very brightest hours - excess that's wasted, not dangerous.</span>
         </div>
       </div>
-      <p>The trade-off: on a genuinely clear day, extra capacity above 800W is "clipped" (the inverter simply can't pass it through), so it's wasted at the very peak - but that lost peak is smaller than the gain made on the shoulders of the day and on duller days. As a worked example using this site's own model (see the <a href="plugin-solar-calculator.html">Energy calculator</a>): in London in April, an 800W array produces roughly 3.0 kWh on an average day, while a 2,000W array - about two and a half times the panel capacity - produces roughly 4.6 kWh, not 7.5 kWh, precisely because of clipping, but it's still a genuine ~50% uplift for a modest extra outlay on panels alone (no change to the inverter or registration). Try changing the panel-capacity slider on the calculator to see this for your own location and month.</p>
+      <p>The trade-off: on a genuinely clear day, extra capacity above 800W is "clipped" (the inverter simply can't pass it through), so it's wasted at the very peak - but that lost peak is smaller than the gain made on the shoulders of the day and on duller days. As a worked example using this site's own model (see the <a href="plugin-solar-calculator.html">Energy calculator</a>): in London in April, an 800W array produces roughly 3.0 kWh on an average day, while a 2,000W array - about two and a half times the panel capacity - produces roughly 4.6 kWh, not 7.5 kWh, precisely because of clipping, but it's still a genuine ~50% uplift for a modest extra outlay on panels alone (no change to the inverter or registration, though above 960W the specification advises a professional check of your wiring first). Try changing the panel-capacity slider on the calculator to see this for your own location and month.</p>
     </section>
 
     <section class="panel" aria-labelledby="placement-heading">
@@ -324,7 +325,11 @@
 
     <section class="panel" aria-labelledby="ps-sources-heading">
       <h2 id="ps-sources-heading">Sources</h2>
+      <p class="chart-caption">Rules last checked: 3 October 2026, against the Interim Product Specification v2 (16 July 2026), SI 2026/848 and Ofgem's G98 decision of 11 August 2026. The specification has not been updated or replaced since July 2026.</p>
       <ul style="font-size:.9rem;color:var(--text-muted);">
+        <li><a href="https://assets.publishing.service.gov.uk/media/6a60a03c47af652afa0c89f5/plug-in-solar-final-_interim-product-specification.pdf">Plug-in Solar Device Interim Product Specification, version 2</a> (DESNZ, 16 July 2026) - the current version, referenced by name in the law.</li>
+        <li><a href="https://www.legislation.gov.uk/uksi/2026/848/made">legislation.gov.uk: SI 2026/848</a> - amends the Plugs and Sockets etc. (Safety) Regulations 1994 and the Electricity Safety, Quality and Continuity Regulations 2002; in force 27 August 2026.</li>
+        <li><a href="https://www.ofgem.gov.uk/sites/default/files/2026-08/Ofgem-decision-to-Approve-DCRP-MP-26-02-Proposed-Amendment-to-facilitate-Plug-in-Microgeneration.pdf">Ofgem: decision to approve DCRP/MP/26/02</a> (11 August 2026) - the G98 amendment for plug-in solar: one device per household and notification to your network operator.</li>
         <li><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ, July 2026) - connection method, anti-islanding, panel/inverter limits.</li>
         <li><a href="https://www.electricalsafetyfirst.org.uk/">Electrical Safety First</a> - consumer unit types, ring final circuits, extension lead safety.</li>
         <li>Industry commentary on solar-behind-glass transmission losses (cross-referenced across UK and international renewables sources) - see this page's own caveats above on the range found.</li>
@@ -338,6 +343,9 @@
         <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a></li>
         <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/building-regulations-approval">GOV.UK: Building regulations approval</a> (Part P electrical safety in dwellings, background context for consumer unit work)</li>
         <li><span class="crown">🇬🇧</span><a href="https://www.electricalsafetyfirst.org.uk/">Electrical Safety First</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://assets.publishing.service.gov.uk/media/6a60a03c47af652afa0c89f5/plug-in-solar-final-_interim-product-specification.pdf">DESNZ: Plug-in Solar Device Interim Product Specification v2 (PDF)</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.legislation.gov.uk/uksi/2026/848/made">legislation.gov.uk: SI 2026/848 (plug-in solar regulations)</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.ofgem.gov.uk/sites/default/files/2026-08/Ofgem-decision-to-Approve-DCRP-MP-26-02-Proposed-Amendment-to-facilitate-Plug-in-Microgeneration.pdf">Ofgem: G98 plug-in microgeneration decision (PDF)</a></li>
       </ul>
     </section>
 

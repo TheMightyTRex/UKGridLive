@@ -163,16 +163,19 @@
 
     <div class="ps-warning" role="note">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      <p><strong>Never install more than one plug-in solar kit.</strong> Each kit is only risk-assessed, tested and notified to your network operator as a single, one-off connection. A second kit - even fed from a different socket - stacks two inverters' worth of injected current onto wiring that was only ever assessed for one, can put you outside your home insurance's terms, and is outside what's been registered with your network operator. See <a href="plugin-solar-considerations.html">Considerations</a> for the ring-circuit detail and <a href="plugin-solar-registration.html">Registration</a> for the one-per-household rule.</p>
+      <p><strong>Never install more than one plug-in solar kit.</strong> The network rules (G98, amended in August 2026) allow one plug-in solar device per household, and that's the one you notify to your network operator. The product specification on its own allows one per circuit - a limit about your wiring - but the stricter household limit is the one that applies, so a second kit isn't permitted on any socket. It can also put you outside your home insurance's terms. See <a href="plugin-solar-considerations.html">Considerations</a> for the ring-circuit detail and <a href="plugin-solar-registration.html">Registration</a> for the one-per-household rule.</p>
     </div>
 
     <section class="panel" aria-labelledby="builtin-heading">
       <h2 id="builtin-heading">What's already built in</h2>
       <ul class="ps-fact-list" id="builtin-list">
-        <li><span>Anti-islanding protection</span><strong>Mandatory on every compliant inverter - detects loss of mains within roughly 100 milliseconds and stops energising, discharging to a safe voltage (below 34V) within 100ms-1s, so the device can never "backfeed" a line an engineer thinks is dead</strong></li>
-        <li><span>Fixed, non-rewireable plug</span><strong>Manufacturer-fitted BS 1363 plug with a BS 1362 fuse rated at no more than 5A - you can't accidentally under- or over-fuse it</strong></li>
+        <li><span>Anti-islanding protection</span><strong>Mandatory on every compliant inverter. Loss-of-mains protection, required under G98, disconnects the inverter if the grid supply fails, so it is designed not to "backfeed" a line an engineer thinks is dead. The specification adds touch-safety limits: on disconnection from the mains the inverter must switch off within 100 milliseconds, the voltage on the plug pins must fall below 34V within 100ms, and internal capacitors must discharge to 34V or less within 1 second</strong></li>
+        <li><span>Fixed, non-rewireable plug</span><strong>Manufacturer-fitted, moulded BS 1363 plug with a BS 1362 fuse rated at no more than 5A. If the fuse ever needs replacing, use the same rating</strong></li>
+        <li><span>Plug markings</span><strong>The plug must be marked "one device per household circuit", with its rated current, an "observe the instructions" symbol and a warning against extension leads, multi-way adaptors and RCD adaptors</strong></li>
         <li><span>Hard output ceiling</span><strong>800VA / 3.5A AC maximum, whatever the panels are rated at - the inverter itself won't push more than that into your home's wiring</strong></li>
-        <li><span>Weatherproofing</span><strong>Outdoor-rated panels and cabling to an appropriate IP rating for external mounting, as part of the manufacturer's compliance declaration</strong></li>
+        <li><span>Weatherproofing</span><strong>Any part meant to be fitted outdoors must be rated at least IP55; parts meant only for indoor use must be better than IP44</strong></li>
+        <li><span>Panel-side limits</span><strong>Up to 2,000W of panels, up to four panels with no more than two in series, no more than 120V DC (open circuit) at the inverter, and no Y-connectors</strong></li>
+        <li><span>Consumer unit label</span><strong>Every kit comes with a durable label to fix at or near your consumer unit, in a clearly visible place, so anyone working on your electrics can see a plug-in solar device is connected</strong></li>
         <li><span>No export payment, not "no export"</span><strong>If your panel briefly generates more than your home is using, the surplus can flow out onto the grid the same as any small grid-tied inverter's would - there's just no metering or tariff (like the Smart Export Guarantee) set up to pay for it from a kit like this. That's a payment gap, not a technical block, and it's a separate point from anti-islanding above, which only reacts to a lost grid connection, not to export itself</strong></li>
       </ul>
     </section>
@@ -183,9 +186,11 @@
         <li><span>Before you buy</span><strong>Confirm the exact model is on the ENA's live Type Test Register - see <a href="plugin-solar-certification.html">Certification</a> - rather than trusting a retailer's own claim</strong></li>
         <li><span>Before each season / after storms</span><strong>Inspect the plug, cable and panel casing for cracks, discolouration or water ingress; stop using and unplug immediately if you see any</strong></li>
         <li><span>The socket itself</span><strong>Should be in good condition, ideally on its own or a lightly-loaded circuit - see <a href="plugin-solar-considerations.html">Considerations</a> for consumer unit and ring-circuit detail</strong></li>
-        <li><span>Fixing</span><strong>Must use a proper rated bracket, never bare timber or tape/cable-ties alone - see <a href="plugin-solar-mounting.html">Mounting</a> - a panel coming loose in high wind is a genuine fall/impact hazard</strong></li>
+        <li><span>Your circuit's protection</span><strong>The specification says to check your installation has modern residual current protection (an RCBO), and to test it periodically by pressing its test button while the kit is generating. If you're not sure what you have, ask an electrician</strong></li>
+        <li><span>More than 960W of panels</span><strong>The specification says to consider a professional assessment of your existing wiring before fitting a kit with more than 960W of panels</strong></li>
+        <li><span>Fixing</span><strong>Must use a proper rated bracket - never cable ties, rope, tape, bungees or straps alone - and never on a timber balcony or on timber or other combustible cladding - see <a href="plugin-solar-mounting.html">Mounting</a> - a panel coming loose in high wind is a genuine fall/impact hazard</strong></li>
         <li><span>Children and pets</span><strong>Keep cabling out of reach and avoid routing it across walkways where it becomes a trip hazard</strong></li>
-        <li><span>Never attempt your own repairs</span><strong>If the inverter fails, return it under warranty rather than opening the casing - there's no user-serviceable part inside and doing so voids both the compliance declaration and the warranty</strong></li>
+        <li><span>Never attempt your own repairs</span><strong>If the inverter fails, return it under warranty rather than opening the casing - there's no user-serviceable part inside and doing so can void both its compliance and the warranty</strong></li>
       </ul>
       <p class="download-row">
         <button type="button" class="copy-btn" data-copy-list="checks-list" data-copy-title="Plug-in solar safety checks - UK Grid: Live+">
@@ -197,8 +202,12 @@
 
     <section class="panel" aria-labelledby="ps-sources-heading">
       <h2 id="ps-sources-heading">Sources</h2>
+      <p class="chart-caption">Rules last checked: 3 October 2026, against the Interim Product Specification v2 (16 July 2026), SI 2026/848 and Ofgem's G98 decision of 11 August 2026. The specification has not been updated or replaced since July 2026.</p>
       <ul style="font-size:.9rem;color:var(--text-muted);">
-        <li><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ, July 2026) - anti-islanding, fuse rating and output-ceiling requirements.</li>
+        <li><a href="https://assets.publishing.service.gov.uk/media/6a60a03c47af652afa0c89f5/plug-in-solar-final-_interim-product-specification.pdf">Plug-in Solar Device Interim Product Specification, version 2</a> (DESNZ, 16 July 2026) - the current version, referenced by name in the law.</li>
+        <li><a href="https://www.legislation.gov.uk/uksi/2026/848/made">legislation.gov.uk: SI 2026/848</a> - amends the Plugs and Sockets etc. (Safety) Regulations 1994 and the Electricity Safety, Quality and Continuity Regulations 2002; in force 27 August 2026.</li>
+        <li><a href="https://www.ofgem.gov.uk/sites/default/files/2026-08/Ofgem-decision-to-Approve-DCRP-MP-26-02-Proposed-Amendment-to-facilitate-Plug-in-Microgeneration.pdf">Ofgem: decision to approve DCRP/MP/26/02</a> (11 August 2026) - the G98 amendment for plug-in solar: one device per household and notification to your network operator.</li>
+        <li><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a> (DESNZ, July 2026) - consultation, government response and specification documents.</li>
         <li><a href="https://www.electricalsafetyfirst.org.uk/">Electrical Safety First</a> - the UK's leading electrical safety charity, general home electrical safety guidance.</li>
         <li><a href="https://www.hse.gov.uk/electricity/">HSE: Electrical safety</a> - general workplace/home electrical safety principles.</li>
       </ul>
@@ -211,6 +220,9 @@
         <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a></li>
         <li><span class="crown">🇬🇧</span><a href="https://www.hse.gov.uk/electricity/">HSE: Electrical safety</a></li>
         <li><span class="crown">🇬🇧</span><a href="https://www.electricalsafetyfirst.org.uk/">Electrical Safety First</a> (government-recognised electrical safety charity)</li>
+        <li><span class="crown">🇬🇧</span><a href="https://assets.publishing.service.gov.uk/media/6a60a03c47af652afa0c89f5/plug-in-solar-final-_interim-product-specification.pdf">DESNZ: Plug-in Solar Device Interim Product Specification v2 (PDF)</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.legislation.gov.uk/uksi/2026/848/made">legislation.gov.uk: SI 2026/848 (plug-in solar regulations)</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.ofgem.gov.uk/sites/default/files/2026-08/Ofgem-decision-to-Approve-DCRP-MP-26-02-Proposed-Amendment-to-facilitate-Plug-in-Microgeneration.pdf">Ofgem: G98 plug-in microgeneration decision (PDF)</a></li>
       </ul>
     </section>
 
