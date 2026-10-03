@@ -2,7 +2,7 @@
 /**
  * GET api/series.php?metric=demand&range=week
  *
- * metric: demand | generation | price | emissions | transfers | mix | weather |
+ * metric: demand | generation | price | emissions | transfers | transfers_country | mix | weather |
  *         fossil | renewable | non_renewable | nuclear_biomass | storage |
  *         wind | solar | hydro | gas | coal | oil | nuclear | biomass
  *   (fossil/renewable/nuclear_biomass/storage power the "Explore by energy
@@ -66,7 +66,7 @@ if (!isset($ranges[$range])) {
 }
 
 $allowedMetrics = [
-    'demand', 'generation', 'price', 'emissions', 'transfers', 'mix', 'weather',
+    'demand', 'generation', 'price', 'emissions', 'transfers', 'transfers_country', 'mix', 'weather',
     'fossil', 'renewable', 'nuclear_biomass', 'storage',
     'non_renewable', 'wind', 'solar', 'hydro', 'gas', 'coal', 'oil', 'nuclear', 'biomass',
 ];
@@ -429,6 +429,48 @@ switch ($metric) {
         $unit = 'GW';
         break;
 
+    // Interconnector flow broken down by the country each cable connects
+    // to, for pages/interconnectors.html's "Imports and exports by
+    // country" section. Cables are first summed per country per timestamp
+    // (so Ireland = Moyle + EWIC + Greenlink, France = IFA + IFA2 +
+    // ElecLink), then averaged per bucket three ways: the net flow (for the
+    // small-multiple charts) and its importing and exporting parts
+    // separately (for the energy totals - a net average alone would hide
+    // a bucket that imported in the morning and exported in the evening).
+    // Positive = importing into GB, negative = exporting, as everywhere
+    // else on the site. Keep the CASE below in sync with
+    // INTERCONNECTOR_LABELS in assets/data.js if a cable is ever added.
+    case 'transfers_country':
+        $rows = ukgrid_bucketed($pdo,
+            'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(c.ts)/:bucket1)*:bucket2) AS bucket_ts, c.country,
+                    AVG(c.net_mw) AS net_mw,
+                    AVG(GREATEST(c.net_mw, 0)) AS imp_mw,
+                    AVG(LEAST(c.net_mw, 0)) AS exp_mw,
+                    COUNT(*) AS n, UNIX_TIMESTAMP(MIN(c.ts)) AS first_ts, UNIX_TIMESTAMP(MAX(c.ts)) AS last_ts
+             FROM (
+               SELECT ts,
+                 CASE
+                   WHEN fuel_type IN ("INTFR","INTIFA2","INTELEC") THEN "france"
+                   WHEN fuel_type = "INTNEM" THEN "belgium"
+                   WHEN fuel_type = "INTNED" THEN "netherlands"
+                   WHEN fuel_type = "INTVKL" THEN "denmark"
+                   WHEN fuel_type = "INTNSL" THEN "norway"
+                   WHEN fuel_type IN ("INTIRL","INTEW","INTGRNL") THEN "ireland"
+                   ELSE NULL
+                 END AS country,
+                 SUM(mw) AS net_mw
+               FROM readings_generation
+               WHERE ts BETWEEN :from AND :to AND fuel_type LIKE "INT%"
+               GROUP BY ts, country
+             ) c
+             WHERE c.country IS NOT NULL
+             GROUP BY bucket_ts, c.country
+             ORDER BY bucket_ts ASC',
+            $params
+        );
+        $unit = 'GW';
+        break;
+
     // Wind speed + cloud cover for the History page's "Wind speed & cloud
     // cover" card. See readings_weather in sql/schema.sql - one
     // representative GB point, not a national average (see that table's
@@ -465,6 +507,46 @@ if ($metric === 'mix') {
             'cloud_cover' => $row['cloud_cover'] !== null ? round((float) $row['cloud_cover'], 1) : null,
         ];
     }, $rows);
+} elseif ($metric === 'transfers_country') {
+    // One point per bucket with each country's net flow in GW, plus
+    // period totals in GWh. Each bucket's energy is its average import/
+    // export MW times the part of the bucket that falls inside the
+    // requested window (the first and last buckets are usually partial),
+    // so a short range isn't over-counted. A bucket's hours are also
+    // capped at the span its readings actually cover (n readings at their
+    // own spacing - 5 minutes for Elexon FUELINST), so a bucket that only
+    // has data for part of its length isn't scaled up as if it were full.
+    // Buckets with no readings at all contribute nothing.
+    $countries = ['france', 'belgium', 'netherlands', 'denmark', 'norway', 'ireland'];
+    $fromTs = strtotime($from);
+    $toTs = strtotime($to);
+    $byBucket = [];
+    $totals = [];
+    foreach ($countries as $c) {
+        $totals[$c] = ['import_gwh' => 0.0, 'export_gwh' => 0.0];
+    }
+    foreach ($rows as $row) {
+        $c = $row['country'];
+        if (!isset($totals[$c])) {
+            continue;
+        }
+        $bStart = strtotime($row['bucket_ts']);
+        $n = (int) $row['n'];
+        $span = (int) $row['last_ts'] - (int) $row['first_ts'];
+        $covered = $n > 1 ? $span * $n / ($n - 1) : 300;
+        $hours = max(0, min(min($bStart + $bucket, $toTs) - max($bStart, $fromTs), $covered)) / 3600;
+        $totals[$c]['import_gwh'] += (float) $row['imp_mw'] * $hours / 1000;
+        $totals[$c]['export_gwh'] += -(float) $row['exp_mw'] * $hours / 1000;
+        $t = gmdate('Y-m-d\TH:i:s\Z', $bStart);
+        if (!isset($byBucket[$t])) {
+            $byBucket[$t] = ['t' => $t];
+        }
+        $byBucket[$t][$c] = round((float) $row['net_mw'] / 1000, 3);
+    }
+    foreach ($totals as $c => $v) {
+        $totals[$c] = ['import_gwh' => round($v['import_gwh'], 1), 'export_gwh' => round($v['export_gwh'], 1)];
+    }
+    $points = array_values($byBucket);
 } else {
     $points = array_map(function ($row) {
         return [
@@ -474,10 +556,16 @@ if ($metric === 'mix') {
     }, $rows);
 }
 
-echo json_encode([
+$response = [
     'ok' => true,
     'metric' => $metric,
     'range' => $range,
     'unit' => $unit,
     'points' => $points,
-]);
+];
+if ($metric === 'transfers_country') {
+    $response['from'] = gmdate('Y-m-d\TH:i:s\Z', strtotime($from));
+    $response['to'] = gmdate('Y-m-d\TH:i:s\Z', strtotime($to));
+    $response['totals'] = $totals;
+}
+echo json_encode($response);
