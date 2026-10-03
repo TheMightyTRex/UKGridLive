@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Interconnectors: labelled axes, zero line, capacity column)
+
+- **History charts** redrawn in the same import/export style as the by-country charts: amber area above the line = importing, blue below = exporting, with a zero line that's always shown, value labels on the y axis (GW or %) and UK-time labels on the x axis (hours, days, dates, months or years depending on the range). Hover shows the exact value. They keep Copy as text / Download CSV / Download snapshot (PNG); the PNG redraws the chart at full size so the labels stay readable.
+- **Net flow over time (by country)** small charts now have the same labelled axes and zero line, on a shared ±GW scale.
+- **Right now, by country:** column headings (Country, Exporting/Importing, Flow now, Capacity), a new Capacity column with each country's combined cable capacity, and an "All countries" total row (net flow and 10.30GW total capacity). The tooltip now shows each cable's capacity too.
+- **Energy imported and exported:** column headings (Country, Exported/Imported, Net) and an "All countries" total row.
+
 ## 2026-10-03 (Interconnectors: export buttons on the new visuals)
 
 - "Copy as text", "Download CSV" and "Download snapshot (PNG)" added under all four new interconnector visuals (right now by country, live flow map, net flow by country, energy by country). The by-country ones export whichever range tab is showing.

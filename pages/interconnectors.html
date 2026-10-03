@@ -38,6 +38,10 @@
 .ic-area-imp { fill:var(--ic-import); opacity:.3; }
 .ic-area-exp { fill:var(--ic-export); opacity:.3; }
 .ic-cross { stroke:var(--text-muted); stroke-width:1; }
+.ic-zero { stroke:var(--text); stroke-width:1.4; }
+.ic-dot { stroke:var(--bg-elevated); stroke-width:1.5; }
+.ic-head { font-weight:700; }
+.ic-hist { height:auto; min-height:260px; }
 .ic-hit { fill:transparent; cursor:pointer; }
 .ic-tip { position:fixed; z-index:50; pointer-events:none; background:var(--bg-elevated); color:var(--text); border:1px solid var(--border); border-radius:6px; box-shadow:var(--shadow); padding:.4rem .6rem; font-size:.8rem; line-height:1.4; max-width:260px; display:none; }
 .ic-sm-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.9rem 1rem; margin-top:.5rem; }
@@ -425,8 +429,18 @@
 
       <template id="range-panel-template">
         <div class="chart-grid">
-          <div class="chart-card"><h3>Interconnectors net flow</h3><div class="chart-wrap is-loading"><canvas data-metric="output"></canvas></div></div>
-          <div class="chart-card"><h3>Net flow as a share of demand</h3><div class="chart-wrap is-loading"><canvas data-metric="share"></canvas></div></div>
+          <div class="chart-card"><h3>Interconnectors net flow</h3><div class="ic-legend"><span><i class="sw-imp"></i>Importing</span><span><i class="sw-exp"></i>Exporting</span></div><div class="chart-wrap ic-hist ic-chart is-loading" data-hist="output"></div>
+            <p class="download-row">
+              <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="hist-output"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
+              <button type="button" class="copy-btn" data-ic-export="csv" data-ic-target="hist-output"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download CSV</span></button>
+              <button type="button" class="copy-btn" data-ic-export="png" data-ic-target="hist-output"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download snapshot (PNG)</span></button>
+            </p></div>
+          <div class="chart-card"><h3>Net flow as a share of demand</h3><div class="ic-legend"><span><i class="sw-imp"></i>Importing</span><span><i class="sw-exp"></i>Exporting</span></div><div class="chart-wrap ic-hist ic-chart is-loading" data-hist="share"></div>
+            <p class="download-row">
+              <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="hist-share"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
+              <button type="button" class="copy-btn" data-ic-export="csv" data-ic-target="hist-share"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download CSV</span></button>
+              <button type="button" class="copy-btn" data-ic-export="png" data-ic-target="hist-share"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download snapshot (PNG)</span></button>
+            </p></div>
         </div>
       </template>
 
@@ -608,18 +622,30 @@
   const COUNTRY_CAP = {};
   CABLES.forEach((c) => { COUNTRY_CAP[c.country] = (COUNTRY_CAP[c.country] || 0) + c.cap; });
 
-  // ---- Option A: live diverging bars, one per country ----
+  // ---- Option A: live diverging bars, one per country. Columns:
+  // Country | flow bar (exporting left, importing right) | Flow now |
+  // Capacity, each with a heading. ----
   function renderNowBars(byCountry, cableMw) {
     const host = document.getElementById("ic-now-bars");
     if (!host) return;
     host.innerHTML = "";
     const W = Math.max(300, host.clientWidth || 600);
-    const narrow = W < 520;
-    const labelW = narrow ? 92 : 120, valW = narrow ? 66 : 86, rowH = 34, top = 4;
-    const mid = labelW + (W - labelW - valW) / 2, half = (W - labelW - valW) / 2 - 8;
+    const narrow = W < 560;
+    const labelW = narrow ? 86 : 120, valW = narrow ? 62 : 90, capW = narrow ? 58 : 90, rowH = 34, headH = 26;
+    const valX = W - capW - 10, capX = W;
+    const chartL = labelW, chartR = valX - valW - 6;
+    const mid = (chartL + chartR) / 2, half = (chartR - chartL) / 2 - 4;
     const max = Math.max.apply(null, ORDER.map((c) => COUNTRY_CAP[c]));
-    const H = top + ORDER.length * rowH + 44;
+    const top = headH + 4;
+    const H = top + ORDER.length * rowH + 30;
     const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, "aria-hidden": "true" }, host);
+    const hfs = narrow ? 10.5 : 12;
+    svgEl("text", { x: 0, y: 16, "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = "Country";
+    svgEl("text", { x: mid - 6, y: 16, "text-anchor": "end", "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = narrow ? "← Export" : "← Exporting";
+    svgEl("text", { x: mid + 8, y: 16, "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = narrow ? "Import →" : "Importing →";
+    svgEl("text", { x: valX, y: 16, "text-anchor": "end", "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = narrow ? "Now" : "Flow now";
+    svgEl("text", { x: capX, y: 16, "text-anchor": "end", "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = "Capacity";
+    svgEl("line", { x1: 0, x2: W, y1: headH, y2: headH, class: "ic-grid" }, s);
     ORDER.forEach((c, i) => {
       const mw = byCountry[c] || 0, cy = top + i * rowH + rowH / 2, bh = 16;
       svgEl("text", { x: 0, y: cy + 5, "font-size": narrow ? 13 : 14, "font-weight": 600 }, s).textContent = SHORT_NAME[c];
@@ -627,25 +653,27 @@
       svgEl("rect", { x: mid - tw, y: cy - bh / 2, width: tw * 2, height: bh, rx: 4, class: "ic-track" }, s);
       const w = Math.min(Math.abs(mw), COUNTRY_CAP[c]) / max * half;
       if (w > 0.5) svgEl("rect", { x: mw >= 0 ? mid : mid - w, y: cy - bh / 2, width: w, height: bh, rx: 4, class: mw >= 0 ? "ic-imp" : "ic-exp" }, s);
-      svgEl("text", { x: W, y: cy + 5, "text-anchor": "end", "font-size": 13.5, "font-weight": 600 }, s).textContent = signed(mw);
+      svgEl("text", { x: valX, y: cy + 5, "text-anchor": "end", "font-size": narrow ? 13 : 13.5, "font-weight": 600 }, s).textContent = signed(mw);
+      svgEl("text", { x: capX, y: cy + 5, "text-anchor": "end", "font-size": narrow ? 12.5 : 13.5, class: "ic-muted" }, s).textContent = fmtGw(COUNTRY_CAP[c]);
       const hit = svgEl("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, class: "ic-hit" }, s);
       bindTip(hit, () => {
         const util = Math.round(Math.abs(mw) / COUNTRY_CAP[c] * 100);
         const lines = CABLES.filter((cb) => cb.country === c).map((cb) => {
           const v = cableMw[cb.key];
-          return cb.name + ": " + (v == null ? "no reading" : signed(v));
+          return cb.name + ": " + (v == null ? "no reading" : signed(v)) + " of " + fmtGw(cb.cap);
         });
         return `<strong>${COUNTRY_NAME[c]}</strong><br>${dirWord(mw)} ${fmtGw(mw)} of ${fmtGw(COUNTRY_CAP[c])} capacity (${util}%)<br>` + lines.join("<br>");
       });
     });
     const yb = top + ORDER.length * rowH;
-    svgEl("line", { x1: mid, x2: mid, y1: top, y2: yb, class: "ic-axis" }, s);
-    svgEl("text", { x: mid - 8, y: yb + 16, "text-anchor": "end", "font-size": 12, class: "ic-muted" }, s).textContent = "← Exporting";
-    svgEl("text", { x: mid + 8, y: yb + 16, "font-size": 12, class: "ic-muted" }, s).textContent = "Importing →";
+    svgEl("line", { x1: mid, x2: mid, y1: headH + 2, y2: yb, class: "ic-axis" }, s);
     const net = ORDER.reduce((a, c) => a + (byCountry[c] || 0), 0);
-    svgEl("text", { x: W, y: yb + 36, "text-anchor": "end", "font-size": 13, "font-weight": 700 }, s).textContent =
-      "Net: " + signed(net) + (net > 0 ? " importing" : net < 0 ? " exporting" : "");
-    host.setAttribute("aria-label", "Live interconnector flow by country: " + ORDER.map((c) => SHORT_NAME[c] + " " + signed(byCountry[c] || 0)).join(", "));
+    const totalCap = ORDER.reduce((a, c) => a + COUNTRY_CAP[c], 0);
+    svgEl("line", { x1: 0, x2: W, y1: yb + 4, y2: yb + 4, class: "ic-grid" }, s);
+    svgEl("text", { x: 0, y: yb + 22, "font-size": narrow ? 13 : 14, "font-weight": 700 }, s).textContent = "All countries";
+    svgEl("text", { x: valX, y: yb + 22, "text-anchor": "end", "font-size": 13.5, "font-weight": 700 }, s).textContent = signed(net);
+    svgEl("text", { x: capX, y: yb + 22, "text-anchor": "end", "font-size": narrow ? 12.5 : 13.5, class: "ic-muted" }, s).textContent = fmtGw(totalCap);
+    host.setAttribute("aria-label", "Live interconnector flow by country (flow now, and capacity): " + ORDER.map((c) => SHORT_NAME[c] + " " + signed(byCountry[c] || 0) + " of " + fmtGw(COUNTRY_CAP[c])).join(", ") + ". All countries " + signed(net) + ".");
   }
 
   // ---- Option B: live flow map (colours, widths, moving dashes, labels) ----
@@ -735,6 +763,133 @@
     resizeTimer = setTimeout(() => { if (lastNow) renderNowBars(lastNow.byCountryMw, lastNow.cableMw); redrawCountryPanels(); }, 200);
   });
 
+  // ---- Signed flow chart: area above the zero line = importing (amber),
+  // below = exporting (blue), with a zero line that's always drawn, value
+  // labels on the y axis and time labels on the x axis. Shared by the
+  // History charts and the by-country small multiples. ----
+  const LONDON_FMT = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", hourCycle: "h23", weekday: "short" });
+  function londonParts(ms) {
+    const o = {};
+    LONDON_FMT.formatToParts(new Date(ms)).forEach((p) => { o[p.type] = p.value; });
+    return { y: +o.year, m: +o.month, d: +o.day, h: +o.hour, wd: o.weekday };
+  }
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  // Tick positions aligned to UK local time (so "06:00" really is 6am in
+  // the UK, BST or not), thinned out to at most maxTicks.
+  function timeTicks(t0, t1, maxTicks) {
+    const span = t1 - t0, H = 3600e3, D = 24 * H;
+    const ticks = [];
+    if (span <= 40 * H) {
+      const every = span <= 8 * H ? 2 : span <= 14 * H ? 3 : 6;
+      for (let t = Math.ceil(t0 / H) * H; t <= t1; t += H) {
+        const p = londonParts(t);
+        if (p.h % every === 0) ticks.push({ t, label: String(p.h).padStart(2, "0") + ":00" });
+      }
+    } else if (span <= 9 * D) {
+      for (let t = Math.ceil(t0 / H) * H; t <= t1; t += H) {
+        const p = londonParts(t);
+        if (p.h === 0) ticks.push({ t, label: p.wd + " " + p.d });
+      }
+    } else if (span <= 100 * D) {
+      const days = [];
+      for (let t = Math.ceil(t0 / H) * H; t <= t1; t += H) { const p = londonParts(t); if (p.h === 0) days.push({ t, p }); }
+      const step = span <= 35 * D ? 7 : 14;
+      days.forEach((x, i) => { if (i % step === 0) ticks.push({ t: x.t, label: x.p.d + " " + MONTHS[x.p.m - 1] }); });
+    } else if (span <= 800 * D) {
+      for (let t = Math.ceil(t0 / H) * H; t <= t1; t += H) {
+        const p = londonParts(t);
+        if (p.d === 1 && p.h === 0) ticks.push({ t, label: p.m === 1 ? "Jan " + p.y : MONTHS[p.m - 1] });
+      }
+    } else {
+      for (let t = Math.ceil(t0 / D) * D; t <= t1; t += D) {
+        const p = londonParts(t);
+        if (p.m === 1 && p.d === 1) ticks.push({ t, label: String(p.y) });
+      }
+    }
+    if (ticks.length <= maxTicks) return ticks;
+    const every = Math.ceil(ticks.length / maxTicks);
+    return ticks.filter((_, i) => i % every === 0);
+  }
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  }
+  function valueTicks(lo, hi, target) {
+    const step = niceStep((hi - lo) / target || 1);
+    const ticks = [];
+    for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) ticks.push(Math.abs(v) < 1e-9 ? 0 : v);
+    return { ticks, step };
+  }
+  function fmtTick(v, unit, step) {
+    const dp = Math.abs(step * 100 - Math.round(step) * 100) < 1e-6 ? 0 : Math.abs(step * 1000 - Math.round(step * 10) * 100) < 1e-6 ? 1 : 2;
+    if (v === 0) return "0";
+    return (v > 0 ? "+" : "−") + Math.abs(v).toFixed(dp) + unit;
+  }
+  let signedChartSeq = 0;
+  /* series: [{t: ms, v: number, iso}], opts: { unit: "GW"|"%", range,
+     width, height, compact, symmetric (fixed ±limit), name, tipFmt } */
+  function renderSignedChart(host, series, opts) {
+    const compact = !!opts.compact;
+    const W = opts.width, H = opts.height;
+    const fs = compact ? 10 : 11.5;
+    const m = { l: compact ? 40 : 52, r: compact ? 6 : 10, t: compact ? 8 : 10, b: compact ? 20 : 24 };
+    const t0 = series[0].t, t1 = series[series.length - 1].t;
+    let lo, hi;
+    if (opts.symmetric) { lo = -opts.symmetric; hi = opts.symmetric; }
+    else {
+      lo = Math.min(0, ...series.map((p) => p.v)); hi = Math.max(0, ...series.map((p) => p.v));
+      if (hi - lo < 1e-6) { hi += 1; lo -= 1; }
+      const padV = (hi - lo) * 0.08; if (hi > 0) hi += padV; if (lo < 0) lo -= padV;
+    }
+    const vt = valueTicks(lo, hi, compact ? 4 : 5);
+    if (!opts.symmetric) { lo = Math.min(lo, vt.ticks[0]); hi = Math.max(hi, vt.ticks[vt.ticks.length - 1]); }
+    const x = (t) => m.l + (t1 === t0 ? 0 : (t - t0) / (t1 - t0)) * (W - m.l - m.r);
+    const y = (v) => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
+    const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opts.name || "Net flow chart" }, host);
+    vt.ticks.forEach((v) => {
+      if (v !== 0) svgEl("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "ic-grid" }, s);
+      svgEl("text", { x: m.l - 5, y: y(v) + fs * 0.35, "text-anchor": "end", "font-size": fs, class: "ic-muted" }, s).textContent = fmtTick(v, opts.unit, vt.step);
+    });
+    const tt = timeTicks(t0, t1, compact ? 3 : Math.max(3, Math.floor((W - m.l) / 90)));
+    tt.forEach((k) => {
+      svgEl("line", { x1: x(k.t), x2: x(k.t), y1: H - m.b, y2: H - m.b + 4, class: "ic-axis" }, s);
+      const anchor = x(k.t) < m.l + 18 ? "start" : x(k.t) > W - m.r - 18 ? "end" : "middle";
+      svgEl("text", { x: x(k.t), y: H - m.b + fs + 4, "text-anchor": anchor, "font-size": fs, class: "ic-muted" }, s).textContent = k.label;
+    });
+    const id = "icsc-" + (++signedChartSeq);
+    const defs = svgEl("defs", {}, s);
+    svgEl("rect", { x: 0, y: 0, width: W, height: y(0) }, svgEl("clipPath", { id: id + "-a" }, defs));
+    svgEl("rect", { x: 0, y: y(0), width: W, height: H }, svgEl("clipPath", { id: id + "-b" }, defs));
+    if (series.length >= 2) {
+      const pts = series.map((p) => x(p.t).toFixed(1) + "," + y(p.v).toFixed(1));
+      const line = "M" + pts.join(" L");
+      const area = `M${x(t0).toFixed(1)},${y(0).toFixed(1)} L` + pts.join(" L") + ` L${x(t1).toFixed(1)},${y(0).toFixed(1)} Z`;
+      svgEl("path", { d: area, class: "ic-area-imp", "clip-path": `url(#${id}-a)` }, s);
+      svgEl("path", { d: area, class: "ic-area-exp", "clip-path": `url(#${id}-b)` }, s);
+      svgEl("path", { d: line, class: "ic-line-imp", "clip-path": `url(#${id}-a)` }, s);
+      svgEl("path", { d: line, class: "ic-line-exp", "clip-path": `url(#${id}-b)` }, s);
+    }
+    svgEl("line", { x1: m.l, x2: W - m.r, y1: y(0), y2: y(0), class: "ic-zero" }, s);
+    svgEl("line", { x1: m.l, x2: m.l, y1: m.t, y2: H - m.b, class: "ic-axis" }, s);
+    const cross = svgEl("line", { y1: m.t, y2: H - m.b, class: "ic-cross", opacity: 0 }, s);
+    const dot = svgEl("circle", { r: 3.5, class: "ic-dot", opacity: 0 }, s);
+    const hit = svgEl("rect", { x: m.l, y: 0, width: W - m.l - m.r, height: H, class: "ic-hit" }, s);
+    bindTip(hit, (ev) => {
+      const r = s.getBoundingClientRect();
+      const px = (ev.clientX - r.left) / r.width * W;
+      const tx = t0 + Math.max(0, Math.min(1, (px - m.l) / (W - m.l - m.r))) * (t1 - t0);
+      let best = series[0];
+      series.forEach((p) => { if (Math.abs(p.t - tx) < Math.abs(best.t - tx)) best = p; });
+      cross.setAttribute("x1", x(best.t)); cross.setAttribute("x2", x(best.t)); cross.setAttribute("opacity", 0.6);
+      dot.setAttribute("cx", x(best.t)); dot.setAttribute("cy", y(best.v)); dot.setAttribute("opacity", 1);
+      dot.setAttribute("class", "ic-dot " + (best.v >= 0 ? "ic-imp" : "ic-exp"));
+      return opts.tipFmt(best);
+    });
+    hit.addEventListener("pointerleave", () => { cross.setAttribute("opacity", 0); dot.setAttribute("opacity", 0); });
+    return s;
+  }
+
   // ---- Options C + D: by country over time (api/series.php metric=transfers_country) ----
   const API_BASE = (function () {
     const s = Array.from(document.scripts).map((x) => x.src).find((src) => /assets\/data\.js/.test(src));
@@ -746,6 +901,8 @@
     const d = new Date(iso);
     if (range === "day") return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }) + " UK time";
     if (range === "week") return d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/London" }) + ", " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+    if (range === "5year") return "Month from " + d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/London" });
+    if (range === "10year") return "Quarter from " + d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/London" });
     return (range === "month" ? "" : "Week of ") + d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/London" });
   }
   const fmtDate = (iso) => new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
@@ -758,8 +915,7 @@
     if (pts.length < 2) { grid.innerHTML = '<p class="ic-empty">Not enough recorded history yet for this range.</p>'; cap.textContent = ""; return; }
     let maxAbs = 0.5;
     pts.forEach((p) => ORDER.forEach((c) => { if (p[c] != null) maxAbs = Math.max(maxAbs, Math.abs(p[c])); }));
-    const scale = Math.ceil(maxAbs * 2) / 2; // GW, rounded up to 0.5
-    const t0 = new Date(pts[0].t).getTime(), t1 = new Date(pts[pts.length - 1].t).getTime();
+    const scale = Math.ceil(maxAbs); // GW, shared by every country
     ORDER.forEach((c) => {
       const series = pts.filter((p) => p[c] != null).map((p) => ({ t: new Date(p.t).getTime(), v: p[c], iso: p.t }));
       const card = document.createElement("div");
@@ -767,39 +923,14 @@
       const last = series.length ? series[series.length - 1].v : null;
       card.innerHTML = `<h3>${SHORT_NAME[c]}</h3><p class="ic-sm-now">Latest: ${last == null ? "no reading" : signed(last * 1000)}</p>`;
       grid.appendChild(card);
-      const W = 240, H = 104, pad = 3;
-      const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${SHORT_NAME[c]} net interconnector flow, ${range}` }, card);
-      const x = (t) => pad + (t1 === t0 ? 0 : (t - t0) / (t1 - t0)) * (W - 2 * pad);
-      const y = (v) => H / 2 - v / scale * (H / 2 - pad);
-      svgEl("line", { x1: pad, x2: W - pad, y1: y(scale), y2: y(scale), class: "ic-grid" }, s);
-      svgEl("line", { x1: pad, x2: W - pad, y1: y(-scale), y2: y(-scale), class: "ic-grid" }, s);
-      if (series.length >= 2) {
-        const id = "icclip-" + range + "-" + c;
-        const defs = svgEl("defs", {}, s);
-        svgEl("rect", { x: 0, y: 0, width: W, height: H / 2 }, svgEl("clipPath", { id: id + "-a" }, defs));
-        svgEl("rect", { x: 0, y: H / 2, width: W, height: H / 2 }, svgEl("clipPath", { id: id + "-b" }, defs));
-        const line = "M" + series.map((p) => x(p.t).toFixed(1) + "," + y(p.v).toFixed(1)).join(" L");
-        const area = `M${x(series[0].t).toFixed(1)},${y(0)} L` + series.map((p) => x(p.t).toFixed(1) + "," + y(p.v).toFixed(1)).join(" L") + ` L${x(series[series.length - 1].t).toFixed(1)},${y(0)} Z`;
-        svgEl("path", { d: area, class: "ic-area-imp", "clip-path": `url(#${id}-a)` }, s);
-        svgEl("path", { d: area, class: "ic-area-exp", "clip-path": `url(#${id}-b)` }, s);
-        svgEl("path", { d: line, class: "ic-line-imp", "clip-path": `url(#${id}-a)` }, s);
-        svgEl("path", { d: line, class: "ic-line-exp", "clip-path": `url(#${id}-b)` }, s);
-      }
-      svgEl("line", { x1: pad, x2: W - pad, y1: y(0), y2: y(0), class: "ic-axis" }, s);
-      const cross = svgEl("line", { y1: 0, y2: H, class: "ic-cross", opacity: 0 }, s);
-      const hit = svgEl("rect", { x: 0, y: 0, width: W, height: H, class: "ic-hit" }, s);
-      bindTip(hit, (ev) => {
-        if (!series.length) return `<strong>${SHORT_NAME[c]}</strong><br>No readings in this period`;
-        const r = s.getBoundingClientRect();
-        const tx = t0 + Math.max(0, Math.min(1, ((ev.clientX - r.left) / r.width * W - pad) / (W - 2 * pad))) * (t1 - t0);
-        let best = series[0];
-        series.forEach((p) => { if (Math.abs(p.t - tx) < Math.abs(best.t - tx)) best = p; });
-        cross.setAttribute("x1", x(best.t)); cross.setAttribute("x2", x(best.t)); cross.setAttribute("opacity", 0.6);
-        return `<strong>${SHORT_NAME[c]}</strong>, ${fmtPointTime(best.iso, range)}<br>${dirWord(best.v)} ${fmtGw(best.v * 1000)}` + (range === "day" ? "" : " (average)");
+      if (series.length < 2) { card.insertAdjacentHTML("beforeend", '<p class="ic-empty">No readings in this period</p>'); return; }
+      renderSignedChart(card, series, {
+        unit: "GW", range, width: 300, height: 150, compact: true, symmetric: scale,
+        name: `${SHORT_NAME[c]} net interconnector flow`,
+        tipFmt: (p) => `<strong>${SHORT_NAME[c]}</strong>, ${fmtPointTime(p.iso, range)}<br>${dirWord(p.v)} ${fmtGw(p.v * 1000)}` + (range === "day" ? "" : " (average)"),
       });
-      hit.addEventListener("pointerleave", () => cross.setAttribute("opacity", 0));
     });
-    cap.textContent = `Same scale on every chart: the dashed lines are ±${scale.toFixed(1)}GW. ${fmtDate(data.from)} to ${fmtDate(data.to)} (UK time). ` +
+    cap.textContent = `Same scale on every chart (±${scale}GW). ${fmtDate(data.from)} to ${fmtDate(data.to)} (UK time). ` +
       (range === "day" ? "Half-hourly averages." : range === "week" ? "Three-hourly averages." : range === "month" ? "Daily averages." : "Weekly averages.") + " Ireland includes Moyle to Northern Ireland.";
   }
 
@@ -812,13 +943,19 @@
     if (!any) { box.innerHTML = '<p class="ic-empty">Not enough recorded history yet for this range.</p>'; cap.textContent = ""; return; }
     const W = Math.max(300, box.clientWidth || 600);
     const narrow = W < 520;
-    const labelW = narrow ? 92 : 120, valW = narrow ? 92 : 140, rowH = 34, top = 4;
+    const labelW = narrow ? 92 : 120, valW = narrow ? 92 : 140, rowH = 34, headH = 26, top = headH + 4;
     const mid = labelW + (W - labelW - valW) / 2, half = (W - labelW - valW) / 2 - 8;
     let max = 1;
     ORDER.forEach((c) => { if (T[c]) max = Math.max(max, T[c].import_gwh, T[c].export_gwh); });
-    const H = top + ORDER.length * rowH + 44;
+    const H = top + ORDER.length * rowH + 30;
     const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Energy imported and exported by country: " + ORDER.map((c) => `${SHORT_NAME[c]} imported ${(T[c] || {}).import_gwh || 0} GWh, exported ${(T[c] || {}).export_gwh || 0} GWh`).join("; ") }, box);
     const fmtE = (g) => (g >= 100 ? Math.round(g).toLocaleString() : g.toFixed(1)) + " GWh";
+    const hfs = narrow ? 11 : 12;
+    svgEl("text", { x: 0, y: 16, "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = "Country";
+    svgEl("text", { x: mid - 8, y: 16, "text-anchor": "end", "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = "← Exported";
+    svgEl("text", { x: mid + 8, y: 16, "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = "Imported →";
+    svgEl("text", { x: W, y: 16, "text-anchor": "end", "font-size": hfs, class: "ic-muted ic-head" }, s).textContent = narrow ? "Net" : "Net (imported - exported)";
+    svgEl("line", { x1: 0, x2: W, y1: headH, y2: headH, class: "ic-grid" }, s);
     let sumI = 0, sumE = 0;
     ORDER.forEach((c, i) => {
       const t = T[c] || { import_gwh: 0, export_gwh: 0 };
@@ -828,16 +965,16 @@
       const wi = t.import_gwh / max * half, we = t.export_gwh / max * half;
       if (wi > 0.5) svgEl("rect", { x: mid + 1, y: cy - bh / 2, width: wi, height: bh, rx: 4, class: "ic-imp" }, s);
       if (we > 0.5) svgEl("rect", { x: mid - 1 - we, y: cy - bh / 2, width: we, height: bh, rx: 4, class: "ic-exp" }, s);
-      svgEl("text", { x: W, y: cy + 5, "text-anchor": "end", "font-size": 13, "font-weight": 600 }, s).textContent = (narrow ? "" : "net ") + (net >= 0 ? "+" : "−") + fmtE(Math.abs(net));
+      svgEl("text", { x: W, y: cy + 5, "text-anchor": "end", "font-size": 13, "font-weight": 600 }, s).textContent = (net >= 0 ? "+" : "−") + fmtE(Math.abs(net));
       const hit = svgEl("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, class: "ic-hit" }, s);
       bindTip(hit, () => `<strong>${COUNTRY_NAME[c]}</strong><br>Imported: ${fmtE(t.import_gwh)}<br>Exported: ${fmtE(t.export_gwh)}<br>Net: ${net >= 0 ? "+" : "−"}${fmtE(Math.abs(net))} (${net >= 0 ? "net importer into GB" : "net exporter from GB"})`);
     });
     const yb = top + ORDER.length * rowH;
-    svgEl("line", { x1: mid, x2: mid, y1: top, y2: yb, class: "ic-axis" }, s);
-    svgEl("text", { x: mid - 8, y: yb + 16, "text-anchor": "end", "font-size": 12, class: "ic-muted" }, s).textContent = "← Exported";
-    svgEl("text", { x: mid + 8, y: yb + 16, "font-size": 12, class: "ic-muted" }, s).textContent = "Imported →";
+    svgEl("line", { x1: mid, x2: mid, y1: headH + 2, y2: yb, class: "ic-axis" }, s);
     const netAll = sumI - sumE;
-    svgEl("text", { x: W, y: yb + 36, "text-anchor": "end", "font-size": 13, "font-weight": 700 }, s).textContent = "All countries: net " + (netAll >= 0 ? "+" : "−") + fmtE(Math.abs(netAll));
+    svgEl("line", { x1: 0, x2: W, y1: yb + 4, y2: yb + 4, class: "ic-grid" }, s);
+    svgEl("text", { x: 0, y: yb + 22, "font-size": narrow ? 13 : 14, "font-weight": 700 }, s).textContent = "All countries";
+    svgEl("text", { x: W, y: yb + 22, "text-anchor": "end", "font-size": 13, "font-weight": 700 }, s).textContent = (netAll >= 0 ? "+" : "−") + fmtE(Math.abs(netAll));
     cap.textContent = `Total energy over ${fmtDate(data.from)} to ${fmtDate(data.to)} (UK time): imported ${fmtE(sumI)}, exported ${fmtE(sumE)}. Worked out from the averaged readings, so a period with gaps in the recorded data will read low.`;
   }
 
@@ -1024,7 +1161,9 @@
     const rootStyle = getComputedStyle(document.documentElement);
     const v = (name) => rootStyle.getPropertyValue(name).trim();
     const pal = { bg: v("--bg-elevated") || "#ffffff", border: v("--border") || "#dde1e7", text: v("--text") || "#1a1d23", muted: v("--text-muted") || "#5b6270" };
-    const parts = (await Promise.all(spec.svgs.filter((s) => s.el).map((s) => svgToImage(s.el).then((r) => Object.assign(r, s)))));
+    let parts;
+    try { parts = await Promise.all(spec.svgs.filter((s) => s.el).map((s) => svgToImage(s.el).then((r) => Object.assign(r, s)))); }
+    finally { if (spec.cleanup) spec.cleanup(); }
     if (!parts.length) return false;
     const scale = 2, cardW = 1000, pad = 32, cols = spec.cols || 1, gap = 18;
     const font = (wt, px) => `${wt} ${px}px "Open Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif`;
@@ -1093,14 +1232,44 @@
     }, "image/png"));
   }
 
-  const EXPORTERS = { now: exportNow, map: exportMap, multiples: exportMultiples, totals: exportTotals };
-  const FILE_BASE = { now: () => "interconnectors-by-country-now", map: () => "interconnector-cables-live", multiples: (r) => "interconnectors-net-flow-by-country-" + r, totals: (r) => "interconnectors-energy-by-country-" + r };
+  const HIST_RANGE_LABEL = { day: "past day", week: "past week", month: "past month", season: "this season", year: "past year", "5year": "past 5 years", "10year": "past 10 years" };
+  function exportHist(which) {
+    return (kind, range) => {
+      const series = histData[range] && histData[range][which];
+      if (!series || series.length < 2) return null;
+      const unit = which === "share" ? "%" : "GW";
+      const title = (which === "share" ? "GB net interconnector flow as a share of demand, " : "GB net interconnector flow, ") + (HIST_RANGE_LABEL[range] || range);
+      const period = `${ukDateTime(series[0].iso)} to ${ukDateTime(series[series.length - 1].iso)}`;
+      const val = (v) => (unit === "%" ? v.toFixed(1) : v.toFixed(3));
+      if (kind === "copy") {
+        const vals = series.map((p) => p.v);
+        const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
+        return [title, period, "Positive = importing into GB, negative = exporting.", "",
+          `Average: ${avg >= 0 ? "+" : "−"}${Math.abs(avg).toFixed(2)}${unit}`,
+          `Highest import: ${hi > 0 ? hi.toFixed(2) + unit : "none"}`,
+          `Highest export: ${lo < 0 ? Math.abs(lo).toFixed(2) + unit : "none"}`, "", SOURCE_LINE].join("\n");
+      }
+      if (kind === "csv") return csvRows([["time_utc", which === "share" ? "net_flow_share_of_demand_pct" : "net_flow_gw"]].concat(series.map((p) => [p.iso, val(p.v)])));
+      // Redrawn off-screen at the snapshot's own width, so axis labels
+      // come out at a normal size rather than scaled up from the card.
+      const off = document.createElement("div");
+      off.className = "ic-chart";
+      off.style.cssText = "position:absolute;left:-10000px;top:0;width:936px;";
+      document.body.appendChild(off);
+      const svg = renderSignedChart(off, series, { unit, range, width: 936, height: 380, name: title, tipFmt: () => "" });
+      return { title, subtitle: period, svgs: [{ el: svg }], cleanup: () => off.remove(),
+        legend: [["--ic-import", "Importing into GB"], ["--ic-export", "Exporting from GB"]], file: `interconnectors-history-${which}-${range}` };
+    };
+  }
+  const EXPORTERS = { now: exportNow, map: exportMap, multiples: exportMultiples, totals: exportTotals, "hist-output": exportHist("output"), "hist-share": exportHist("share") };
+  const FILE_BASE = { "hist-output": (r) => "interconnectors-history-net-flow-" + r, "hist-share": (r) => "interconnectors-history-share-of-demand-" + r, now: () => "interconnectors-by-country-now", map: () => "interconnector-cables-live", multiples: (r) => "interconnectors-net-flow-by-country-" + r, totals: (r) => "interconnectors-energy-by-country-" + r };
   document.addEventListener("click", (ev) => {
     const btn = ev.target.closest("[data-ic-export]");
     if (!btn) return;
     const kind = btn.getAttribute("data-ic-export"), target = btn.getAttribute("data-ic-target");
     const panel = btn.closest('[role="tabpanel"]');
-    const range = panel ? panel.id.replace("icpanel-", "") : null;
+    const range = panel ? panel.id.replace(/^(ic)?panel-/, "") : null;
     const result = EXPORTERS[target] ? EXPORTERS[target](kind, range) : null;
     const announce = (ok) => (GridPreview.announceCopyResult ? GridPreview.announceCopyResult(btn, ok) : null);
     if (!result) { announce(false); return; }
@@ -1124,40 +1293,53 @@
   // illustrative fallback: a fresh install with little stored history
   // yet honestly shows "not enough recorded history" instead of a
   // plausible-looking made-up trend line.
+  const histData = {};
+  function seriesFromApi(s) {
+    return s ? s.times.map((t, k) => ({ t: new Date(t).getTime(), v: s.values[k], iso: t })).filter((p) => typeof p.v === "number") : [];
+  }
+  function drawHistChart(wrap, series, unit, range, name) {
+    wrap.classList.remove("is-loading");
+    wrap.innerHTML = "";
+    if (series.length < 2) {
+      wrap.classList.add("has-error");
+      wrap.innerHTML = '<p class="chart-error-msg">Not enough recorded history yet for this range.</p>';
+      return;
+    }
+    wrap.classList.remove("has-error");
+    const W = Math.max(280, wrap.clientWidth || 520);
+    renderSignedChart(wrap, series, {
+      unit, range, width: W, height: 260, name,
+      tipFmt: (p) => `${fmtPointTime(p.iso, range)}<br>${dirWord(p.v)} ` + (unit === "%" ? Math.abs(p.v).toFixed(1) + "% of demand" : fmtGw(p.v * 1000)),
+    });
+  }
+  function redrawHist(range) {
+    const host = document.getElementById("panel-" + range);
+    const d = histData[range];
+    if (!host || !d || host.hidden) return;
+    if (d.output) drawHistChart(host.querySelector('[data-hist="output"]'), d.output, "GW", range, "Interconnectors net flow, GW");
+    if (d.share) drawHistChart(host.querySelector('[data-hist="share"]'), d.share, "%", range, "Net interconnector flow as a share of demand");
+  }
   function drawRange(range) {
     if (drawn[range]) return;
     drawn[range] = true;
     const host = document.getElementById("panel-" + range);
     host.appendChild(template.content.cloneNode(true));
-
-    const outputCanvas = host.querySelector('canvas[data-metric="output"]');
-    const shareCanvas = host.querySelector('canvas[data-metric="share"]');
-
     const outputPromise = window.GridData ? window.GridData.fetchSeries("transfers", range) : Promise.resolve(null);
     const demandPromise = window.GridData ? window.GridData.fetchSeries("demand", range) : Promise.resolve(null);
-
+    histData[range] = {};
     outputPromise.then((outSeries) => {
-      outputCanvas.closest(".chart-wrap").classList.remove("is-loading");
-      if (outSeries) {
-        GridPreview.renderLineChart(outputCanvas, outSeries, { label: "Interconnectors", color: "#d98e04", unit: "GW" });
-      } else {
-        GridPreview.showChartError(outputCanvas, "Not enough recorded history yet for this range.");
-      }
+      histData[range].output = seriesFromApi(outSeries);
+      drawHistChart(host.querySelector('[data-hist="output"]'), histData[range].output, "GW", range, "Interconnectors net flow, GW");
     });
-
     Promise.all([outputPromise, demandPromise]).then(([outSeries, demandSeries]) => {
-      shareCanvas.closest(".chart-wrap").classList.remove("is-loading");
-      const shareSeries = GridPreview.computeShareSeries(outSeries, demandSeries);
-      if (shareSeries) {
-        GridPreview.renderLineChart(shareCanvas, shareSeries, { label: "Share of demand", color: "#d98e04", unit: "%" });
-      } else {
-        GridPreview.showChartError(shareCanvas, "Not enough recorded history yet for this range.");
-      }
+      histData[range].share = seriesFromApi(GridPreview.computeShareSeries(outSeries, demandSeries));
+      drawHistChart(host.querySelector('[data-hist="share"]'), histData[range].share, "%", range, "Net interconnector flow as a share of demand");
     });
   }
 
   drawRange("day");
-  document.getElementById("history-tabs").addEventListener("rangechange", (e) => drawRange(e.detail.range));
+  document.getElementById("history-tabs").addEventListener("rangechange", (e) => { drawRange(e.detail.range); setTimeout(() => redrawHist(e.detail.range), 0); });
+  window.addEventListener("resize", () => { clearTimeout(window._icHistResize); window._icHistResize = setTimeout(() => Object.keys(histData).forEach(redrawHist), 200); });
 })();
 </script>
 </body>
