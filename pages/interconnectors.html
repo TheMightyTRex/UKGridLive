@@ -11,6 +11,51 @@
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/style.css?v=20260930">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<style>
+/* Interconnector import/export colours: amber = importing into GB,
+   blue = exporting. Checked for colour-blind separation (CVD dE > 23)
+   and 3:1 contrast against the card surface in both themes. */
+:root { --ic-import: #c47f00; --ic-export: #2b6cb0; --ic-track: var(--bg-inset); }
+[data-theme="dark"] { --ic-import: #c4831f; --ic-export: #4f8fd6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ic-import: #c4831f; --ic-export: #4f8fd6; } }
+.ic-legend { display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; font-size:.84rem; color:var(--text-muted); margin:.4rem 0 .6rem; }
+.ic-legend i { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:6px; }
+.ic-legend .sw-imp { background:var(--ic-import); }
+.ic-legend .sw-exp { background:var(--ic-export); }
+.ic-legend .sw-track { background:var(--ic-track); border:1px solid var(--border); }
+.ic-updated { font-size:.85rem; color:var(--text-muted); margin:.1rem 0 .4rem; }
+.ic-updated strong { color:var(--text); }
+.ic-chart svg { display:block; width:100%; height:auto; overflow:visible; }
+.ic-chart text { fill:var(--text); font-family:var(--font-body); }
+.ic-chart .ic-muted { fill:var(--text-muted); }
+.ic-imp { fill:var(--ic-import); }
+.ic-exp { fill:var(--ic-export); }
+.ic-track { fill:var(--ic-track); }
+.ic-axis { stroke:var(--text-muted); stroke-width:1; }
+.ic-grid { stroke:var(--border); stroke-width:1; stroke-dasharray:3 3; }
+.ic-line-imp { fill:none; stroke:var(--ic-import); stroke-width:2; }
+.ic-line-exp { fill:none; stroke:var(--ic-export); stroke-width:2; }
+.ic-area-imp { fill:var(--ic-import); opacity:.3; }
+.ic-area-exp { fill:var(--ic-export); opacity:.3; }
+.ic-cross { stroke:var(--text-muted); stroke-width:1; }
+.ic-hit { fill:transparent; cursor:pointer; }
+.ic-tip { position:fixed; z-index:50; pointer-events:none; background:var(--bg-elevated); color:var(--text); border:1px solid var(--border); border-radius:6px; box-shadow:var(--shadow); padding:.4rem .6rem; font-size:.8rem; line-height:1.4; max-width:260px; display:none; }
+.ic-sm-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.9rem 1rem; margin-top:.5rem; }
+@media (max-width: 640px) { .ic-sm-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+.ic-sm h3 { font-size:.9rem; margin:0; }
+.ic-sm .ic-sm-now { font-size:.78rem; color:var(--text-muted); margin:0 0 .2rem; }
+.ic-empty { color:var(--text-muted); font-size:.9rem; padding:1rem 0; }
+.map-cable path.is-import { stroke:var(--ic-import); }
+.map-cable path.is-export { stroke:var(--ic-export); }
+.map-cable path.is-idle { stroke:var(--text-muted); opacity:.5; }
+.map-cable-dot circle.is-import { fill:var(--ic-import); }
+.map-cable-dot circle.is-export { fill:var(--ic-export); }
+.map-flow path { fill:none; stroke:var(--bg-elevated); stroke-linecap:round; stroke-dasharray:2 10; opacity:.85; animation:ic-flow 1.4s linear infinite; }
+.map-flow path.is-import { animation-direction:reverse; }
+@keyframes ic-flow { to { stroke-dashoffset:-24; } }
+@media (prefers-reduced-motion: reduce) { .map-flow path { animation:none; } }
+.map-cable-hit path { fill:none; stroke:transparent; stroke-width:14; cursor:pointer; }
+</style>
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -147,16 +192,22 @@
       <p>Interconnectors are high-voltage cables that let Great Britain import and export electricity with neighbouring countries. A positive figure means Great Britain is importing; a negative figure means it is exporting.</p>
     </section>
 
-    <dl class="status-grid" aria-label="Current interconnectors status" style="grid-template-columns:repeat(2,1fr)">
-      <div class="stat"><dt>Current output</dt><dd id="stat-output" class="is-loading-text">Loading live data…</dd></div>
+    <dl class="status-grid" aria-label="Current interconnectors status" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
+      <div class="stat"><dt>Net flow right now</dt><dd id="stat-output" class="is-loading-text">Loading live data…</dd></div>
       <div class="stat"><dt>Share of demand</dt><dd id="stat-share" class="is-loading-text">Loading live data…</dd></div>
     </dl>
 
-    <section class="panel">
-      <h2>Breakdown</h2>
+    <section class="panel" aria-labelledby="now-heading">
+      <h2 id="now-heading">Right now, by country</h2>
+      <p class="ic-updated" id="ic-now-updated" aria-live="polite">Loading live data…</p>
+      <div class="ic-legend"><span><i class="sw-exp"></i>Exporting from GB</span><span><i class="sw-imp"></i>Importing into GB</span><span><i class="sw-track"></i>Total cable capacity to that country</span></div>
+      <div class="ic-chart" id="ic-now-bars" role="img" aria-label="Live import and export by country"></div>
+      <p class="chart-caption">Bars run right for imports and left for exports, from the centre line. The grey track is the combined capacity of every cable to that country, so you can see how hard each link is running. Hover or tap a bar for each cable's own figure.</p>
+      <h3 style="font-size:1rem;margin:1.2rem 0 .3rem;">Exact figures</h3>
       <table class="mix">
-        <caption class="visually-hidden">Interconnectors generation by source</caption>
-        <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
+        <caption class="visually-hidden">Interconnector flow by country right now (positive = importing, negative = exporting)</caption>
+        <thead><tr><th scope="col">Country</th><th scope="col" class="num">GW</th><th scope="col" class="num">% of demand</th></tr></thead>
         <tbody id="mix-tbody">
             <tr><td>Belgium</td><td class="num" id="row-belgium-gw">-</td><td class="num" id="row-belgium-pct">-</td></tr>
             <tr><td>Denmark</td><td class="num" id="row-denmark-gw">-</td><td class="num" id="row-denmark-pct">-</td></tr>
@@ -170,7 +221,7 @@
 
     <section class="panel" aria-labelledby="cables-heading">
       <h2 id="cables-heading">The cables</h2>
-      <p class="chart-caption">Great Britain has nine subsea (and one sub-Channel-Tunnel) interconnector cables in service, totalling around 9.3GW of capacity. Three more link to Ireland alone.</p>
+      <p class="chart-caption">Great Britain has ten interconnector cables in service - nine subsea and one through the Channel Tunnel - totalling around 10.3GW of capacity. Three go to France and three to the island of Ireland.</p>
       <div style="overflow-x:auto;">
       <table class="mix" style="min-width:640px;">
         <caption class="visually-hidden">Individual GB interconnector cables: capacity, route and commissioning date</caption>
@@ -220,6 +271,13 @@
             <td>Richborough, Kent ↔ Herdersbrug, Zeebrugge</td>
           </tr>
           <tr>
+            <td><a href="https://en.wikipedia.org/wiki/IFA-2">IFA2</a></td>
+            <td>France</td>
+            <td class="num">1,000MW</td>
+            <td class="num">2021</td>
+            <td>Fareham, Hampshire ↔ Tourbe, near Caen, Normandy</td>
+          </tr>
+          <tr>
             <td><a href="https://en.wikipedia.org/wiki/North_Sea_Link">North Sea Link</a></td>
             <td>Norway</td>
             <td class="num">1,400MW</td>
@@ -258,7 +316,7 @@
       <p class="chart-caption">A real-geography map (actual coastlines, not freehand shapes), with each cable drawn between its two real landing points. It's still not a navigational chart - the curve of each line is for legibility, not the true undersea route, which typically follows a straighter or cable-specific path.</p>
       <svg viewBox="0 0 640 440" role="img" aria-labelledby="map-title map-desc" class="interconnector-map">
         <title id="map-title">Map of Great Britain's electricity interconnectors</title>
-        <desc id="map-desc">A real-geography map of north-west Europe showing Great Britain, Ireland, France, Belgium, the Netherlands, Denmark and Norway, with each interconnector cable drawn between its two real landing points.</desc>
+        <desc id="map-desc">A real-geography map of north-west Europe showing Great Britain, Ireland, France, Belgium, the Netherlands, Denmark and Norway, with each of the ten interconnector cables drawn between its two real landing points. When live data is available, each line is coloured by the direction power is flowing (amber importing into GB, blue exporting) and drawn thicker the more it carries.</desc>
 
         <!-- landmasses: real coastlines (Natural Earth 1:50m via world-atlas), Mercator-projected and cropped to this region -->
         <g class="map-land">
@@ -282,61 +340,70 @@
 
         <!-- cables: quadratic curves between each cable's real landing points -->
         <g class="map-cable">
-          <path d="M253.4,218.5 Q246.5,220.1 241.4,225"/>
-          <path d="M272.8,258.2 Q255.0,261.1 238.3,254.3"/>
-          <path d="M253.6,293.6 Q238.6,291.1 227.1,281.2"/>
-          <path d="M329.5,305.4 Q334.1,309.1 339.9,309.8"/>
-          <path d="M331.9,305.7 Q336.0,306.0 339.3,308.4"/>
-          <path d="M334,301.4 Q346.0,304.6 357.9,301.2"/>
-          <path d="M326,298.2 Q348.9,298.8 368.8,287.5"/>
-          <path d="M315.5,267 Q367.5,221.8 435.4,210.1"/>
-          <path d="M297.3,218.7 Q363.3,181.2 400.3,114.8"/>
+          <path data-cable="moyle" d="M253.4,218.5 Q246.5,220.1 241.4,225"/>
+          <path data-cable="ewic" d="M272.8,258.2 Q255.0,261.1 238.3,254.3"/>
+          <path data-cable="greenlink" d="M253.6,293.6 Q238.6,291.1 227.1,281.2"/>
+          <path data-cable="ifa" d="M329.5,305.4 Q334.1,309.1 339.9,309.8"/>
+          <path data-cable="eleclink" d="M331.9,305.7 Q336.0,306.0 339.3,308.4"/>
+          <path data-cable="nemo" d="M334,301.4 Q346.0,304.6 357.9,301.2"/>
+          <path data-cable="britned" d="M326,298.2 Q348.9,298.8 368.8,287.5"/>
+          <path data-cable="viking" d="M315.5,267 Q367.5,221.8 435.4,210.1"/>
+          <path data-cable="nsl" d="M297.3,218.7 Q363.3,181.2 400.3,114.8"/>
+          <path data-cable="ifa2" d="M301.3,311.5 Q304.5,328 314.3,342.3"/>
         </g>
         <g class="map-cable-dot">
-          <circle cx="253.4" cy="218.5" r="3.5"/><circle cx="241.4" cy="225" r="3.5"/>
-          <circle cx="272.8" cy="258.2" r="3.5"/><circle cx="238.3" cy="254.3" r="3.5"/>
-          <circle cx="253.6" cy="293.6" r="3.5"/><circle cx="227.1" cy="281.2" r="3.5"/>
-          <circle cx="329.5" cy="305.4" r="3.5"/><circle cx="339.9" cy="309.8" r="3.5"/>
-          <circle cx="331.9" cy="305.7" r="3.5"/><circle cx="339.3" cy="308.4" r="3.5"/>
-          <circle cx="334" cy="301.4" r="3.5"/><circle cx="357.9" cy="301.2" r="3.5"/>
-          <circle cx="326" cy="298.2" r="3.5"/><circle cx="368.8" cy="287.5" r="3.5"/>
-          <circle cx="315.5" cy="267" r="3.5"/><circle cx="435.4" cy="210.1" r="3.5"/>
-          <circle cx="297.3" cy="218.7" r="3.5"/><circle cx="400.3" cy="114.8" r="3.5"/>
+          <circle data-cable="moyle" cx="253.4" cy="218.5" r="3.5"/><circle data-cable="moyle" cx="241.4" cy="225" r="3.5"/>
+          <circle data-cable="ewic" cx="272.8" cy="258.2" r="3.5"/><circle data-cable="ewic" cx="238.3" cy="254.3" r="3.5"/>
+          <circle data-cable="greenlink" cx="253.6" cy="293.6" r="3.5"/><circle data-cable="greenlink" cx="227.1" cy="281.2" r="3.5"/>
+          <circle data-cable="ifa" cx="329.5" cy="305.4" r="3.5"/><circle data-cable="ifa" cx="339.9" cy="309.8" r="3.5"/>
+          <circle data-cable="eleclink" cx="331.9" cy="305.7" r="3.5"/><circle data-cable="eleclink" cx="339.3" cy="308.4" r="3.5"/>
+          <circle data-cable="nemo" cx="334" cy="301.4" r="3.5"/><circle data-cable="nemo" cx="357.9" cy="301.2" r="3.5"/>
+          <circle data-cable="britned" cx="326" cy="298.2" r="3.5"/><circle data-cable="britned" cx="368.8" cy="287.5" r="3.5"/>
+          <circle data-cable="viking" cx="315.5" cy="267" r="3.5"/><circle data-cable="viking" cx="435.4" cy="210.1" r="3.5"/>
+          <circle data-cable="nsl" cx="297.3" cy="218.7" r="3.5"/><circle data-cable="nsl" cx="400.3" cy="114.8" r="3.5"/>
+          <circle data-cable="ifa2" cx="301.3" cy="311.5" r="3.5"/><circle data-cable="ifa2" cx="314.3" cy="342.3" r="3.5"/>
         </g>
+
+        <g class="map-flow" aria-hidden="true"></g>
+        <g class="map-cable-hit"></g>
 
         <!-- labels -->
         <g class="map-label">
-          <rect x="259.0" y="202.0" width="67.6" height="14" class="map-label-bg"/>
-          <text x="262.0" y="213" font-size="10.5">Moyle 500MW</text>
-          <rect x="204.0" y="257.0" width="62.0" height="14" class="map-label-bg"/>
-          <text x="207.0" y="268" font-size="10.5">EWIC 500MW</text>
-          <rect x="175.0" y="289.0" width="90.0" height="14" class="map-label-bg"/>
-          <text x="178.0" y="300" font-size="10.5">Greenlink 500MW</text>
-          <rect x="372.0" y="229.0" width="112.4" height="14" class="map-label-bg"/>
-          <text x="375.0" y="240" font-size="10.5">Viking Link 1,400MW</text>
-          <rect x="345.0" y="154.0" width="129.2" height="14" class="map-label-bg"/>
-          <text x="348.0" y="165" font-size="10.5">North Sea Link 1,400MW</text>
+          <rect data-cable-bg="moyle" x="259.0" y="202.0" width="67.6" height="14" class="map-label-bg"/>
+          <text data-cable-label="moyle" data-base="Moyle 500MW" x="262.0" y="213" font-size="10.5">Moyle 500MW</text>
+          <rect data-cable-bg="ewic" x="204.0" y="257.0" width="62.0" height="14" class="map-label-bg"/>
+          <text data-cable-label="ewic" data-base="EWIC 500MW" x="207.0" y="268" font-size="10.5">EWIC 500MW</text>
+          <rect data-cable-bg="greenlink" x="175.0" y="289.0" width="90.0" height="14" class="map-label-bg"/>
+          <text data-cable-label="greenlink" data-base="Greenlink 500MW" x="178.0" y="300" font-size="10.5">Greenlink 500MW</text>
+          <rect data-cable-bg="viking" x="372.0" y="229.0" width="112.4" height="14" class="map-label-bg"/>
+          <text data-cable-label="viking" data-base="Viking Link 1,400MW" x="375.0" y="240" font-size="10.5">Viking Link 1,400MW</text>
+          <rect data-cable-bg="nsl" x="345.0" y="154.0" width="129.2" height="14" class="map-label-bg"/>
+          <text data-cable-label="nsl" data-base="North Sea Link 1,400MW" x="348.0" y="165" font-size="10.5">North Sea Link 1,400MW</text>
+          <rect data-cable-bg="ifa2" x="222.0" y="328.0" width="74.6" height="14" class="map-label-bg"/>
+          <text data-cable-label="ifa2" data-base="IFA2 1,000MW" x="225.0" y="339" font-size="10.5">IFA2 1,000MW</text>
         </g>
         <g class="map-leader-group">
           <path d="M346.0,304.6 L434,326" class="map-leader"/>
           <path d="M348.9,298.8 L434,344" class="map-leader"/>
           <path d="M334.1,309.1 L434,362" class="map-leader"/>
           <path d="M336.0,306.0 L434,380" class="map-leader"/>
-          <rect x="440.0" y="319.0" width="101.2" height="14" class="map-label-bg"/>
-          <text x="443.0" y="330" font-size="10.5">Nemo Link 1,000MW</text>
-          <rect x="440.0" y="337.0" width="90.0" height="14" class="map-label-bg"/>
-          <text x="443.0" y="348" font-size="10.5">BritNed 1,000MW</text>
-          <rect x="440.0" y="355.0" width="67.6" height="14" class="map-label-bg"/>
-          <text x="443.0" y="366" font-size="10.5">IFA 2,000MW</text>
-          <rect x="440.0" y="373.0" width="95.6" height="14" class="map-label-bg"/>
-          <text x="443.0" y="384" font-size="10.5">ElecLink 1,000MW</text>
+          <rect data-cable-bg="nemo" x="440.0" y="319.0" width="101.2" height="14" class="map-label-bg"/>
+          <text data-cable-label="nemo" data-base="Nemo Link 1,000MW" x="443.0" y="330" font-size="10.5">Nemo Link 1,000MW</text>
+          <rect data-cable-bg="britned" x="440.0" y="337.0" width="90.0" height="14" class="map-label-bg"/>
+          <text data-cable-label="britned" data-base="BritNed 1,000MW" x="443.0" y="348" font-size="10.5">BritNed 1,000MW</text>
+          <rect data-cable-bg="ifa" x="440.0" y="355.0" width="67.6" height="14" class="map-label-bg"/>
+          <text data-cable-label="ifa" data-base="IFA 2,000MW" x="443.0" y="366" font-size="10.5">IFA 2,000MW</text>
+          <rect data-cable-bg="eleclink" x="440.0" y="373.0" width="95.6" height="14" class="map-label-bg"/>
+          <text data-cable-label="eleclink" data-base="ElecLink 1,000MW" x="443.0" y="384" font-size="10.5">ElecLink 1,000MW</text>
         </g>
       </svg>
+      <p class="ic-updated" id="ic-map-updated" aria-live="polite">Live flows: loading…</p>
+      <div class="ic-legend"><span><i class="sw-exp"></i>Exporting from GB</span><span><i class="sw-imp"></i>Importing into GB</span><span>Thicker line = more power flowing; moving dashes show the direction</span></div>
     </section>
 
     <section class="panel" aria-labelledby="history-heading">
       <h2 id="history-heading">History</h2>
-      <div class="range-tabs" role="tablist" data-tablist aria-label="Time range">
+      <div class="range-tabs" role="tablist" data-tablist aria-label="Time range" id="history-tabs">
         <button role="tab" id="tab-day" aria-controls="panel-day" aria-selected="true" tabindex="0" data-range="day">Day</button>
         <button role="tab" id="tab-week" aria-controls="panel-week" aria-selected="false" tabindex="-1" data-range="week">Week</button>
         <button role="tab" id="tab-month" aria-controls="panel-month" aria-selected="false" tabindex="-1" data-range="month">Month</button>
@@ -363,6 +430,33 @@
       <p class="chart-caption">Net interconnector flow (positive = importing, negative = exporting) and that flow as a share of GB demand, over the selected range.</p>
     </section>
 
+    <section class="panel" aria-labelledby="bycountry-heading">
+      <h2 id="bycountry-heading">Imports and exports by country</h2>
+      <p>Who Great Britain has been trading power with over the chosen period, from the same per-cable readings as the charts above.</p>
+      <div class="range-tabs" role="tablist" data-tablist aria-label="Time range for imports and exports by country" id="ic-country-tabs">
+        <button role="tab" id="ictab-day" aria-controls="icpanel-day" aria-selected="true" tabindex="0" data-range="day">Day</button>
+        <button role="tab" id="ictab-week" aria-controls="icpanel-week" aria-selected="false" tabindex="-1" data-range="week">Week</button>
+        <button role="tab" id="ictab-month" aria-controls="icpanel-month" aria-selected="false" tabindex="-1" data-range="month">Month</button>
+        <button role="tab" id="ictab-season" aria-controls="icpanel-season" aria-selected="false" tabindex="-1" data-range="season">Season</button>
+        <button role="tab" id="ictab-year" aria-controls="icpanel-year" aria-selected="false" tabindex="-1" data-range="year">Year</button>
+      </div>
+      <div id="icpanel-day" role="tabpanel" aria-labelledby="ictab-day" tabindex="0"></div>
+      <div id="icpanel-week" role="tabpanel" aria-labelledby="ictab-week" tabindex="0" hidden></div>
+      <div id="icpanel-month" role="tabpanel" aria-labelledby="ictab-month" tabindex="0" hidden></div>
+      <div id="icpanel-season" role="tabpanel" aria-labelledby="ictab-season" tabindex="0" hidden></div>
+      <div id="icpanel-year" role="tabpanel" aria-labelledby="ictab-year" tabindex="0" hidden></div>
+      <template id="ic-country-template">
+        <h3 style="font-size:1rem;margin:.6rem 0 .1rem;">Net flow over time</h3>
+        <div class="ic-legend"><span><i class="sw-imp"></i>Above the line: importing</span><span><i class="sw-exp"></i>Below the line: exporting</span></div>
+        <div class="ic-sm-grid" data-ic="multiples"><p class="ic-empty">Loading…</p></div>
+        <p class="chart-caption" data-ic="multiples-caption"></p>
+        <h3 style="font-size:1rem;margin:1.2rem 0 .1rem;">Energy imported and exported</h3>
+        <div class="ic-legend"><span><i class="sw-exp"></i>Exported (GWh)</span><span><i class="sw-imp"></i>Imported (GWh)</span></div>
+        <div class="ic-chart" data-ic="totals"><p class="ic-empty">Loading…</p></div>
+        <p class="chart-caption" data-ic="totals-caption"></p>
+      </template>
+    </section>
+
     <section class="panel" aria-labelledby="about-heading">
       <h2 id="about-heading">About interconnectors</h2>
       
@@ -370,7 +464,7 @@
 <h3>From one cable to a continental network</h3>
 <p>The first Anglo-French interconnector, IFA, was completed in 1986 with a capacity of 2GW, built partly to let Britain draw on France's large nuclear fleet. It stood as the only significant interconnector for over two decades.</p>
 <p>Expansion accelerated from the 2010s onward as European electricity markets became more integrated and Britain's own renewable fleet grew large enough that exporting surplus power became commercially attractive. BritNed to the Netherlands opened in 2011, followed by Nemo Link to Belgium (2019), the North Sea Link to Norway (2021) - at the time the world's longest subsea interconnector - and Viking Link to Denmark (2023), the world's longest land-and-subsea interconnector.</p>
-<p>Ireland now has three separate links: the Moyle interconnector to Scotland (opened 2001), the East–West Interconnector to Wales (opened 2012), and the newest, Greenlink, also to Wales (opened 2024). A second France link, ElecLink, opened in 2022, running through the Channel Tunnel alongside IFA rather than under the open sea.</p>
+<p>Ireland now has three separate links: the Moyle interconnector to Scotland (opened 2001), the East–West Interconnector to Wales (opened 2012), and the newest, Greenlink, also to Wales (opened 2024). France now has three links too: IFA2 (2021), from Hampshire to Normandy, and ElecLink (2022), which runs through the Channel Tunnel rather than under the open sea.</p>
 <h3>Why flows reverse so often</h3>
 <p>Interconnector flows are driven by relative wholesale prices either side of the cable, which in turn depend on each country's generation mix at that moment. When Britain is windy and France's nuclear output is steady, Britain often exports; when Britain is calm and Norwegian hydro reservoirs are full, Britain typically imports. This can make interconnectors the most volatile line on the generation-mix table, sometimes swinging from strongly importing to strongly exporting within a single day.</p>
 <h3 style="font-size:.95rem;margin-top:1.5rem;">Sources</h3>
@@ -414,6 +508,7 @@
   </div>
 </footer>
 
+<div class="ic-tip" id="ic-tip" role="tooltip"></div>
 <script src="../assets/app.js?v=20260930"></script>
 <script src="../assets/data.js?v=20260930"></script>
 <script>
@@ -437,26 +532,164 @@
   };
   const COUNTRIES = ["belgium", "denmark", "france", "ireland", "netherlands", "norway"];
 
-  (async function initCurrentOutput() {
+  // ---- Shared helpers for the import/export visuals (SVG, no canvas) ----
+  const SVGNS = "http://www.w3.org/2000/svg";
+  function svgEl(tag, attrs, parent) {
+    const e = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs || {}).forEach((k) => e.setAttribute(k, attrs[k]));
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  const tipEl = document.getElementById("ic-tip");
+  function showTip(ev, html) {
+    if (!tipEl) return;
+    tipEl.innerHTML = html;
+    tipEl.style.display = "block";
+    const w = tipEl.offsetWidth || 220;
+    tipEl.style.left = Math.max(8, Math.min(ev.clientX + 14, window.innerWidth - w - 8)) + "px";
+    tipEl.style.top = (ev.clientY + 14) + "px";
+  }
+  function hideTip() { if (tipEl) tipEl.style.display = "none"; }
+  function bindTip(target, htmlFn) {
+    target.addEventListener("pointermove", (ev) => showTip(ev, htmlFn(ev)));
+    target.addEventListener("pointerdown", (ev) => showTip(ev, htmlFn(ev)));
+    target.addEventListener("pointerleave", hideTip);
+  }
+  window.addEventListener("scroll", hideTip, { passive: true });
+  const fmtGw = (mw) => (Math.abs(mw) / 1000).toFixed(2) + "GW";
+  const signed = (mw) => (mw > 0 ? "+" : mw < 0 ? "−" : "") + fmtGw(mw);
+  const dirWord = (mw) => (mw > 0 ? "Importing" : mw < 0 ? "Exporting" : "Idle");
+  function ukClock(iso) {
+    const d = new Date(iso);
+    const local = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
+    const uk = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+    const sameDay = d.toDateString() === new Date().toDateString();
+    const date = sameDay ? "" : " on " + d.toLocaleDateString([], { day: "numeric", month: "short" });
+    return local + date + " (" + uk + " UK time)";
+  }
+
+  // Cables, the country they connect to, and their capacity (MW, from the
+  // cables table below). Labels match INTERCONNECTOR_LABELS in data.js.
+  const CABLES = [
+    { key: "ifa", label: "IFA (France)", name: "IFA", country: "france", cap: 2000 },
+    { key: "ifa2", label: "IFA2 (France)", name: "IFA2", country: "france", cap: 1000 },
+    { key: "eleclink", label: "ElecLink (France)", name: "ElecLink", country: "france", cap: 1000 },
+    { key: "nemo", label: "Nemo Link (Belgium)", name: "Nemo Link", country: "belgium", cap: 1000 },
+    { key: "britned", label: "BritNed (Netherlands)", name: "BritNed", country: "netherlands", cap: 1000 },
+    { key: "viking", label: "Viking Link (Denmark)", name: "Viking Link", country: "denmark", cap: 1400 },
+    { key: "nsl", label: "North Sea Link (Norway)", name: "North Sea Link", country: "norway", cap: 1400 },
+    { key: "moyle", label: "Moyle (N. Ireland)", name: "Moyle", country: "ireland", cap: 500 },
+    { key: "ewic", label: "EWIC (Ireland)", name: "EWIC", country: "ireland", cap: 500 },
+    { key: "greenlink", label: "Greenlink (Ireland)", name: "Greenlink", country: "ireland", cap: 500 },
+  ];
+  const COUNTRY_NAME = { france: "France", norway: "Norway", denmark: "Denmark", belgium: "Belgium", netherlands: "Netherlands", ireland: "Ireland (incl. N. Ireland)" };
+  const SHORT_NAME = { france: "France", norway: "Norway", denmark: "Denmark", belgium: "Belgium", netherlands: "Netherlands", ireland: "Ireland" };
+  const ORDER = ["france", "norway", "denmark", "belgium", "netherlands", "ireland"];
+  const COUNTRY_CAP = {};
+  CABLES.forEach((c) => { COUNTRY_CAP[c.country] = (COUNTRY_CAP[c.country] || 0) + c.cap; });
+
+  // ---- Option A: live diverging bars, one per country ----
+  function renderNowBars(byCountry, cableMw) {
+    const host = document.getElementById("ic-now-bars");
+    if (!host) return;
+    host.innerHTML = "";
+    const W = Math.max(300, host.clientWidth || 600);
+    const narrow = W < 520;
+    const labelW = narrow ? 92 : 120, valW = narrow ? 66 : 86, rowH = 34, top = 4;
+    const mid = labelW + (W - labelW - valW) / 2, half = (W - labelW - valW) / 2 - 8;
+    const max = Math.max.apply(null, ORDER.map((c) => COUNTRY_CAP[c]));
+    const H = top + ORDER.length * rowH + 44;
+    const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, "aria-hidden": "true" }, host);
+    ORDER.forEach((c, i) => {
+      const mw = byCountry[c] || 0, cy = top + i * rowH + rowH / 2, bh = 16;
+      svgEl("text", { x: 0, y: cy + 5, "font-size": narrow ? 13 : 14, "font-weight": 600 }, s).textContent = SHORT_NAME[c];
+      const tw = COUNTRY_CAP[c] / max * half;
+      svgEl("rect", { x: mid - tw, y: cy - bh / 2, width: tw * 2, height: bh, rx: 4, class: "ic-track" }, s);
+      const w = Math.min(Math.abs(mw), COUNTRY_CAP[c]) / max * half;
+      if (w > 0.5) svgEl("rect", { x: mw >= 0 ? mid : mid - w, y: cy - bh / 2, width: w, height: bh, rx: 4, class: mw >= 0 ? "ic-imp" : "ic-exp" }, s);
+      svgEl("text", { x: W, y: cy + 5, "text-anchor": "end", "font-size": 13.5, "font-weight": 600 }, s).textContent = signed(mw);
+      const hit = svgEl("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, class: "ic-hit" }, s);
+      bindTip(hit, () => {
+        const util = Math.round(Math.abs(mw) / COUNTRY_CAP[c] * 100);
+        const lines = CABLES.filter((cb) => cb.country === c).map((cb) => {
+          const v = cableMw[cb.key];
+          return cb.name + ": " + (v == null ? "no reading" : signed(v));
+        });
+        return `<strong>${COUNTRY_NAME[c]}</strong><br>${dirWord(mw)} ${fmtGw(mw)} of ${fmtGw(COUNTRY_CAP[c])} capacity (${util}%)<br>` + lines.join("<br>");
+      });
+    });
+    const yb = top + ORDER.length * rowH;
+    svgEl("line", { x1: mid, x2: mid, y1: top, y2: yb, class: "ic-axis" }, s);
+    svgEl("text", { x: mid - 8, y: yb + 16, "text-anchor": "end", "font-size": 12, class: "ic-muted" }, s).textContent = "← Exporting";
+    svgEl("text", { x: mid + 8, y: yb + 16, "font-size": 12, class: "ic-muted" }, s).textContent = "Importing →";
+    const net = ORDER.reduce((a, c) => a + (byCountry[c] || 0), 0);
+    svgEl("text", { x: W, y: yb + 36, "text-anchor": "end", "font-size": 13, "font-weight": 700 }, s).textContent =
+      "Net: " + signed(net) + (net > 0 ? " importing" : net < 0 ? " exporting" : "");
+    host.setAttribute("aria-label", "Live interconnector flow by country: " + ORDER.map((c) => SHORT_NAME[c] + " " + signed(byCountry[c] || 0)).join(", "));
+  }
+
+  // ---- Option B: live flow map (colours, widths, moving dashes, labels) ----
+  function renderMapFlows(cableMw) {
+    const map = document.querySelector(".interconnector-map");
+    if (!map) return;
+    const flowG = map.querySelector(".map-flow"), hitG = map.querySelector(".map-cable-hit");
+    flowG.innerHTML = ""; hitG.innerHTML = "";
+    CABLES.forEach((cb) => {
+      const mw = cableMw[cb.key];
+      const path = map.querySelector('.map-cable path[data-cable="' + cb.key + '"]');
+      if (!path) return;
+      const cls = mw == null || Math.abs(mw) < 1 ? "is-idle" : mw > 0 ? "is-import" : "is-export";
+      path.setAttribute("class", cls);
+      const width = mw == null ? 2.2 : 1.8 + Math.min(Math.abs(mw), cb.cap) / 2000 * 5.5;
+      path.style.strokeWidth = width;
+      map.querySelectorAll('.map-cable-dot circle[data-cable="' + cb.key + '"]').forEach((d) => d.setAttribute("class", cls === "is-idle" ? "" : cls));
+      if (cls !== "is-idle") {
+        const f = svgEl("path", { d: path.getAttribute("d"), class: cls }, flowG);
+        f.style.strokeWidth = Math.max(1.2, width / 2.6);
+      }
+      const hit = svgEl("path", { d: path.getAttribute("d") }, hitG);
+      bindTip(hit, () => `<strong>${cb.name}</strong> (${SHORT_NAME[cb.country]})<br>` +
+        (mw == null ? "No reading" : `${dirWord(mw)} ${fmtGw(mw)} of ${fmtGw(cb.cap)} (${Math.round(Math.abs(mw) / cb.cap * 100)}%)`));
+      const label = map.querySelector('[data-cable-label="' + cb.key + '"]');
+      const bg = map.querySelector('[data-cable-bg="' + cb.key + '"]');
+      if (label) {
+        label.textContent = mw == null ? label.getAttribute("data-base") : cb.name + " " + signed(mw);
+        if (bg && label.getBBox) {
+          try { bg.setAttribute("width", (label.getBBox().width + 6).toFixed(1)); } catch (e) { /* not rendered yet */ }
+        }
+      }
+    });
+  }
+
+  let firstLoad = true;
+  let lastNow = null;
+  async function refreshNow() {
     const outputEl = document.getElementById("stat-output");
     const shareEl = document.getElementById("stat-share");
+    const timeEl = document.getElementById("stat-time");
+    const nowNote = document.getElementById("ic-now-updated");
+    const mapNote = document.getElementById("ic-map-updated");
     const setRow = (country, gw, pct) => {
       const gwEl = document.getElementById("row-" + country + "-gw"), pctEl = document.getElementById("row-" + country + "-pct");
       if (gwEl) gwEl.textContent = gw;
       if (pctEl) pctEl.textContent = pct;
     };
     function showNoData() {
-      if (outputEl) { outputEl.textContent = "No data available"; outputEl.classList.remove("is-loading-text"); }
-      if (shareEl) { shareEl.textContent = "No data available"; shareEl.classList.remove("is-loading-text"); }
+      [outputEl, shareEl, timeEl].forEach((el) => { if (el) { el.textContent = "No data available"; el.classList.remove("is-loading-text"); } });
+      if (nowNote) nowNote.textContent = "Live data is unavailable right now.";
+      if (mapNote) mapNote.textContent = "Live flows are unavailable right now - the map shows each cable's capacity instead.";
       COUNTRIES.forEach((c) => setRow(c, "-", "-"));
     }
     if (!window.GridData) { showNoData(); return; }
     const current = await window.GridData.fetchCurrent();
-    if (!current || current.demand_mw == null) { showNoData(); return; }
+    if (!current || current.demand_mw == null) { if (firstLoad) showNoData(); return; }
+    firstLoad = false;
     const summary = window.GridData.summarizeGeneration(current.generation);
     const byInterconnector = summary.byInterconnector || {};
     const byCountryMw = {};
     COUNTRIES.forEach((c) => { byCountryMw[c] = 0; });
+    const cableMw = {};
+    CABLES.forEach((cb) => { if (byInterconnector[cb.label] != null) cableMw[cb.key] = byInterconnector[cb.label]; });
     Object.keys(byInterconnector).forEach((label) => {
       const country = INTERCONNECTOR_COUNTRY[label];
       if (country) byCountryMw[country] += byInterconnector[label];
@@ -466,8 +699,154 @@
     const pct = (mw) => (mw / demandMw * 100).toFixed(1);
     if (outputEl) { outputEl.textContent = gw(summary.interconnectorMw) + "GW"; outputEl.classList.remove("is-loading-text"); }
     if (shareEl) { shareEl.textContent = pct(summary.interconnectorMw) + "%"; shareEl.classList.remove("is-loading-text"); }
+    if (timeEl && current.ts) { timeEl.innerHTML = GridPreview.formatAsOfHtml ? GridPreview.formatAsOfHtml(current.ts) : ukClock(current.ts); timeEl.classList.remove("is-loading-text"); }
     COUNTRIES.forEach((c) => setRow(c, gw(byCountryMw[c]), pct(byCountryMw[c])));
+    const stamp = current.ts ? "<strong>Updated " + ukClock(current.ts) + "</strong>" + (current.stale ? " - the latest reading is delayed, so this may not be current." : ". Refreshes every 5 minutes.") : "";
+    if (nowNote) nowNote.innerHTML = stamp;
+    if (mapNote) mapNote.innerHTML = current.ts ? "<strong>Live flows updated " + ukClock(current.ts) + "</strong>" + (current.stale ? " - the latest reading is delayed." : ". Refreshes every 5 minutes.") : "";
+    renderNowBars(byCountryMw, cableMw);
+    renderMapFlows(cableMw);
+    lastNow = { byCountryMw, cableMw };
+  }
+  (GridPreview.autoRefresh || ((fn) => fn()))(refreshNow);
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (lastNow) renderNowBars(lastNow.byCountryMw, lastNow.cableMw); redrawCountryPanels(); }, 200);
+  });
+
+  // ---- Options C + D: by country over time (api/series.php metric=transfers_country) ----
+  const API_BASE = (function () {
+    const s = Array.from(document.scripts).map((x) => x.src).find((src) => /assets\/data\.js/.test(src));
+    return s ? s.replace(/assets\/data\.js(?:\?.*)?$/, "api/") : "../api/";
   })();
+  const countryData = {};
+  const countryDrawn = {};
+  function fmtPointTime(iso, range) {
+    const d = new Date(iso);
+    if (range === "day") return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }) + " UK time";
+    if (range === "week") return d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/London" }) + ", " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+    return (range === "month" ? "" : "Week of ") + d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/London" });
+  }
+  const fmtDate = (iso) => new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
+
+  function renderMultiples(host, data, range) {
+    const grid = host.querySelector('[data-ic="multiples"]');
+    const cap = host.querySelector('[data-ic="multiples-caption"]');
+    grid.innerHTML = "";
+    const pts = data.points || [];
+    if (pts.length < 2) { grid.innerHTML = '<p class="ic-empty">Not enough recorded history yet for this range.</p>'; cap.textContent = ""; return; }
+    let maxAbs = 0.5;
+    pts.forEach((p) => ORDER.forEach((c) => { if (p[c] != null) maxAbs = Math.max(maxAbs, Math.abs(p[c])); }));
+    const scale = Math.ceil(maxAbs * 2) / 2; // GW, rounded up to 0.5
+    const t0 = new Date(pts[0].t).getTime(), t1 = new Date(pts[pts.length - 1].t).getTime();
+    ORDER.forEach((c) => {
+      const series = pts.filter((p) => p[c] != null).map((p) => ({ t: new Date(p.t).getTime(), v: p[c], iso: p.t }));
+      const card = document.createElement("div");
+      card.className = "ic-sm";
+      const last = series.length ? series[series.length - 1].v : null;
+      card.innerHTML = `<h3>${SHORT_NAME[c]}</h3><p class="ic-sm-now">Latest: ${last == null ? "no reading" : signed(last * 1000)}</p>`;
+      grid.appendChild(card);
+      const W = 240, H = 104, pad = 3;
+      const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${SHORT_NAME[c]} net interconnector flow, ${range}` }, card);
+      const x = (t) => pad + (t1 === t0 ? 0 : (t - t0) / (t1 - t0)) * (W - 2 * pad);
+      const y = (v) => H / 2 - v / scale * (H / 2 - pad);
+      svgEl("line", { x1: pad, x2: W - pad, y1: y(scale), y2: y(scale), class: "ic-grid" }, s);
+      svgEl("line", { x1: pad, x2: W - pad, y1: y(-scale), y2: y(-scale), class: "ic-grid" }, s);
+      if (series.length >= 2) {
+        const id = "icclip-" + range + "-" + c;
+        const defs = svgEl("defs", {}, s);
+        svgEl("rect", { x: 0, y: 0, width: W, height: H / 2 }, svgEl("clipPath", { id: id + "-a" }, defs));
+        svgEl("rect", { x: 0, y: H / 2, width: W, height: H / 2 }, svgEl("clipPath", { id: id + "-b" }, defs));
+        const line = "M" + series.map((p) => x(p.t).toFixed(1) + "," + y(p.v).toFixed(1)).join(" L");
+        const area = `M${x(series[0].t).toFixed(1)},${y(0)} L` + series.map((p) => x(p.t).toFixed(1) + "," + y(p.v).toFixed(1)).join(" L") + ` L${x(series[series.length - 1].t).toFixed(1)},${y(0)} Z`;
+        svgEl("path", { d: area, class: "ic-area-imp", "clip-path": `url(#${id}-a)` }, s);
+        svgEl("path", { d: area, class: "ic-area-exp", "clip-path": `url(#${id}-b)` }, s);
+        svgEl("path", { d: line, class: "ic-line-imp", "clip-path": `url(#${id}-a)` }, s);
+        svgEl("path", { d: line, class: "ic-line-exp", "clip-path": `url(#${id}-b)` }, s);
+      }
+      svgEl("line", { x1: pad, x2: W - pad, y1: y(0), y2: y(0), class: "ic-axis" }, s);
+      const cross = svgEl("line", { y1: 0, y2: H, class: "ic-cross", opacity: 0 }, s);
+      const hit = svgEl("rect", { x: 0, y: 0, width: W, height: H, class: "ic-hit" }, s);
+      bindTip(hit, (ev) => {
+        if (!series.length) return `<strong>${SHORT_NAME[c]}</strong><br>No readings in this period`;
+        const r = s.getBoundingClientRect();
+        const tx = t0 + Math.max(0, Math.min(1, ((ev.clientX - r.left) / r.width * W - pad) / (W - 2 * pad))) * (t1 - t0);
+        let best = series[0];
+        series.forEach((p) => { if (Math.abs(p.t - tx) < Math.abs(best.t - tx)) best = p; });
+        cross.setAttribute("x1", x(best.t)); cross.setAttribute("x2", x(best.t)); cross.setAttribute("opacity", 0.6);
+        return `<strong>${SHORT_NAME[c]}</strong>, ${fmtPointTime(best.iso, range)}<br>${dirWord(best.v)} ${fmtGw(best.v * 1000)}` + (range === "day" ? "" : " (average)");
+      });
+      hit.addEventListener("pointerleave", () => cross.setAttribute("opacity", 0));
+    });
+    cap.textContent = `Same scale on every chart: the dashed lines are ±${scale.toFixed(1)}GW. ${fmtDate(data.from)} to ${fmtDate(data.to)} (UK time). ` +
+      (range === "day" ? "Half-hourly averages." : range === "week" ? "Three-hourly averages." : range === "month" ? "Daily averages." : "Weekly averages.") + " Ireland includes Moyle to Northern Ireland.";
+  }
+
+  function renderTotals(host, data, range) {
+    const box = host.querySelector('[data-ic="totals"]');
+    const cap = host.querySelector('[data-ic="totals-caption"]');
+    box.innerHTML = "";
+    const T = data.totals || {};
+    const any = ORDER.some((c) => T[c] && (T[c].import_gwh > 0 || T[c].export_gwh > 0));
+    if (!any) { box.innerHTML = '<p class="ic-empty">Not enough recorded history yet for this range.</p>'; cap.textContent = ""; return; }
+    const W = Math.max(300, box.clientWidth || 600);
+    const narrow = W < 520;
+    const labelW = narrow ? 92 : 120, valW = narrow ? 92 : 140, rowH = 34, top = 4;
+    const mid = labelW + (W - labelW - valW) / 2, half = (W - labelW - valW) / 2 - 8;
+    let max = 1;
+    ORDER.forEach((c) => { if (T[c]) max = Math.max(max, T[c].import_gwh, T[c].export_gwh); });
+    const H = top + ORDER.length * rowH + 44;
+    const s = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Energy imported and exported by country: " + ORDER.map((c) => `${SHORT_NAME[c]} imported ${(T[c] || {}).import_gwh || 0} GWh, exported ${(T[c] || {}).export_gwh || 0} GWh`).join("; ") }, box);
+    const fmtE = (g) => (g >= 100 ? Math.round(g).toLocaleString() : g.toFixed(1)) + " GWh";
+    let sumI = 0, sumE = 0;
+    ORDER.forEach((c, i) => {
+      const t = T[c] || { import_gwh: 0, export_gwh: 0 };
+      sumI += t.import_gwh; sumE += t.export_gwh;
+      const cy = top + i * rowH + rowH / 2, bh = 16, net = t.import_gwh - t.export_gwh;
+      svgEl("text", { x: 0, y: cy + 5, "font-size": narrow ? 13 : 14, "font-weight": 600 }, s).textContent = SHORT_NAME[c];
+      const wi = t.import_gwh / max * half, we = t.export_gwh / max * half;
+      if (wi > 0.5) svgEl("rect", { x: mid + 1, y: cy - bh / 2, width: wi, height: bh, rx: 4, class: "ic-imp" }, s);
+      if (we > 0.5) svgEl("rect", { x: mid - 1 - we, y: cy - bh / 2, width: we, height: bh, rx: 4, class: "ic-exp" }, s);
+      svgEl("text", { x: W, y: cy + 5, "text-anchor": "end", "font-size": 13, "font-weight": 600 }, s).textContent = (narrow ? "" : "net ") + (net >= 0 ? "+" : "−") + fmtE(Math.abs(net));
+      const hit = svgEl("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, class: "ic-hit" }, s);
+      bindTip(hit, () => `<strong>${COUNTRY_NAME[c]}</strong><br>Imported: ${fmtE(t.import_gwh)}<br>Exported: ${fmtE(t.export_gwh)}<br>Net: ${net >= 0 ? "+" : "−"}${fmtE(Math.abs(net))} (${net >= 0 ? "net importer into GB" : "net exporter from GB"})`);
+    });
+    const yb = top + ORDER.length * rowH;
+    svgEl("line", { x1: mid, x2: mid, y1: top, y2: yb, class: "ic-axis" }, s);
+    svgEl("text", { x: mid - 8, y: yb + 16, "text-anchor": "end", "font-size": 12, class: "ic-muted" }, s).textContent = "← Exported";
+    svgEl("text", { x: mid + 8, y: yb + 16, "font-size": 12, class: "ic-muted" }, s).textContent = "Imported →";
+    const netAll = sumI - sumE;
+    svgEl("text", { x: W, y: yb + 36, "text-anchor": "end", "font-size": 13, "font-weight": 700 }, s).textContent = "All countries: net " + (netAll >= 0 ? "+" : "−") + fmtE(Math.abs(netAll));
+    cap.textContent = `Total energy over ${fmtDate(data.from)} to ${fmtDate(data.to)} (UK time): imported ${fmtE(sumI)}, exported ${fmtE(sumE)}. Worked out from the averaged readings, so a period with gaps in the recorded data will read low.`;
+  }
+
+  function drawCountryRange(range) {
+    if (countryDrawn[range]) return;
+    countryDrawn[range] = true;
+    const host = document.getElementById("icpanel-" + range);
+    const tpl = document.getElementById("ic-country-template");
+    if (!host || !tpl) return;
+    host.appendChild(tpl.content.cloneNode(true));
+    fetch(API_BASE + "series.php?metric=transfers_country&range=" + encodeURIComponent(range), { headers: { Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null)
+      .then((data) => {
+        if (!data || data.ok !== true) data = { points: [], totals: {} };
+        countryData[range] = data;
+        renderMultiples(host, data, range);
+        renderTotals(host, data, range);
+      });
+  }
+  function redrawCountryPanels() {
+    Object.keys(countryData).forEach((range) => {
+      const host = document.getElementById("icpanel-" + range);
+      if (host && !host.hidden) renderTotals(host, countryData[range], range);
+    });
+  }
+  drawCountryRange("day");
+  const icTabs = document.getElementById("ic-country-tabs");
+  if (icTabs) icTabs.addEventListener("rangechange", (e) => { e.stopPropagation(); drawCountryRange(e.detail.range); setTimeout(redrawCountryPanels, 0); });
 
   // Real data: 'transfers' is api/series.php's net interconnector flow
   // (positive = importing), 'demand' is GB transmission demand - both
@@ -508,7 +887,7 @@
   }
 
   drawRange("day");
-  document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
+  document.getElementById("history-tabs").addEventListener("rangechange", (e) => drawRange(e.detail.range));
 })();
 </script>
 </body>

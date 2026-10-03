@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Interconnectors: import/export by country - live bars, live flow map, small multiples, period totals)
+
+### pages/interconnectors.html
+
+- **Status strip:** new "Data as of" tile (local + UK time), same as the homepage. "Current output" renamed "Net flow right now".
+- **Right now, by country (was "Breakdown"):** diverging bars per country - imports right (amber), exports left (blue) - over a grey track showing that country's combined cable capacity. Hover/tap shows each cable's own figure and how hard the link is running. Shows "Updated HH:MM (HH:MM UK time). Refreshes every 5 minutes", or a delayed-data warning if the reading is stale. The exact-figures table stays underneath.
+- **Live flow map:** each cable is now coloured by direction, drawn thicker the more it carries, with moving dashes showing which way power flows (static under "reduce motion"). Labels show each cable's live MW; hover/tap for capacity use. Its own "Live flows updated" timestamp. Falls back to the capacity labels if live data is unavailable.
+- **New "Imports and exports by country" section** (Day / Week / Month / Season / Year):
+  - Net flow over time: one small chart per country on a shared scale, area above the line = importing, below = exporting, with a hover crosshair.
+  - Energy imported and exported: GWh per country over the period, exports left, imports right, net per country and for all countries.
+- Both live pages now refresh every 5 minutes via `GridPreview.autoRefresh`; everything redraws on resize.
+- **IFA2 added** (France, 1,000MW, 2021, Fareham - Tourbe) to the cable table and map - it was in the live feed but missing from both. Intro corrected to ten cables (nine subsea, one through the Channel Tunnel), ~10.3GW. History text mentions IFA2.
+- Import/export colours (amber #c47f00 / blue #2b6cb0 light; #c4831f / #4f8fd6 dark) validated for colour-blind separation and 3:1 contrast in both themes.
+
+### api/series.php
+
+- New `metric=transfers_country`: per-bucket net flow (GW) for France, Belgium, Netherlands, Denmark, Norway and Ireland (cables summed per country per timestamp), plus `totals` (import_gwh / export_gwh per country) and the window's `from`/`to`. Energy is time-weighted per bucket, trimmed to the requested window and to the span each bucket's readings actually cover. Tested against MariaDB with synthetic readings: totals match a direct per-reading sum.
+
 ## 2026-10-03 (Site banner now promotes Plug-in Solar)
 
 - The banner at the top of every page (all 39) changed from "BETA PREVIEW: UK Grid: Live+ is in testing. See data sources" to "NEW: Find out about UK Plug-in solar. Read the guide", linking to the Plug-in Solar section (`pages/plugin-solar.html`).
