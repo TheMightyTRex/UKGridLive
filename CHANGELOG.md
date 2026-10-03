@@ -2,6 +2,33 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Plug-in solar pages re-checked against the current rules)
+
+### Interim Product Specification status
+
+- The DESNZ Interim Product Specification has **not** been updated or replaced. Version 2 (16 July 2026) is current and is referenced by name in SI 2026/848 (in force 27 August 2026). The earlier consultation draft is marked withdrawn on GOV.UK. DESNZ says longer-term standards will follow, with no timeline.
+- Every plug-in solar page now has "Rules last checked: 3 October 2026", plus direct links to the IPS v2 PDF, SI 2026/848 and Ofgem's G98 decision.
+
+### Corrections
+
+- **One per household:** the Registration page said the limit was "expected to relax to one per circuit once G98 is amended". G98 was amended by Ofgem on 11 August 2026 and kept one per household. Fixed there and on What is it, Safety and Considerations, which also explain why kit plugs say "one device per household circuit".
+- **Batteries:** the Battery page rewritten. Plug-in batteries remain prohibited (Ofgem decision; SI 2026/848 definition), and the IPS requires a warning not to use kits with battery storage. Removed the AC-coupled "needs its own marking" framing, the "simpler to retrofit" DC/AC text, the unsourced "DESNZ-linked battery study" and "internal scouting notes" source. Added PAS 63100:2024 and BS EN IEC 62133.
+- **Northern Ireland:** the plug-safety change (PSSR) applies UK-wide; the ESQCR change and G98 amendment are GB only; IPS application in NI "is subject to further consideration".
+- **Anti-islanding:** separated G98 loss-of-mains protection from the IPS touch-safety limits (100ms disconnect, pins below 34V within 100ms, capacitors to 34V within 1s). "Can never backfeed" softened to "designed not to".
+- **Registration:** notification is a legal requirement (ESQCR reg 22, before or at first use); details asked are name, postcode, make and model (per Electricity North West), not "which socket"; excluded cladding/remediation is a ban, not a permission matter.
+- **Certification:** route is type testing against the IPS and G98 with ENA register confirmation before sale, not "self-declaration"; "British or European standard" corrected; CE marking wording now matches GOV.UK.
+- **Considerations:** consumer unit advice now reflects the IPS RCBO check/test requirement; "doesn't need a modern board" removed.
+- **Mounting:** "bare timber" replaced with the actual IPS exclusions; listed buildings softened to "check with your council".
+- **Calculator:** callout no longer says the comparison site lists "UK-compliant" kits; points to the ENA register. Fixed a phone-width horizontal scroll caused by the Mounting type dropdown.
+
+### Added
+
+- What is it: "The current rules at a glance" panel (law, product rules, network rules, England planning, batteries, where it applies).
+- Safety: plug markings, IP55/IP44, panel-side limits (4 panels, 2 in series, 120V DC, no Y-connectors), consumer unit label, RCBO check, 960W professional-assessment advice.
+- Certification: "What a compliant kit must come with" checklist.
+- Registration: consumer unit label step, notify on removal, ENA Connect Direct digital notification in development.
+- Mounting: England GPDO (SI 2026/896) detail - balcony enclosure limits, wood/timber exclusions, conservation areas fronting a highway; IPS boundary-wall and escape-route rules.
+
 ## 2026-10-02 (Records re-checked on every page; dated records added for every country; notable moments fixed)
 
 ### Records panels - re-verified against official/reputable sources (all "Last checked" now 2 October 2026)

@@ -165,20 +165,20 @@
       <h2 id="calc-heading">Your setup</h2>
       <div class="compare-picker" style="align-items:flex-start;">
         <label>Location
-          <select id="ps-city"></select>
+          <select id="ps-city" style="max-width:100%;"></select>
         </label>
         <label>Panel capacity (W)
           <input type="range" id="ps-panel-w" min="300" max="2000" step="10" value="800" style="width:160px;vertical-align:middle;">
           <strong id="ps-panel-w-out" style="min-width:4.5em;display:inline-block;">800W</strong>
         </label>
         <label>Panel facing
-          <select id="ps-facing"></select>
+          <select id="ps-facing" style="max-width:100%;"></select>
         </label>
         <label>Panel orientation
-          <select id="ps-orientation"></select>
+          <select id="ps-orientation" style="max-width:100%;"></select>
         </label>
-        <label>Mounting type
-          <select id="ps-mounting"></select>
+        <label style="max-width:100%;min-width:0;">Mounting type
+          <select id="ps-mounting" style="max-width:100%;min-width:0;"></select>
         </label>
         <label>Household base load (W) - always-on draw
           <input type="number" id="ps-baseload" min="0" max="1000" step="10" value="200">
@@ -267,7 +267,7 @@
 
         <div class="callout">
           <span class="callout__icon" aria-hidden="true">i</span>
-          <p>Comparing real kit prices before you buy? <a href="https://www.pluginsolarcalculator.com/products" target="_blank" rel="noopener">PluginSolarCalculator.com</a> lists dozens of UK-compliant plug-in solar kits by price and brand, alongside its own savings calculator - an independent comparison site, not run by us or by government.</p>
+          <p>Comparing real kit prices before you buy? <a href="https://www.pluginsolarcalculator.com/products" target="_blank" rel="noopener">PluginSolarCalculator.com</a> compares plug-in solar kits by price and brand, alongside its own savings calculator - an independent comparison site, not run by us or by government. Before buying, check the exact model on the <a href="https://www.ena-eng.org/gen-ttr/">ENA Type Test Register</a>.</p>
         </div>
 
         <div class="chart-wrap" style="height:240px;margin-top:1rem;"><canvas id="ps-monthly-chart" role="img" aria-label="Estimated monthly generation and usable generation"></canvas></div>
@@ -358,7 +358,11 @@
 
     <section class="panel" aria-labelledby="ps-sources-heading">
       <h2 id="ps-sources-heading">Sources</h2>
+      <p class="chart-caption">Rules last checked: 3 October 2026, against the Interim Product Specification v2 (16 July 2026), SI 2026/848 and Ofgem's G98 decision of 11 August 2026. The specification has not been updated or replaced since July 2026.</p>
       <ul style="font-size:.9rem;color:var(--text-muted);">
+        <li><a href="https://assets.publishing.service.gov.uk/media/6a60a03c47af652afa0c89f5/plug-in-solar-final-_interim-product-specification.pdf">Plug-in Solar Device Interim Product Specification, version 2</a> (DESNZ, 16 July 2026) - the current version, referenced by name in the law.</li>
+        <li><a href="https://www.legislation.gov.uk/uksi/2026/848/made">legislation.gov.uk: SI 2026/848</a> - amends the Plugs and Sockets etc. (Safety) Regulations 1994 and the Electricity Safety, Quality and Continuity Regulations 2002; in force 27 August 2026.</li>
+        <li><a href="https://www.ofgem.gov.uk/sites/default/files/2026-08/Ofgem-decision-to-Approve-DCRP-MP-26-02-Proposed-Amendment-to-facilitate-Plug-in-Microgeneration.pdf">Ofgem: decision to approve DCRP/MP/26/02</a> (11 August 2026) - the G98 amendment for plug-in solar: one device per household and notification to your network operator.</li>
         <li><a href="https://sunhours.app/uk-solar-hours-by-region">sunhours.app: UK solar hours by region</a> - the monthly irradiance dataset behind this calculator (20-year, 2001-2020 satellite climatology). <strong>Under review:</strong> we're working to replace this with a more authoritative UK solar-industry dataset (MCS's own published irradiance data, or the EU Joint Research Centre's PVGIS tool) - this session's network access couldn't reach either to pull the numbers; the figures above haven't changed yet.</li>
         <li><a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges">Ofgem: Energy price cap unit rates and standing charges</a> - the Ofgem comparison price.</li>
         <li><a href="https://octopus.energy/smart/flexible-octopus/">Octopus Energy: Flexible Octopus tariff</a> and <a href="https://developer.octopus.energy/">Octopus Energy developer API</a> - the Octopus comparison price. Octopus's product/rates API (api.octopus.energy) is genuinely public and keyless; this page currently uses a manually checked, dated snapshot of the Flexible Octopus unit rate rather than a live per-visit fetch - see the CHANGELOG for this release for why, and <a href="https://www.octopus.energy/">octopus.energy</a> for your own region's actual current rate.</li>
@@ -372,6 +376,9 @@
         <li><span class="crown">🇬🇧</span><a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges">Ofgem: Energy price cap unit rates and standing charges</a></li>
         <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/plug-in-solar">GOV.UK: Plug-in solar - regulatory amendment and interim product specification</a></li>
         <li><span class="crown">🇬🇧</span><a href="https://www.gov.uk/government/consultations/home-energy-model-energy-performance-certificates/home-energy-model-hem-methodology-for-assessing-existing-dwellings-and-producing-new-energy-performance-certificates-metrics-accessible-webpage">GOV.UK: Home Energy Model (HEM) methodology</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://assets.publishing.service.gov.uk/media/6a60a03c47af652afa0c89f5/plug-in-solar-final-_interim-product-specification.pdf">DESNZ: Plug-in Solar Device Interim Product Specification v2 (PDF)</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.legislation.gov.uk/uksi/2026/848/made">legislation.gov.uk: SI 2026/848 (plug-in solar regulations)</a></li>
+        <li><span class="crown">🇬🇧</span><a href="https://www.ofgem.gov.uk/sites/default/files/2026-08/Ofgem-decision-to-Approve-DCRP-MP-26-02-Proposed-Amendment-to-facilitate-Plug-in-Microgeneration.pdf">Ofgem: G98 plug-in microgeneration decision (PDF)</a></li>
       </ul>
     </section>
 
