@@ -2,6 +2,49 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Spain/Portugal history gaps, signed charts with a zero line, accessibility sweep)
+
+### ENTSO-E countries: History showing "Not enough recorded history yet" (Spain especially)
+
+Live API check: Spain's newest generation mix was 2 days old and its newest demand reading over 20 hours old (Portugal the same), so every Spain History range under a day was empty. France, Germany and Italy had readings only for a few hours of today.
+
+- **Cause:** the on-demand refresh fetches one ENTSO-E country per run, choosing whichever has the oldest data. It judged "how fresh" using day-ahead prices too, which are published for the whole of tomorrow. So any country whose price fetch worked looked fresh until the end of the next day, was skipped and sent to the back of the queue, and its demand and generation weren't fetched for a day or more.
+- **Fix (`includes/ingest.php`):**
+  - Freshness now uses actual generation/demand readings up to now, not future prices.
+  - Countries are taken in true round-robin order: least recently *attempted* first, stored in `includes/entsoe_attempts.json`, which is git-ignored and created automatically. A country whose requests keep failing can't hog every run.
+  - When a country's latest reading is older than the usual 6-hour window, the fetch reaches back to just before it (up to 24 hours), so gaps get filled rather than left as holes.
+- On-demand refresh still only runs when someone visits. For every country to stay complete, run `cron/fetch_entsoe.php` hourly if your host allows cron.
+
+### Charts with negative values: zero line and above/below colours
+
+- `renderLineChart` (assets/app.js) has a new `signed` option. It uses the same style as the interconnectors charts:
+  - amber area above zero, blue below;
+  - a zero line that's always drawn;
+  - round y-axis ticks that include 0;
+  - a key above the chart ("Above the line: …" / "Below the line: …");
+  - tooltips that name the direction.
+  
+  The PNG snapshot legend includes the key too. Any other line chart whose data crosses zero now gets a zero line as well.
+- Applied to:
+  - storage output and share (Generating / Pumping or charging);
+  - the battery previews on the homepage, Storage and History pages (Discharging / Charging);
+  - History "Transfers" and Ireland "GB interconnect" (Importing / Exporting);
+  - USA total interchange (neutral "Positive / Negative interchange" labels, as the site hasn't confirmed EIA's sign convention);
+  - every price chart: History, Price history, Comparisons, Ireland (both SEM prices), Australia, the EU page and the 11 European country pages. Price charts keep their normal scale and only switch to the above/below style when the price actually goes negative.
+
+### Accessibility sweep (axe-core, all 39 pages, light and dark)
+
+- **Interconnectors "Net flow over time":** the mini charts' axis text was black in dark mode (1.3:1). Now uses the theme text colours.
+- **Contrast fixes:**
+  - footer data-pipeline pill (2.3-3.1:1, now 4.5:1+ via the `--band-*` colours on an elevated background);
+  - battery-toggle notes (`.toggle-row em`, faded with opacity);
+  - failed sparkline messages (faded);
+  - the Plug-in Solar calculator's selected tab and the Considerations efficiency badges (solar yellow on white, ~2:1; new `--solar-text` token);
+  - the Mounting page's Northern Ireland card heading in dark mode.
+- **Valid definition lists:** the stat cards' band and sparkline were extra elements inside the `<dl>`'s groups (16 pages). They now sit in a second `<dd class="stat__extra">` with `display: contents`, so the layout is unchanged.
+- **Landmarks:** the top banner is now an `<aside aria-label="Site announcement">`, and the skip link comes first on every page.
+- Asset version bumped to `?v=20261003b`.
+
 ## 2026-10-03 (Country pages: a real loading state instead of illustrative figures)
 
 - **Belgium, Denmark, France, Germany, Italy, Netherlands, Norway, Poland, Portugal, Spain, Sweden:** a first-time visitor no longer sees made-up "illustrative" numbers (headline figures, mix table, donut and bar chart) and an "Illustrative figures - not yet connected to a live source" banner while the page loads. Instead:

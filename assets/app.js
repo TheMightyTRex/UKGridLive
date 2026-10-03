@@ -549,10 +549,57 @@
   window.GridPreview.buildLegend = buildLegend;
 
   /* ---------- Line / area chart ---------- */
+  /* Signed series (flows that reverse direction, prices that go
+     negative): pass opts.signed to renderLineChart, either one of these
+     preset names or an object of the same shape. The area above the zero
+     line is filled amber and below it blue (the same pair the
+     interconnectors page uses - checked for colour-blind separation and
+     3:1 contrast in both themes), the zero line is always drawn, and the
+     y-axis ticks are round numbers that include 0. includeZero: false
+     (prices) keeps the normal tight scale unless the data actually dips
+     below zero. Any other line chart whose data crosses zero still gets a
+     zero line. */
+  const SIGNED_PRESETS = {
+    flow: { pos: "Importing", neg: "Exporting" },
+    storage: { pos: "Generating", neg: "Pumping / charging" },
+    battery: { pos: "Discharging", neg: "Charging" },
+    price: { pos: "Positive price", neg: "Negative price", includeZero: false },
+  };
+  function signedColors() {
+    return themeAwareColors().dark ? { pos: "#c4831f", neg: "#4f8fd6" } : { pos: "#c47f00", neg: "#2b6cb0" };
+  }
+  function resolveSigned(s) {
+    if (!s) return null;
+    return typeof s === "string" ? SIGNED_PRESETS[s] || null : s;
+  }
+  window.GridPreview.SIGNED_PRESETS = SIGNED_PRESETS;
+  function niceStepFor(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  }
+  /** Small "above the line / below the line" key, inserted once just
+      above a signed chart's .chart-wrap so the two colours are never the
+      only cue. */
+  function ensureSignedLegend(canvas, signed) {
+    const wrap = canvas.closest(".chart-wrap") || canvas.parentElement;
+    if (!wrap || !wrap.parentElement) return;
+    let el = canvas._signedLegend;
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "signed-legend";
+      wrap.insertAdjacentElement("beforebegin", el);
+      canvas._signedLegend = el;
+    }
+    el.innerHTML = `<span><i class="signed-legend__pos"></i>Above the line: ${signed.pos}</span><span><i class="signed-legend__neg"></i>Below the line: ${signed.neg}</span>`;
+  }
+
   function renderLineChart(canvas, series, opts) {
     opts = opts || {};
     const color = opts.color || "#0a6e5c";
+    const signed = resolveSigned(opts.signed);
     let layout = null; // latest draw()'s geometry, read by the hover handler below
+    if (signed && (signed.includeZero !== false || Math.min(...series.values) < 0)) ensureSignedLegend(canvas, signed);
 
     function draw() {
       const { ctx, w, h } = prepareCanvas(canvas);
@@ -577,10 +624,25 @@
 
       let min = Math.min(...values, ...(compareValues || []));
       let max = Math.max(...values, ...(compareValues || []));
-      if (min === max) { min -= 1; max += 1; }
-      const span = max - min;
-      min -= span * 0.1;
-      max += span * 0.1;
+      const rawMin = min;
+      const signedOn = !!signed && (signed.includeZero !== false || rawMin < 0);
+      let tickValues = null;
+      if (signedOn) {
+        min = Math.min(0, min); max = Math.max(0, max);
+        if (min === max) { max += 1; }
+        const span0 = max - min;
+        if (max > 0) max += span0 * 0.08;
+        if (min < 0) min -= span0 * 0.08;
+        const step = niceStepFor((max - min) / 4);
+        tickValues = [];
+        for (let v = Math.ceil(min / step - 1e-9) * step; v <= max + 1e-9; v += step) tickValues.push(Math.abs(v) < 1e-9 ? 0 : v);
+      } else {
+        if (min === max) { min -= 1; max += 1; }
+        const span = max - min;
+        min -= span * 0.1;
+        max += span * 0.1;
+      }
+      const sc = signedColors();
       const plotW = w - pad.l - pad.r;
       const plotH = h - pad.t - pad.b;
       const xAt = (i) => pad.l + (n > 1 ? plotW * (i / (n - 1)) : plotW / 2);
@@ -591,8 +653,9 @@
       ctx.fillStyle = colors.text;
       ctx.lineWidth = 1;
       const yTicks = 4;
-      for (let i = 0; i <= yTicks; i++) {
-        const v = min + ((max - min) * i) / yTicks;
+      const ticks = tickValues || Array.from({ length: yTicks + 1 }, (_, i) => min + ((max - min) * i) / yTicks);
+      for (let i = 0; i < ticks.length; i++) {
+        const v = ticks[i];
         const y = yAt(v);
         ctx.beginPath();
         ctx.moveTo(pad.l, Math.round(y) + 0.5);
@@ -610,37 +673,76 @@
         ctx.fillText(series.labels[idx], xAt(idx), h - pad.b + 5);
       });
 
-      // area fill
-      const grad = ctx.createLinearGradient(0, pad.t, 0, h - pad.b);
-      grad.addColorStop(0, hexToRgba(color, 0.28));
-      grad.addColorStop(1, hexToRgba(color, 0.02));
-      ctx.beginPath();
-      values.forEach((v, i) => {
-        const x = xAt(i), y = yAt(v);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.lineTo(xAt(n - 1), pad.t + plotH);
-      ctx.lineTo(xAt(0), pad.t + plotH);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
+      const tracePath = () => {
+        ctx.beginPath();
+        values.forEach((v, i) => {
+          const x = xAt(i), y = yAt(v);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+      };
+      const y0 = yAt(0);
+      if (signedOn) {
+        // Two-colour fill and line, split at the zero line.
+        [[pad.t, y0 - pad.t, sc.pos], [y0, pad.t + plotH - y0, sc.neg]].forEach(([cy, ch, c]) => {
+          if (ch <= 0) return;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(pad.l - 2, cy, plotW + 4, ch);
+          ctx.clip();
+          tracePath();
+          ctx.lineTo(xAt(n - 1), y0);
+          ctx.lineTo(xAt(0), y0);
+          ctx.closePath();
+          ctx.fillStyle = hexToRgba(c, 0.3);
+          ctx.fill();
+          tracePath();
+          ctx.strokeStyle = c;
+          ctx.lineWidth = 2;
+          ctx.lineJoin = "round";
+          ctx.lineCap = "round";
+          ctx.stroke();
+          ctx.restore();
+        });
+      } else {
+        // area fill
+        const grad = ctx.createLinearGradient(0, pad.t, 0, h - pad.b);
+        grad.addColorStop(0, hexToRgba(color, 0.28));
+        grad.addColorStop(1, hexToRgba(color, 0.02));
+        tracePath();
+        ctx.lineTo(xAt(n - 1), pad.t + plotH);
+        ctx.lineTo(xAt(0), pad.t + plotH);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
 
-      // line
-      ctx.beginPath();
-      values.forEach((v, i) => {
-        const x = xAt(i), y = yAt(v);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.stroke();
+        // line
+        tracePath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke();
+      }
 
+      // Zero line - always on a signed chart, and on any other chart
+      // whose data crosses zero.
+      if (signedOn || (min < 0 && max > 0)) {
+        ctx.save();
+        ctx.strokeStyle = colors.dark ? "#edeef2" : "#1a1d23";
+        ctx.globalAlpha = 0.75;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(pad.l, Math.round(y0) + 0.5);
+        ctx.lineTo(w - pad.r, Math.round(y0) + 0.5);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      const pointColor = (i) => (signedOn ? (values[i] >= 0 ? sc.pos : sc.neg) : color);
       // last-point dot
       ctx.beginPath();
       ctx.arc(xAt(n - 1), yAt(values[n - 1]), 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = color;
+      ctx.fillStyle = pointColor(n - 1);
       ctx.fill();
 
       // Compare-season overlay line: dashed, muted, no fill, drawn on top
@@ -665,7 +767,7 @@
       // draw() (including the redraws triggered by resize/theme-change via
       // redrawAll()), so hover hit-testing is always in sync with whatever
       // is actually on screen right now.
-      layout = { ctx, w, h, pad, plotW, plotH, n, values, xAt, yAt, colors, compareValues };
+      layout = { ctx, w, h, pad, plotW, plotH, n, values, xAt, yAt, colors, compareValues, pointColor, signed: signedOn ? signed : null };
     }
 
     registerChart(canvas, draw);
@@ -685,6 +787,7 @@
         title: opts.exportTitle,
         kind: "series",
         data: { times: series.times, labels: series.labels, columns },
+        signed: signed && (signed.includeZero !== false || Math.min(...series.values) < 0) ? signed : null,
       });
     }
   }
@@ -728,6 +831,7 @@
       const layout = canvas._lineHoverState.getLayout();
       if (!layout || idx == null) return;
       const { ctx, w, h, pad, xAt, yAt, values, colors, compareValues } = layout;
+      const markColor = layout.pointColor ? layout.pointColor(idx) : color;
       const x = xAt(idx);
       const y = yAt(values[idx]);
 
@@ -745,7 +849,7 @@
       // Point marker.
       ctx.beginPath();
       ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = color;
+      ctx.fillStyle = markColor;
       ctx.fill();
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = colors.panelBg;
@@ -766,9 +870,11 @@
 
       // Tooltip: metric value on top, compare value (if active) below
       // that, exact recorded date/time last.
-      const valueLine = opts.label
-        ? `${opts.label}: ${formatAxisValue(values[idx], series.unit || opts.unit)}`
-        : formatAxisValue(values[idx], series.unit || opts.unit);
+      const valueLine = layout.signed
+        ? `${values[idx] >= 0 ? layout.signed.pos : layout.signed.neg}: ${formatAxisValue(values[idx], series.unit || opts.unit)}`
+        : opts.label
+          ? `${opts.label}: ${formatAxisValue(values[idx], series.unit || opts.unit)}`
+          : formatAxisValue(values[idx], series.unit || opts.unit);
       const compareLine = hasCompare
         ? `${opts.compareLabel || "Comparison"}: ${formatAxisValue(compareValues[idx], series.unit || opts.unit)}`
         : null;
@@ -2242,6 +2348,10 @@
         const shareText = decimals != null ? (frac * 100).toFixed(pctDecimals != null ? pctDecimals : 1) : String(Math.round(frac * 100));
         return { color: (colors && colors[i]) || "#7a7a7a", text: `${l}: ${valueText} (${shareText}%)` };
       });
+    }
+    if (spec.signed) {
+      const sc = signedColors();
+      return [{ color: sc.pos, text: "Above the line: " + spec.signed.pos }, { color: sc.neg, text: "Below the line: " + spec.signed.neg }];
     }
     const cols = (spec.data.columns || []).filter((c) => c && c.color);
     if (cols.length > 1) {

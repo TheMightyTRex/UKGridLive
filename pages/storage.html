@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20261003">
+<link rel="stylesheet" href="../assets/style.css?v=20261003b">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -28,9 +28,9 @@
 <!-- End Matomo Code -->
 </head>
 <body>
-<div class="preview-banner">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></div>
-
 <a class="skip-link" href="#main">Skip to content</a>
+
+<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
 
 <div class="site-head">
 <header class="site-header">
@@ -263,8 +263,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003"></script>
-<script src="../assets/data.js?v=20261003"></script>
+<script src="../assets/app.js?v=20261003b"></script>
+<script src="../assets/data.js?v=20261003b"></script>
 <script>
 (function () {
   const ranges = ["day", "week", "month", "season", "year", "5year", "10year"];
@@ -286,7 +286,7 @@
     outputPromise.then((outSeries) => {
       outputCanvas.closest(".chart-wrap").classList.remove("is-loading");
       if (outSeries) {
-        GridPreview.renderLineChart(outputCanvas, outSeries, { label: "Storage", color: "#2a8fbd", unit: "GW" });
+        GridPreview.renderLineChart(outputCanvas, outSeries, { label: "Storage", color: "#2a8fbd", unit: "GW", signed: "storage" });
       } else {
         GridPreview.showChartError(outputCanvas, "Not enough recorded history yet for this range.");
       }
@@ -296,7 +296,7 @@
       shareCanvas.closest(".chart-wrap").classList.remove("is-loading");
       const shareSeries = GridPreview.computeShareSeries(outSeries, totalSeries);
       if (shareSeries) {
-        GridPreview.renderLineChart(shareCanvas, shareSeries, { label: "Share", color: "#2a8fbd", unit: "%" });
+        GridPreview.renderLineChart(shareCanvas, shareSeries, { label: "Share", color: "#2a8fbd", unit: "%", signed: "storage" });
       } else {
         GridPreview.showChartError(shareCanvas, "Not enough recorded history yet for this range.");
       }
@@ -328,7 +328,7 @@
   function drawBatteryChart() {
     const canvas = document.getElementById("battery-chart");
     const series = GridPreview.buildSeries("day", -0.04, 0.7, 87, { min: -0.9, max: 0.9, cycles: 3 });
-    GridPreview.renderLineChart(canvas, series, { color: "#2a8fbd", unit: "GW" });
+    GridPreview.renderLineChart(canvas, series, { color: "#2a8fbd", unit: "GW", signed: "battery" });
   }
 
   function updateBattery(on) {

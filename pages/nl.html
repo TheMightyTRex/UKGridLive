@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261003">
+<link rel="stylesheet" href="../assets/style.css?v=20261003b">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -27,9 +27,9 @@
 <!-- End Matomo Code -->
 </head>
 <body>
-<div class="preview-banner">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></div>
-
 <a class="skip-link" href="#main">Skip to content</a>
+
+<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
 
 <div class="site-head">
 <header class="site-header">
@@ -147,9 +147,9 @@
 
     <dl class="status-grid status-grid--4" aria-label="the Netherlands grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>Day-ahead price</dt><dd class="is-loading-value">€<span id="stat-price">–</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Day-ahead price</dt><dd class="is-loading-value">€<span id="stat-price">–</span><small>/MWh</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></dd></div>
+      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></dd></div>
+      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></dd></div>
     </dl>
     <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Loading live data…</p>
 
@@ -274,15 +274,15 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003"></script>
-<script src="../assets/data.js?v=20261003"></script>
+<script src="../assets/app.js?v=20261003b"></script>
+<script src="../assets/data.js?v=20261003b"></script>
 <script>
 (function () {
   const COUNTRY_CODE = "NL";
   const METRICS = {
     demand:     { label: "Demand",     unit: "GW",    color: "#1d6fe0" },
     generation: { label: "Generation", unit: "GW",    color: "#0a6e5c" },
-    price:      { label: "Price",      unit: "€/MWh", color: "#d98e04" },
+    price:      { label: "Price",      unit: "€/MWh", color: "#d98e04", signed: "price" },
   };
 
   const template = document.getElementById("range-panel-template");
@@ -300,7 +300,7 @@
       const cfg = METRICS[canvas.dataset.metric];
       const series = seriesList[i];
       if (series && series.values.length) {
-        GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit });
+        GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit, signed: cfg.signed });
       } else {
         GridPreview.showChartError(canvas, "Not enough recorded history yet for this range.");
       }

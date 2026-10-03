@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20261003">
+<link rel="stylesheet" href="../assets/style.css?v=20261003b">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <style>
 /* Interconnector import/export colours: amber = importing into GB,
@@ -26,8 +26,8 @@
 .ic-updated { font-size:.85rem; color:var(--text-muted); margin:.1rem 0 .4rem; }
 .ic-updated strong { color:var(--text); }
 .ic-chart svg { display:block; width:100%; height:auto; overflow:visible; }
-.ic-chart text { fill:var(--text); font-family:var(--font-body); }
-.ic-chart .ic-muted { fill:var(--text-muted); }
+.ic-chart text, .ic-sm text { fill:var(--text); font-family:var(--font-body); }
+.ic-chart .ic-muted, .ic-sm .ic-muted { fill:var(--text-muted); }
 .ic-imp { fill:var(--ic-import); }
 .ic-exp { fill:var(--ic-export); }
 .ic-track { fill:var(--ic-track); }
@@ -77,9 +77,9 @@
 <!-- End Matomo Code -->
 </head>
 <body>
-<div class="preview-banner">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></div>
-
 <a class="skip-link" href="#main">Skip to content</a>
+
+<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
 
 <div class="site-head">
 <header class="site-header">
@@ -543,8 +543,8 @@
 </footer>
 
 <div class="ic-tip" id="ic-tip" role="tooltip"></div>
-<script src="../assets/app.js?v=20261003"></script>
-<script src="../assets/data.js?v=20261003"></script>
+<script src="../assets/app.js?v=20261003b"></script>
+<script src="../assets/data.js?v=20261003b"></script>
 <script>
 (function () {
   const template = document.getElementById("range-panel-template");

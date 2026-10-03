@@ -757,7 +757,7 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   min-height: 44px;
 }
 .toggle-row:hover { background: var(--bg-inset); }
-.toggle-row em { color: var(--text-muted); font-style: normal; opacity: .8; }
+.toggle-row em { color: var(--text-muted); font-style: normal; }
 
 /* Alerts panel (index.html) - threshold rule rows sharing the .toggle-row
    switch styling above, plus their own select/number-input theming since
@@ -1337,7 +1337,7 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   gap: .45rem;
   padding: .3rem .7rem;
   border-radius: 999px;
-  background: var(--bg-inset);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
   color: var(--text-muted);
   font-size: .78rem;
@@ -1350,10 +1350,14 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   background: currentColor;
   flex: none;
 }
-.status-pill[data-status="success"] { color: var(--renewable); border-color: color-mix(in srgb, var(--renewable) 45%, transparent); }
-.status-pill[data-status="fail"] { color: #c94a3d; border-color: rgba(201,74,61,.35); }
-.status-pill[data-status="error"] { color: #8a8f9c; border-color: var(--border); }
-.status-pill[data-status="pending"] { color: #d98e04; border-color: rgba(217,142,4,.35); }
+/* Text colours from the --band-* tokens, which are tuned to 4.5:1+ against
+   --bg-elevated in both themes (the pill's background since the Oct 2026
+   accessibility sweep - the old --bg-inset background and fixed hues
+   measured 2.3-3.1:1). */
+.status-pill[data-status="success"] { color: var(--band-verygood); border-color: color-mix(in srgb, var(--band-verygood) 45%, transparent); }
+.status-pill[data-status="fail"] { color: var(--band-verybad); border-color: color-mix(in srgb, var(--band-verybad) 40%, transparent); }
+.status-pill[data-status="error"] { color: var(--text-muted); border-color: var(--border); }
+.status-pill[data-status="pending"] { color: var(--band-average); border-color: color-mix(in srgb, var(--band-average) 40%, transparent); }
 .status-pill[data-status="checking"] .status-pill__dot { opacity: .5; }
 
 /* Toast notifications, injected by showToast() in assets/app.js - used for
@@ -1766,8 +1770,8 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   gap: .4rem;
 }
 .ps-nation-card p { margin: 0; font-size: .85rem; color: var(--text-muted); }
-.ps-nation-card.is-limited { border-color: #b85e21; }
-.ps-nation-card.is-limited h3 { color: #b85e21; }
+.ps-nation-card.is-limited { border-color: var(--band-bad); }
+.ps-nation-card.is-limited h3 { color: var(--band-bad); }
 
 /* Placement diagrams (orientation/window mounting illustrations). */
 .ps-placement-grid {
@@ -1786,7 +1790,7 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
 .ps-placement-card svg { width: 100%; max-width: 96px; height: auto; margin: 0 auto .5rem; }
 .ps-placement-card strong { display: block; font-size: .85rem; }
 .ps-placement-card span { display: block; font-size: .78rem; color: var(--text-muted); margin-top: .15rem; }
-.ps-placement-card .ps-eff { display:inline-block; margin-top:.4rem; padding:.15rem .5rem; border-radius:999px; background:var(--bg-inset); font-size:.75rem; font-weight:700; color: var(--solar); }
+.ps-placement-card .ps-eff { display:inline-block; margin-top:.4rem; padding:.15rem .5rem; border-radius:999px; background:var(--bg-inset); font-size:.75rem; font-weight:700; color: var(--solar-text); }
 .ps-placement-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; background: var(--bg-inset); }
 
 /* Step list (Registration page). */
@@ -1854,7 +1858,7 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
 }
 .ps-tab-btn:hover { color: var(--text); }
 .ps-tab-btn[aria-selected="true"] {
-  color: var(--solar);
+  color: var(--solar-text);
   border-bottom-color: var(--solar);
 }
 .ps-tab-panel[hidden] { display: none; }
@@ -1864,3 +1868,31 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   .ps-subnav { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
   .ps-hero-graphic svg { width: 120px; }
 }
+
+/* Key for signed line charts (renderLineChart's opts.signed): amber above
+   the zero line, blue below - the same validated pair as the
+   interconnectors page, so "above/below the line" reads the same way on
+   every chart. Inserted automatically just above the chart. */
+:root { --signed-pos: #c47f00; --signed-neg: #2b6cb0; }
+[data-theme="dark"] { --signed-pos: #c4831f; --signed-neg: #4f8fd6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --signed-pos: #c4831f; --signed-neg: #4f8fd6; } }
+.signed-legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .8rem; color: var(--text-muted); margin: 0 0 .4rem; }
+.signed-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+.signed-legend__pos { background: var(--signed-pos); }
+.signed-legend__neg { background: var(--signed-neg); }
+
+/* Accessibility sweep (Oct 2026). A stat card's band and sparkline sit in
+   a second <dd> so the <dl> is valid (a <dl> group may only contain
+   <dt>/<dd>). display: contents keeps them as direct flex children of
+   .stat, so the layout is unchanged; the font reset stops them picking up
+   the big bold value styling of .stat dd. */
+.stat dd.stat__extra { display: contents; font-size: inherit; font-weight: inherit; font-variant-numeric: normal; }
+
+/* --solar-text: the solar yellow, deepened for use as text in light mode
+   (#e0a800 is only ~2:1 on white); dark mode keeps the bright yellow,
+   which is 7:1 on the dark surfaces. */
+:root { --solar-text: #8a6500; }
+[data-theme="dark"] { --solar-text: #e0a800; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --solar-text: #e0a800; } }
+/* A sparkline that failed shows a short message - don't fade it. */
+.stat__spark.chart-wrap.has-error { opacity: 1; }
