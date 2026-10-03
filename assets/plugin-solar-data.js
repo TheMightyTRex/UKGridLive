@@ -97,9 +97,10 @@
   // tilted south-facing surface). Everything else is a multiplier on top.
   // The window-mounted entries additionally derate for glass transmission
   // loss - see pages/plugin-solar-considerations.html for the sourcing
-  // and caveats on those two figures specifically (a wide range was found
-  // in available research, 10-50% depending on glass type/angle - these
-  // use a mid-range, clearly-labelled estimate, not a lab-measured constant).
+  // and caveats on those two figures specifically (manufacturers' EN 410
+  // data puts glass loss at ~11% for clear single glazing and ~27-52% for
+  // low-E double glazing - these assume ~30-35%, a clearly-labelled
+  // estimate, not a lab-measured constant).
   var PLACEMENT_FACTORS = [
     { id: "south_tilt",   label: "South-facing, tilted ~30-40° (best case - ground frame or angled bracket)", factor: 1.00 },
     { id: "south_vert",   label: "South-facing, vertical (typical balcony rail or wall mount)",                factor: 0.78 },
@@ -138,7 +139,7 @@
   // transmission loss on top of the orientation loss - the same two
   // figures (0.55/0.65) used in the older single-dropdown picker and
   // still shown on pages/plugin-solar-considerations.html, where the
-  // wide 10-50%+ glass-loss range this estimate is drawn from is sourced
+  // glass-loss range this estimate is drawn from is sourced
   // and explained in full.
   var MOUNTINGS = [
     { id: "ground_frame",   label: "Outside (Ground Frame)",                      icon: "ground" },
