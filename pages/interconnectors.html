@@ -204,6 +204,11 @@
       <div class="ic-legend"><span><i class="sw-exp"></i>Exporting from GB</span><span><i class="sw-imp"></i>Importing into GB</span><span><i class="sw-track"></i>Total cable capacity to that country</span></div>
       <div class="ic-chart" id="ic-now-bars" role="img" aria-label="Live import and export by country"></div>
       <p class="chart-caption">Bars run right for imports and left for exports, from the centre line. The grey track is the combined capacity of every cable to that country, so you can see how hard each link is running. Hover or tap a bar for each cable's own figure.</p>
+      <p class="download-row">
+        <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="now"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
+        <button type="button" class="copy-btn" data-ic-export="csv" data-ic-target="now"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download CSV</span></button>
+        <button type="button" class="copy-btn" data-ic-export="png" data-ic-target="now"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download snapshot (PNG)</span></button>
+      </p>
       <h3 style="font-size:1rem;margin:1.2rem 0 .3rem;">Exact figures</h3>
       <table class="mix">
         <caption class="visually-hidden">Interconnector flow by country right now (positive = importing, negative = exporting)</caption>
@@ -399,6 +404,11 @@
       </svg>
       <p class="ic-updated" id="ic-map-updated" aria-live="polite">Live flows: loading…</p>
       <div class="ic-legend"><span><i class="sw-exp"></i>Exporting from GB</span><span><i class="sw-imp"></i>Importing into GB</span><span>Thicker line = more power flowing; moving dashes show the direction</span></div>
+      <p class="download-row">
+        <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="map"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
+        <button type="button" class="copy-btn" data-ic-export="csv" data-ic-target="map"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download CSV</span></button>
+        <button type="button" class="copy-btn" data-ic-export="png" data-ic-target="map"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download snapshot (PNG)</span></button>
+      </p>
     </section>
 
     <section class="panel" aria-labelledby="history-heading">
@@ -450,10 +460,20 @@
         <div class="ic-legend"><span><i class="sw-imp"></i>Above the line: importing</span><span><i class="sw-exp"></i>Below the line: exporting</span></div>
         <div class="ic-sm-grid" data-ic="multiples"><p class="ic-empty">Loading…</p></div>
         <p class="chart-caption" data-ic="multiples-caption"></p>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="multiples"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
+          <button type="button" class="copy-btn" data-ic-export="csv" data-ic-target="multiples"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download CSV</span></button>
+          <button type="button" class="copy-btn" data-ic-export="png" data-ic-target="multiples"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download snapshot (PNG)</span></button>
+        </p>
         <h3 style="font-size:1rem;margin:1.2rem 0 .1rem;">Energy imported and exported</h3>
         <div class="ic-legend"><span><i class="sw-exp"></i>Exported (GWh)</span><span><i class="sw-imp"></i>Imported (GWh)</span></div>
         <div class="ic-chart" data-ic="totals"><p class="ic-empty">Loading…</p></div>
         <p class="chart-caption" data-ic="totals-caption"></p>
+        <p class="download-row">
+          <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="totals"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
+          <button type="button" class="copy-btn" data-ic-export="csv" data-ic-target="totals"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download CSV</span></button>
+          <button type="button" class="copy-btn" data-ic-export="png" data-ic-target="totals"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span data-copy-label aria-live="polite">Download snapshot (PNG)</span></button>
+        </p>
       </template>
     </section>
 
@@ -706,7 +726,7 @@
     if (mapNote) mapNote.innerHTML = current.ts ? "<strong>Live flows updated " + ukClock(current.ts) + "</strong>" + (current.stale ? " - the latest reading is delayed." : ". Refreshes every 5 minutes.") : "";
     renderNowBars(byCountryMw, cableMw);
     renderMapFlows(cableMw);
-    lastNow = { byCountryMw, cableMw };
+    lastNow = { byCountryMw, cableMw, ts: current.ts, demandMw };
   }
   (GridPreview.autoRefresh || ((fn) => fn()))(refreshNow);
   let resizeTimer;
@@ -844,6 +864,256 @@
       if (host && !host.hidden) renderTotals(host, countryData[range], range);
     });
   }
+  // ---- Copy as text / Download CSV / Download snapshot (PNG) for the
+  // SVG visuals above (the canvas charts in History get the site-wide
+  // toolbar from app.js automatically). Each button names what it acts
+  // on with data-ic-target; the by-country ones read the range from the
+  // tab panel they sit in, so each tab exports what's on screen. ----
+  const PAGE_URL = "https://ukgridlive.info/pages/interconnectors.html";
+  const SOURCE_LINE = "Source: Elexon BMRS via " + PAGE_URL;
+  function ukDateTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }) + " UK time";
+  }
+  const stampFile = () => new Date().toISOString().slice(0, 10);
+  const csvCell = (v) => { const s = v == null ? "" : String(v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const csvRows = (rows) => rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+  const gw2 = (mw) => (mw / 1000).toFixed(2);
+  const direction = (mw) => (mw > 0 ? "importing" : mw < 0 ? "exporting" : "idle");
+
+  function exportNow(kind) {
+    if (!lastNow) return null;
+    const { byCountryMw, cableMw, ts, demandMw } = lastNow;
+    const title = "GB interconnector flows by country, right now";
+    if (kind === "copy") {
+      const lines = [title, "Updated " + ukDateTime(ts), ""];
+      ORDER.forEach((c) => {
+        const mw = byCountryMw[c] || 0;
+        lines.push(`${SHORT_NAME[c]}: ${direction(mw)} ${fmtGw(mw)} of ${fmtGw(COUNTRY_CAP[c])} capacity (${Math.round(Math.abs(mw) / COUNTRY_CAP[c] * 100)}%)`);
+      });
+      const net = ORDER.reduce((a, c) => a + (byCountryMw[c] || 0), 0);
+      lines.push("", `Net: ${direction(net)} ${fmtGw(net)}`, "", SOURCE_LINE);
+      return lines.join("\n");
+    }
+    if (kind === "csv") {
+      const rows = [["country", "net_mw", "direction", "capacity_mw", "capacity_used_pct", "share_of_demand_pct", "cables", "time_utc"]];
+      ORDER.forEach((c) => {
+        const mw = byCountryMw[c] || 0;
+        const cables = CABLES.filter((cb) => cb.country === c).map((cb) => cb.name + " " + (cableMw[cb.key] == null ? "n/a" : Math.round(cableMw[cb.key]))).join("; ");
+        rows.push([SHORT_NAME[c], Math.round(mw), direction(mw), COUNTRY_CAP[c], Math.round(Math.abs(mw) / COUNTRY_CAP[c] * 100), demandMw ? (mw / demandMw * 100).toFixed(1) : "", cables, ts]);
+      });
+      return csvRows(rows);
+    }
+    return { title, subtitle: "Data as of " + ukDateTime(ts), svgs: [{ el: document.querySelector("#ic-now-bars svg") }],
+      legend: [["--ic-export", "Exporting from GB"], ["--ic-import", "Importing into GB"], ["--ic-track", "Cable capacity"]], file: "interconnectors-by-country-now" };
+  }
+
+  function exportMap(kind) {
+    if (!lastNow) return null;
+    const { cableMw, ts } = lastNow;
+    const title = "GB interconnector cables, live flows";
+    if (kind === "copy") {
+      const lines = [title, "Updated " + ukDateTime(ts), ""];
+      CABLES.forEach((cb) => {
+        const mw = cableMw[cb.key];
+        lines.push(`${cb.name} (${SHORT_NAME[cb.country]}): ` + (mw == null ? "no reading" : `${direction(mw)} ${fmtGw(mw)} of ${fmtGw(cb.cap)} (${Math.round(Math.abs(mw) / cb.cap * 100)}%)`));
+      });
+      lines.push("", SOURCE_LINE);
+      return lines.join("\n");
+    }
+    if (kind === "csv") {
+      const rows = [["cable", "country", "net_mw", "direction", "capacity_mw", "capacity_used_pct", "time_utc"]];
+      CABLES.forEach((cb) => {
+        const mw = cableMw[cb.key];
+        rows.push([cb.name, SHORT_NAME[cb.country], mw == null ? "" : Math.round(mw), mw == null ? "no reading" : direction(mw), cb.cap, mw == null ? "" : Math.round(Math.abs(mw) / cb.cap * 100), ts]);
+      });
+      return csvRows(rows);
+    }
+    return { title, subtitle: "Live flows as of " + ukDateTime(ts), svgs: [{ el: document.querySelector(".interconnector-map") }],
+      legend: [["--ic-export", "Exporting from GB"], ["--ic-import", "Importing into GB"]], file: "interconnector-map-live", note: "Line thickness = power flowing. Cable curves are drawn for legibility, not the true undersea route." };
+  }
+
+  const RANGE_LABEL = { day: "past day", week: "past week", month: "past month", season: "this season", year: "past year" };
+  function exportMultiples(kind, range) {
+    const data = countryData[range];
+    if (!data || !(data.points || []).length) return null;
+    const title = `GB net interconnector flow by country, ${RANGE_LABEL[range] || range}`;
+    const period = `${ukDateTime(data.from)} to ${ukDateTime(data.to)}`;
+    if (kind === "copy") {
+      const lines = [title, period, "Positive = importing into GB, negative = exporting.", ""];
+      ORDER.forEach((c) => {
+        const vals = data.points.map((p) => p[c]).filter((v) => v != null);
+        if (!vals.length) { lines.push(`${SHORT_NAME[c]}: no readings`); return; }
+        const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const hi = Math.max.apply(null, vals), lo = Math.min.apply(null, vals);
+        lines.push(`${SHORT_NAME[c]}: average ${avg >= 0 ? "+" : "−"}${Math.abs(avg).toFixed(2)}GW, highest import ${hi > 0 ? hi.toFixed(2) + "GW" : "none"}, highest export ${lo < 0 ? Math.abs(lo).toFixed(2) + "GW" : "none"}`);
+      });
+      lines.push("", SOURCE_LINE);
+      return lines.join("\n");
+    }
+    if (kind === "csv") {
+      const rows = [["time_utc"].concat(ORDER.map((c) => SHORT_NAME[c].toLowerCase() + "_net_gw"))];
+      data.points.forEach((p) => rows.push([p.t].concat(ORDER.map((c) => (p[c] == null ? "" : p[c])))));
+      return csvRows(rows);
+    }
+    const panel = document.getElementById("icpanel-" + range);
+    return { title, subtitle: period, cols: 3,
+      svgs: Array.from(panel.querySelectorAll('[data-ic="multiples"] .ic-sm')).map((card) => ({ el: card.querySelector("svg"), label: card.querySelector("h3").textContent, sub: card.querySelector(".ic-sm-now").textContent })),
+      legend: [["--ic-import", "Above the line: importing"], ["--ic-export", "Below the line: exporting"]], file: `interconnectors-net-flow-by-country-${range}`,
+      note: (panel.querySelector('[data-ic="multiples-caption"]') || {}).textContent || "" };
+  }
+
+  function exportTotals(kind, range) {
+    const data = countryData[range];
+    const T = data && data.totals;
+    if (!T || !ORDER.some((c) => T[c] && (T[c].import_gwh > 0 || T[c].export_gwh > 0))) return null;
+    const title = `GB electricity imported and exported by country, ${RANGE_LABEL[range] || range}`;
+    const period = `${ukDateTime(data.from)} to ${ukDateTime(data.to)}`;
+    if (kind === "copy") {
+      const lines = [title, period, ""];
+      let si = 0, se = 0;
+      ORDER.forEach((c) => {
+        const t = T[c] || { import_gwh: 0, export_gwh: 0 };
+        si += t.import_gwh; se += t.export_gwh;
+        const net = t.import_gwh - t.export_gwh;
+        lines.push(`${SHORT_NAME[c]}: imported ${t.import_gwh} GWh, exported ${t.export_gwh} GWh, net ${net >= 0 ? "+" : "−"}${Math.abs(net).toFixed(1)} GWh`);
+      });
+      lines.push("", `All countries: imported ${si.toFixed(1)} GWh, exported ${se.toFixed(1)} GWh, net ${si - se >= 0 ? "+" : "−"}${Math.abs(si - se).toFixed(1)} GWh`, "", SOURCE_LINE);
+      return lines.join("\n");
+    }
+    if (kind === "csv") {
+      const rows = [["country", "imported_gwh", "exported_gwh", "net_gwh", "from_utc", "to_utc"]];
+      ORDER.forEach((c) => {
+        const t = T[c] || { import_gwh: 0, export_gwh: 0 };
+        rows.push([SHORT_NAME[c], t.import_gwh, t.export_gwh, (t.import_gwh - t.export_gwh).toFixed(1), data.from, data.to]);
+      });
+      return csvRows(rows);
+    }
+    const panel = document.getElementById("icpanel-" + range);
+    return { title, subtitle: period, svgs: [{ el: panel.querySelector('[data-ic="totals"] svg') }],
+      legend: [["--ic-export", "Exported (GWh)"], ["--ic-import", "Imported (GWh)"]], file: `interconnectors-energy-by-country-${range}` };
+  }
+
+  // Copies the computed styles the SVG relies on (its colours come from
+  // CSS classes and custom properties) onto a clone, so it rasterises the
+  // same as on screen when drawn as a standalone image.
+  const STYLE_PROPS = ["fill", "fill-opacity", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "opacity", "font-size", "font-weight", "display"];
+  function svgToImage(svg) {
+    return new Promise((resolve, reject) => {
+      const clone = svg.cloneNode(true);
+      const src = [svg].concat(Array.from(svg.querySelectorAll("*")));
+      const dst = [clone].concat(Array.from(clone.querySelectorAll("*")));
+      src.forEach((el, i) => {
+        const cs = getComputedStyle(el);
+        const style = STYLE_PROPS.map((p) => p + ":" + cs.getPropertyValue(p)).join(";");
+        dst[i].setAttribute("style", style + ";font-family:'Open Sans',Arial,sans-serif;animation:none");
+      });
+      const vb = svg.viewBox && svg.viewBox.baseVal;
+      const w = vb && vb.width ? vb.width : svg.clientWidth, h = vb && vb.height ? vb.height : svg.clientHeight;
+      clone.setAttribute("xmlns", SVGNS);
+      clone.setAttribute("width", w);
+      clone.setAttribute("height", h);
+      const img = new Image();
+      img.onload = () => resolve({ img, w, h });
+      img.onerror = reject;
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+    });
+  }
+
+  async function downloadSnapshot(spec) {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const v = (name) => rootStyle.getPropertyValue(name).trim();
+    const pal = { bg: v("--bg-elevated") || "#ffffff", border: v("--border") || "#dde1e7", text: v("--text") || "#1a1d23", muted: v("--text-muted") || "#5b6270" };
+    const parts = (await Promise.all(spec.svgs.filter((s) => s.el).map((s) => svgToImage(s.el).then((r) => Object.assign(r, s)))));
+    if (!parts.length) return false;
+    const scale = 2, cardW = 1000, pad = 32, cols = spec.cols || 1, gap = 18;
+    const font = (wt, px) => `${wt} ${px}px "Open Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif`;
+    const tileW = (cardW - pad * 2 - gap * (cols - 1)) / cols;
+    const labelH = cols > 1 ? 36 : 0;
+    const rows = [];
+    for (let i = 0; i < parts.length; i += cols) rows.push(parts.slice(i, i + cols));
+    const rowHeights = rows.map((r) => Math.max.apply(null, r.map((p) => tileW * p.h / p.w)) + labelH);
+    const measure = document.createElement("canvas").getContext("2d");
+    measure.font = font(400, 12);
+    const noteLines = [];
+    if (spec.note) {
+      let line = "";
+      spec.note.split(/\s+/).forEach((word) => {
+        const test = line ? line + " " + word : word;
+        if (measure.measureText(test).width > cardW - pad * 2 && line) { noteLines.push(line); line = word; } else { line = test; }
+      });
+      if (line) noteLines.push(line);
+    }
+    const headerH = 86, legendH = spec.legend ? 30 : 0, noteH = noteLines.length ? noteLines.length * 16 + 8 : 0, footerH = 34;
+    const bodyH = rowHeights.reduce((a, b) => a + b, 0) + gap * (rows.length - 1);
+    const cardH = headerH + legendH + bodyH + noteH + footerH + 12;
+    const out = document.createElement("canvas");
+    out.width = cardW * scale; out.height = cardH * scale;
+    const ctx = out.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, cardW, cardH);
+    ctx.fillStyle = pal.text; ctx.font = font(700, 20); ctx.fillText(spec.title, pad, 38);
+    ctx.fillStyle = pal.muted; ctx.font = font(400, 13); ctx.fillText("ukgridlive.info - " + spec.subtitle, pad, 60);
+    ctx.strokeStyle = pal.border; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad, headerH - 12); ctx.lineTo(cardW - pad, headerH - 12); ctx.stroke();
+    let y = headerH;
+    if (spec.legend) {
+      let x = pad;
+      ctx.font = font(400, 13);
+      spec.legend.forEach(([cssVar, label]) => {
+        ctx.fillStyle = v(cssVar) || pal.muted; ctx.fillRect(x, y + 2, 12, 12);
+        ctx.strokeStyle = pal.border; ctx.strokeRect(x + .5, y + 2.5, 11, 11);
+        ctx.fillStyle = pal.muted; ctx.fillText(label, x + 18, y + 13);
+        x += 18 + ctx.measureText(label).width + 22;
+      });
+      y += legendH;
+    }
+    rows.forEach((r, ri) => {
+      r.forEach((p, ci) => {
+        const x = pad + ci * (tileW + gap);
+        if (labelH) {
+          ctx.fillStyle = pal.text; ctx.font = font(700, 14); ctx.fillText(p.label || "", x, y + 14);
+          ctx.fillStyle = pal.muted; ctx.font = font(400, 12); ctx.fillText(p.sub || "", x, y + 30);
+        }
+        ctx.drawImage(p.img, x, y + labelH, tileW, tileW * p.h / p.w);
+      });
+      y += rowHeights[ri] + gap;
+    });
+    y -= gap;
+    if (noteLines.length) { ctx.fillStyle = pal.muted; ctx.font = font(400, 12); noteLines.forEach((l, i) => ctx.fillText(l, pad, y + 18 + i * 16)); y += noteH; }
+    ctx.fillStyle = pal.muted; ctx.font = font(400, 12); ctx.fillText(SOURCE_LINE, pad, cardH - 16);
+    return new Promise((resolve) => out.toBlob((blob) => {
+      if (!blob) { resolve(false); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `ukgridlive-${spec.file}-${stampFile()}.png`;
+      a.style.position = "fixed"; a.style.opacity = "0";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      resolve(true);
+    }, "image/png"));
+  }
+
+  const EXPORTERS = { now: exportNow, map: exportMap, multiples: exportMultiples, totals: exportTotals };
+  const FILE_BASE = { now: () => "interconnectors-by-country-now", map: () => "interconnector-cables-live", multiples: (r) => "interconnectors-net-flow-by-country-" + r, totals: (r) => "interconnectors-energy-by-country-" + r };
+  document.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-ic-export]");
+    if (!btn) return;
+    const kind = btn.getAttribute("data-ic-export"), target = btn.getAttribute("data-ic-target");
+    const panel = btn.closest('[role="tabpanel"]');
+    const range = panel ? panel.id.replace("icpanel-", "") : null;
+    const result = EXPORTERS[target] ? EXPORTERS[target](kind, range) : null;
+    const announce = (ok) => (GridPreview.announceCopyResult ? GridPreview.announceCopyResult(btn, ok) : null);
+    if (!result) { announce(false); return; }
+    if (kind === "copy") {
+      (GridPreview.copyText ? GridPreview.copyText(result) : navigator.clipboard.writeText(result)).then(() => announce(true)).catch(() => announce(false));
+    } else if (kind === "csv") {
+      GridPreview.downloadTextFile(`ukgridlive-${FILE_BASE[target](range)}-${stampFile()}.csv`, result, "text/csv");
+      announce(true);
+    } else {
+      downloadSnapshot(result).then(announce).catch(() => announce(false));
+    }
+  });
+
   drawCountryRange("day");
   const icTabs = document.getElementById("ic-country-tabs");
   if (icTabs) icTabs.addEventListener("rangechange", (e) => { e.stopPropagation(); drawCountryRange(e.detail.range); setTimeout(redrawCountryPanels, 0); });

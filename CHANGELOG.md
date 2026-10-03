@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Interconnectors: export buttons on the new visuals)
+
+- "Copy as text", "Download CSV" and "Download snapshot (PNG)" added under all four new interconnector visuals (right now by country, live flow map, net flow by country, energy by country). The by-country ones export whichever range tab is showing.
+- Text and CSV include the data timestamp (right-now views) or the period covered (by-country views), plus the source. CSVs: per country (net MW, direction, capacity, % used, % of demand, per-cable split), per cable, a per-bucket time series, and per-country GWh totals.
+- PNG snapshots use the same card layout as the site's other chart snapshots: title, "ukgridlive.info - data as of ..." line, legend, the chart in the current light/dark theme, caption and source. The by-country one lays the six mini charts out in a 3x2 grid.
+
 ## 2026-10-03 (Interconnectors: import/export by country - live bars, live flow map, small multiples, period totals)
 
 ### pages/interconnectors.html
