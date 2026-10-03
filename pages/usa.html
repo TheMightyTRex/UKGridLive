@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261003b">
+<link rel="stylesheet" href="../assets/style.css?v=20261003c">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -149,9 +149,9 @@
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
       <div class="stat stat--unavailable"><dt>Avg. wholesale price</dt><dd id="stat-price">Not available</dd><dd class="stat__extra"><p class="chart-caption" style="margin:.35rem 0 0;">Not published by the EIA</p></dd></div>
       <div class="stat stat--unavailable"><dt>Emissions</dt><dd id="stat-emissions">Not available</dd><dd class="stat__extra"><p class="chart-caption" style="margin:.35rem 0 0;">Not published by the EIA</p></dd></div>
-      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></dd></div>
-      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></dd></div>
-      <div class="stat"><dt>Total interchange</dt><dd class="is-loading-value"><span id="stat-transfers">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap"><canvas id="spark-transfers" aria-hidden="true"></canvas></div></dd></div>
+      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap is-loading"><canvas id="spark-demand" aria-hidden="true"></canvas></div></dd></div>
+      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap is-loading"><canvas id="spark-generation" aria-hidden="true"></canvas></div></dd></div>
+      <div class="stat"><dt>Total interchange</dt><dd class="is-loading-value"><span id="stat-transfers">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap is-loading"><canvas id="spark-transfers" aria-hidden="true"></canvas></div></dd></div>
     </dl>
     <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Loading live data from the EIA's Hourly Electric Grid Monitor…</p>
 
@@ -281,8 +281,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003b"></script>
-<script src="../assets/data.js?v=20261003b"></script>
+<script src="../assets/app.js?v=20261003c"></script>
+<script src="../assets/data.js?v=20261003c"></script>
 <script>
 (function () {
   // demand/generation/transfers have real bucketed history via
