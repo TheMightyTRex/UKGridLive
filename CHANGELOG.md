@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Site banner now promotes Plug-in Solar)
+
+- The banner at the top of every page (all 39) changed from "BETA PREVIEW: UK Grid: Live+ is in testing. See data sources" to "NEW: Find out about UK Plug-in solar. Read the guide", linking to the Plug-in Solar section (`pages/plugin-solar.html`).
+
 ## 2026-10-03 (Plug-in solar pages re-checked against the current rules)
 
 ### Interim Product Specification status
