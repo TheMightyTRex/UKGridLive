@@ -1884,7 +1884,11 @@ function ukgrid_ingest_ieso(PDO $pdo, array $config, int $timeoutSeconds = 20): 
     }
 
     // ---------- generation by fuel type (hourly) ----------
-    $fuelBody = ukgrid_http_get_raw($fuelUrl, $timeoutSeconds);
+    // This one is IESO's year-to-date file - it grows all year (about 6MB
+    // by October), so it gets a longer timeout than the small
+    // RealtimeTotals report above. A full refresh on 3 Oct 2026 timed out
+    // at 8s with 4.4MB of 6.2MB received.
+    $fuelBody = ukgrid_http_get_raw($fuelUrl, max($timeoutSeconds, 25));
     if ($fuelBody === null) {
         $errors[] = 'GenOutputbyFuelHourly request failed.';
     } else {

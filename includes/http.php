@@ -30,6 +30,10 @@ function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
         CURLOPT_TIMEOUT => $timeoutSeconds,
         CURLOPT_CONNECTTIMEOUT => min(8, $timeoutSeconds),
         CURLOPT_FOLLOWLOCATION => true,
+        // Ask for gzip/deflate and let curl unpack it - big XML reports
+        // (IESO's year-to-date GenOutputbyFuelHourly file is 6MB+ by the
+        // autumn) download far faster compressed.
+        CURLOPT_ENCODING => '',
         CURLOPT_HTTPHEADER => ['Accept: application/json'],
         CURLOPT_USERAGENT => 'UK-Grid-Live-Plus/1.0 (+https://github.com/KateMorley/grid; contact via site data-sources page)',
     ]);
@@ -98,6 +102,10 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
         CURLOPT_TIMEOUT => $timeoutSeconds,
         CURLOPT_CONNECTTIMEOUT => min(8, $timeoutSeconds),
         CURLOPT_FOLLOWLOCATION => true,
+        // Ask for gzip/deflate and let curl unpack it - big XML reports
+        // (IESO's year-to-date GenOutputbyFuelHourly file is 6MB+ by the
+        // autumn) download far faster compressed.
+        CURLOPT_ENCODING => '',
         CURLOPT_HTTPHEADER => ['Accept: application/json', 'Authorization: Bearer ' . $bearerToken],
         CURLOPT_USERAGENT => 'UK-Grid-Live-Plus/1.0 (+https://github.com/KateMorley/grid; contact via site data-sources page)',
     ]);
@@ -159,6 +167,10 @@ function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20): ?string
         CURLOPT_TIMEOUT => $timeoutSeconds,
         CURLOPT_CONNECTTIMEOUT => min(8, $timeoutSeconds),
         CURLOPT_FOLLOWLOCATION => true,
+        // Ask for gzip/deflate and let curl unpack it - big XML reports
+        // (IESO's year-to-date GenOutputbyFuelHourly file is 6MB+ by the
+        // autumn) download far faster compressed.
+        CURLOPT_ENCODING => '',
         CURLOPT_HTTPHEADER => ['Accept: application/xml'],
         CURLOPT_USERAGENT => 'UK-Grid-Live-Plus/1.0 (+https://github.com/KateMorley/grid; contact via site data-sources page)',
     ]);
