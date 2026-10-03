@@ -5,6 +5,17 @@
  */
 
 /**
+ * A URL with any API key/token query parameters masked, for log lines -
+ * ENTSO-E's securityToken, the EIA's api_key and similar would otherwise
+ * be written in full to includes/refresh.log and shown on
+ * tools/full-refresh.php whenever a request fails.
+ */
+function ukgrid_redact_url(string $url): string
+{
+    return preg_replace('/([?&](?:securityToken|api_key|apikey|key|token|access_token)=)[^&]*/i', '$1[redacted]', $url);
+}
+
+/**
  * GET a URL and decode it as JSON. Returns null on any failure - callers
  * should treat null as "skip this run, try again later" rather than a
  * fatal error, since these are third-party APIs that occasionally have
@@ -12,6 +23,7 @@
  */
 function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
 {
+    $safeUrl = ukgrid_redact_url($url);
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -33,7 +45,7 @@ function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
     // (e.g. "request failed or returned invalid JSON") only say THAT it
     // failed; this says WHY.
     if ($errno !== 0) {
-        $msg = "HTTP error fetching {$url}: curl errno {$errno} - {$error}";
+        $msg = "HTTP error fetching {$safeUrl}: curl errno {$errno} - {$error}";
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -42,7 +54,7 @@ function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
     }
     if ($status < 200 || $status >= 300) {
         $bodyPreview = mb_substr((string) $body, 0, 300);
-        $msg = "HTTP {$status} fetching {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        $msg = "HTTP {$status} fetching {$safeUrl}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -52,7 +64,7 @@ function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
     $data = json_decode((string) $body, true);
     if (!is_array($data)) {
         $bodyPreview = mb_substr((string) $body, 0, 300);
-        $msg = "non-JSON or empty response from {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        $msg = "non-JSON or empty response from {$safeUrl}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -79,6 +91,7 @@ function ukgrid_iso_to_mysql(string $iso): ?string
  */
 function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeoutSeconds = 20): ?array
 {
+    $safeUrl = ukgrid_redact_url($url);
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -95,7 +108,7 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
     curl_close($ch);
 
     if ($errno !== 0) {
-        $msg = "HTTP error fetching {$url}: curl errno {$errno} - {$error}";
+        $msg = "HTTP error fetching {$safeUrl}: curl errno {$errno} - {$error}";
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -109,7 +122,7 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
         // ukgrid_http_get_raw()'s ENTSO-E 4xx handling - but this still
         // treats it as a failed fetch rather than parsing it as success.
         $bodyPreview = mb_substr((string) $body, 0, 300);
-        $msg = "HTTP {$status} fetching {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        $msg = "HTTP {$status} fetching {$safeUrl}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -119,7 +132,7 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
     $data = json_decode((string) $body, true);
     if (!is_array($data)) {
         $bodyPreview = mb_substr((string) $body, 0, 300);
-        $msg = "non-JSON or empty response from {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        $msg = "non-JSON or empty response from {$safeUrl}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -139,6 +152,7 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
  */
 function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20): ?string
 {
+    $safeUrl = ukgrid_redact_url($url);
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -155,7 +169,7 @@ function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20): ?string
     curl_close($ch);
 
     if ($errno !== 0) {
-        $msg = "HTTP error fetching {$url}: curl errno {$errno} - {$error}";
+        $msg = "HTTP error fetching {$safeUrl}: curl errno {$errno} - {$error}";
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);
@@ -169,7 +183,7 @@ function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20): ?string
     // body or a 5xx is treated as "nothing to parse".
     if ($body === '' || $body === false || $status >= 500) {
         $bodyPreview = mb_substr((string) $body, 0, 300);
-        $msg = "HTTP {$status} fetching {$url}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
+        $msg = "HTTP {$status} fetching {$safeUrl}" . ($bodyPreview !== '' ? " - body starts: {$bodyPreview}" : ' - empty body');
         error_log('ukgrid: ' . $msg);
         if (function_exists('ukgrid_file_log')) {
             ukgrid_file_log($msg);

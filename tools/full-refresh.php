@@ -69,6 +69,13 @@ if (isset($_GET['ajax'])) {
     set_time_limit(90); // a generous per-call ceiling, nowhere near the old full-run total
 
     $source = (string) ($_GET['source'] ?? '');
+    // ENTSO-E is run one named country per request: source=ENTSOE_ES etc.
+    $entsoeCountry = null;
+    if (preg_match('/^ENTSOE_([A-Z]{2,3})$/', $source, $m)
+        && isset($config['sources']['entsoe_countries'][$m[1]])) {
+        $entsoeCountry = $m[1];
+        $source = 'ENTSOE_COUNTRY';
+    }
     $jobs = [
         'ELEXON' => static fn () => ukgrid_ingest_elexon($pdo, $config, 15),
         'CARBON_INTENSITY' => static fn () => ukgrid_ingest_carbon_intensity($pdo, $config, 12),
@@ -95,6 +102,15 @@ if (isset($_GET['ajax'])) {
         // ukgrid_ingest_entsoe()'s own doc comment in includes/ingest.php
         // for the full mechanism.
         'ENTSOE' => static fn () => ukgrid_ingest_entsoe($pdo, $config, 15, 0, 1),
+        // One named country per call, in entsoe_countries' own order, so
+        // every country is always covered and shows as its own card.
+        'ENTSOE_COUNTRY' => static fn () => ukgrid_ingest_entsoe($pdo, $config, 15, 0, 1, $entsoeCountry),
+        // Previously only refreshed on demand or by cron - included here so
+        // one run of this page really does refresh everything.
+        'WEATHER' => static fn () => ukgrid_ingest_weather($pdo, $config, 12),
+        'CONSTRAINTS' => static fn () => ukgrid_ingest_constraints($pdo, $config, 15),
+        // Last: it's re-aggregated from the data fetched by the steps above.
+        'NOTABLE_MOMENTS' => static fn () => ukgrid_compute_notable_moments($pdo, $config, 30),
     ];
 
     header('Content-Type: application/json');
@@ -116,7 +132,7 @@ if (isset($_GET['ajax'])) {
     $entries = ukgrid_stop_log_capture();
 
     echo json_encode([
-        'source' => $source,
+        'source' => $entsoeCountry !== null ? 'ENTSOE_' . $entsoeCountry : $source,
         'entries' => $entries,
         'threw' => $threw,
         'seconds' => round(microtime(true) - $jobStart, 1),
@@ -129,18 +145,19 @@ if (isset($_GET['ajax'])) {
 // above and renders their results as they come in.
 // ---------------------------------------------------------------------
 $countries = $config['sources']['entsoe_countries'] ?? [];
-$entsoeCallCount = 0;
-foreach ($countries as $countryCfg) {
+// Every configured ENTSO-E country gets its own step and card, in
+// entsoe_countries' own order (Ireland, France, Netherlands, ...).
+$entsoeSteps = [];
+$sourceLabels = [];
+foreach ($countries as $code => $countryCfg) {
     if (($countryCfg['domain'] ?? null) !== null && !empty($countryCfg['fetch'] ?? [])) {
-        $entsoeCallCount++;
+        $entsoeSteps[] = 'ENTSOE_' . $code;
+        $sourceLabels['ENTSOE_' . $code] = 'ENTSOE - ' . ($countryCfg['label'] ?? $code) . ' (' . $code . ')';
     }
 }
-// Always at least one call, even if entsoe_countries looks empty/unconfigured
-// - it'll just report back "not set up" rather than the page having no
-// ENTSOE card at all.
-$entsoeCallCount = max($entsoeCallCount, 1);
+$entsoeCallCount = count($entsoeSteps);
 
-$sourceOrder = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'SEMO'];
+$sourceOrder = array_merge(['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO'], $entsoeSteps ?: ['ENTSOE'], ['OPENELECTRICITY', 'SEMO', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS']);
 
 // ---------------------------------------------------------------------
 // Config check - runs on every normal page load, entirely from what's
@@ -275,7 +292,7 @@ if (empty($config['refresh']['on_demand'])) {
     <div class="source" id="source-<?php echo ukgrid_tool_h($name); ?>">
       <div class="source__head">
         <span class="dot dot--pending" data-dot aria-hidden="true"></span>
-        <span class="source__name"><?php echo ukgrid_tool_h($name); ?></span>
+        <span class="source__name"><?php echo ukgrid_tool_h($sourceLabels[$name] ?? $name); ?></span>
         <span class="source__meta" data-meta>queued</span>
       </div>
       <div class="source__body" data-body>
@@ -297,9 +314,11 @@ if (empty($config['refresh']['on_demand'])) {
 (function () {
   var ENTSOE_CALLS = <?php echo (int) $entsoeCallCount; ?>;
   var sourceOrder = <?php echo json_encode($sourceOrder); ?>;
+  var sourceLabels = <?php echo json_encode($sourceLabels); ?>;
 
-  var steps = ['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO', 'OPENELECTRICITY', 'SEMO'];
-  for (var i = 0; i < ENTSOE_CALLS; i++) steps.push('ENTSOE');
+  // Same order as the cards: GB and other sources, then each ENTSO-E
+  // country in turn, then the rest.
+  var steps = sourceOrder.slice();
 
   // Per-source accumulated result, kept around for the "copy results" button
   // and (for ENTSOE) for merging multiple calls' entries into one card.
@@ -355,8 +374,7 @@ if (empty($config['refresh']['on_demand'])) {
 
   async function runStep(name, stepIndex, totalSteps) {
     setDot(name, 'running');
-    progressEl.textContent = 'Step ' + (stepIndex + 1) + ' of ' + totalSteps + ': working on ' + name +
-      (name === 'ENTSOE' ? ' (country ' + (results.ENTSOE.calls + 1) + ' of ' + ENTSOE_CALLS + ')' : '') + '...';
+    progressEl.textContent = 'Step ' + (stepIndex + 1) + ' of ' + totalSteps + ': working on ' + (sourceLabels[name] || name) + '...';
 
     var r = results[name];
 
@@ -414,9 +432,8 @@ if (empty($config['refresh']['on_demand'])) {
     lines.push('');
     sourceOrder.forEach(function (name) {
       var r = results[name];
-      var header = '== ' + name + ' ==';
-      if (name === 'ENTSOE') header += ' (' + r.calls + '/' + ENTSOE_CALLS + ' countries, ' + r.seconds.toFixed(1) + 's total)';
-      else header += ' (' + r.seconds.toFixed(1) + 's)';
+      var header = '== ' + (sourceLabels[name] || name) + ' ==';
+      header += ' (' + r.seconds.toFixed(1) + 's)';
       lines.push(header);
       if (!r.entries.length) {
         lines.push('  No log entries captured' + (r.threw ? ' - threw: ' + r.threw : '') + '.');

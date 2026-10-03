@@ -1549,8 +1549,11 @@ function ukgrid_entsoe_country_latest_ts(PDO $pdo, string $countryCode): int
  * set_time_limit(450), so it always refreshes every configured country in
  * full regardless of how fresh each already is.
  */
-function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25, int $skipFresherThanMinutes = 0, int $maxCountriesPerRun = 0): array
+function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25, int $skipFresherThanMinutes = 0, int $maxCountriesPerRun = 0, ?string $onlyCountry = null): array
 {
+    // $onlyCountry: fetch just this one configured country (e.g. "ES"),
+    // regardless of freshness - used by tools/full-refresh.php so it can
+    // go through every country explicitly, one per request, in order.
     $token = trim((string) ($config['sources']['entsoe_api_token'] ?? ''));
     if ($token === '' || $token === 'CHANGE-ME') {
         ukgrid_log_ingest('ENTSOE', 'OK', 0, 'entsoe_api_token not set - skipping (Ireland\'s SEM price/mix and all eleven other ENTSO-E country pages - France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal, Poland - stay on illustrative/no data until you add one, see includes/config.php.example).');
@@ -1574,8 +1577,11 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
         if (($countryCfg['domain'] ?? null) === null || empty($countryCfg['fetch'] ?? [])) {
             continue;
         }
+        if ($onlyCountry !== null && $countryCode !== $onlyCountry) {
+            continue;
+        }
         $latestTs = ukgrid_entsoe_country_latest_ts($pdo, $countryCode);
-        if ($skipFresherThanMinutes > 0 && $latestTs > (time() - $skipFresherThanMinutes * 60)) {
+        if ($onlyCountry === null && $skipFresherThanMinutes > 0 && $latestTs > (time() - $skipFresherThanMinutes * 60)) {
             continue; // already fresh enough - don't spend this run's time budget re-fetching it
         }
         $candidates[$countryCode] = $latestTs;
@@ -1718,7 +1724,14 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
 
     $status = $rowsWritten > 0 ? 'OK' : 'ERROR';
     $completedNormally = true; // tells the shutdown safety net above this run's already been logged - don't log it twice
-    ukgrid_log_ingest('ENTSOE', $status, $rowsWritten, implode('; ', $errors));
+    // Name the country (or countries) in the log line, so the pipeline
+    // history and tools/full-refresh.php show which one each run covered.
+    $countryNote = $toFetch ? 'Countries: ' . implode(', ', $toFetch) . '.' : 'No country was due.';
+    if ($onlyCountry !== null && !$toFetch) {
+        $countryNote = $onlyCountry . ' is not configured (domain/fetch missing) in entsoe_countries.';
+        $status = 'ERROR';
+    }
+    ukgrid_log_ingest('ENTSOE', $status, $rowsWritten, trim($countryNote . ' ' . implode('; ', $errors)));
     return ['rows' => $rowsWritten, 'errors' => $errors];
 }
 

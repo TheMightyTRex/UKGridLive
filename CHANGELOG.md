@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Full refresh covers every ENTSO-E country by name; clearer chart loading state)
+
+### tools/full-refresh.php
+
+- **Every European country now gets its own step and card, in order:** Ireland (SEM), France, Netherlands, Belgium, Norway, Denmark, Germany, Spain, Italy, Sweden, Portugal, Poland - following `entsoe_countries` in config.php. Before, it made one ENTSO-E call per country but let each call pick "the most out-of-date" one. With the future-price bug, that could fetch the same country twice and miss others, and the results were lumped into a single ENTSOE card that didn't say which country was which.
+- `ukgrid_ingest_entsoe()` has a new `$onlyCountry` argument for this, and every ENTSO-E log line now names the country (or countries) it covered.
+- **Weather, grid constraints and notable moments added** to the full refresh. Before, only on-demand refresh or cron updated them. Notable moments runs last, so it's built from the freshly fetched data.
+- **API keys are no longer written into error logs.** A failed request used to log its full URL, including ENTSO-E's `securityToken` and similar key parameters, to `includes/refresh.log` and the full-refresh page. These are now masked (`ukgrid_redact_url()` in includes/http.php).
+
+### Loading state on every chart
+
+- The loading skeleton was nearly invisible inside chart cards: it was the same colour as the card. Now every chart that's waiting for data shows a visible grey block with a moving sheen, plus a spinner ring and "Loading…" in the middle (sheen only in the small headline sparklines). Reported on the Storage page, which looked broken while it loaded.
+- Added the loading state where it was missing: the sparklines in every headline stat card (17 pages), and the EU page's mix donut and bar chart.
+- **Storage:** the two headline stats said "No data available" straight away, before the live fetch had even finished. They now pulse "Loading live data…" until it settles, and the pumped hydro row shows "…" rather than "-" while loading.
+- EU page: the mix donut and bar now show "No data available" if no country has live data, rather than staying on the loading state.
+- Asset version bumped to `?v=20261003c` (style.css changed).
+
 ## 2026-10-03 (Spain/Portugal history gaps, signed charts with a zero line, accessibility sweep)
 
 ### ENTSO-E countries: History showing "Not enough recorded history yet" (Spain especially)

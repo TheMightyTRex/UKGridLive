@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261003b">
+<link rel="stylesheet" href="../assets/style.css?v=20261003c">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -165,12 +165,12 @@
           <tbody id="mix-tbody"></tbody>
         </table>
         <div>
-          <div class="chart-wrap"><canvas id="mix-donut" role="img" aria-label="Donut chart of current generation mix by source, summed across tracked EU countries"></canvas></div>
+          <div class="chart-wrap is-loading"><canvas id="mix-donut" role="img" aria-label="Donut chart of current generation mix by source, summed across tracked EU countries"></canvas></div>
           <ul class="chart-legend" id="mix-donut-legend"></ul>
           <p class="chart-caption" id="mix-donut-caption">France's nuclear fleet and the others' more mixed generation combine here into one blended total.</p>
         </div>
       </div>
-      <div class="chart-wrap" style="height:220px;margin-top:1.5rem;">
+      <div class="chart-wrap is-loading" style="height:220px;margin-top:1.5rem;">
         <canvas id="mix-bar" role="img" aria-label="Bar chart comparing generation by source, summed across tracked EU countries"></canvas>
       </div>
       <p class="chart-caption">Generation by source right now, ranked highest to lowest.</p>
@@ -254,8 +254,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003b"></script>
-<script src="../assets/data.js?v=20261003b"></script>
+<script src="../assets/app.js?v=20261003c"></script>
+<script src="../assets/data.js?v=20261003c"></script>
 <script>
 (function () {
   // EU member states this site tracks live via ENTSO-E - a subset of the
@@ -356,6 +356,7 @@
       if (asOfEl) { asOfEl.textContent = "Not available yet"; asOfEl.classList.remove("is-loading-text"); }
       if (caption) caption.textContent = "None of the 11 tracked EU countries have live ENTSO-E data yet on this install - see data sources below.";
       if (mixCaption) mixCaption.textContent = "Not available yet - see data sources below.";
+      GridPreview.showNoMixData({ tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar" });
       return;
     }
 
