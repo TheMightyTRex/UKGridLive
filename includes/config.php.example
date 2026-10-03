@@ -113,7 +113,11 @@ return [
       // pages/data-sources.html for this distinction spelled out.
       'DE' => ['domain' => '10Y1001A1001A82H', 'label' => 'Germany', 'fetch' => ['price', 'generation', 'demand']],
       'ES' => ['domain' => '10YES-REE------0', 'label' => 'Spain', 'fetch' => ['price', 'generation', 'demand']],
-      'IT' => ['domain' => '10YIT-GRTN-----B', 'label' => 'Italy', 'fetch' => ['price', 'generation', 'demand']],
+      // Italy: generation/demand use the whole-country control area, but
+      // ENTSO-E only has day-ahead prices per price zone - price_domain
+      // picks the North zone (IT-North, the largest). Optional: Italy
+      // defaults to this even if price_domain is left out.
+      'IT' => ['domain' => '10YIT-GRTN-----B', 'price_domain' => '10Y1001A1001A73I', 'label' => 'Italy', 'fetch' => ['price', 'generation', 'demand']],
       'SE' => ['domain' => '10Y1001A1001A46L', 'label' => 'Sweden (SE3)', 'fetch' => ['price', 'generation', 'demand']],
       'PT' => ['domain' => '10YPT-REN------W', 'label' => 'Portugal', 'fetch' => ['price', 'generation', 'demand']],
       'PL' => ['domain' => '10YPL-AREA-----S', 'label' => 'Poland', 'fetch' => ['price', 'generation', 'demand']],

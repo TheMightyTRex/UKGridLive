@@ -1632,9 +1632,21 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
     // cron/fetch_entsoe.php's docblock) motivated adding it.
     ukgrid_register_partial_progress_safety_net('ENTSOE', 'entsoe_countries', $completedNormally, $rowsWritten, $errors);
 
+    // Day-ahead prices are set per BIDDING ZONE, which isn't always the
+    // same area as a country's load/generation data. Italy is the case
+    // that bites: '10YIT-GRTN-----B' is Terna's whole-country control
+    // area, which ENTSO-E has generation and load for but no prices
+    // ("No matching data found for ENERGY_PRICES"), because Italy is split
+    // into several price zones. A country can set 'price_domain' in
+    // entsoe_countries; without one, Italy defaults to the North zone
+    // (IT-North, 10Y1001A1001A73I - Italy's largest zone by demand), so an
+    // existing config.php works without editing.
+    $defaultPriceDomains = ['10YIT-GRTN-----B' => '10Y1001A1001A73I'];
+
     foreach ($toFetch as $countryCode) {
         $countryCfg = $countries[$countryCode];
         $domain = $countryCfg['domain'];
+        $priceDomain = $countryCfg['price_domain'] ?? ($defaultPriceDomains[$domain] ?? $domain);
         $fetch = $countryCfg['fetch'];
         $latestActual = $candidates[$countryCode] ?? 0;
         $startTs = time() - 6 * 3600;
@@ -1668,7 +1680,7 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
             // only one of them is actually registered.
             if ($kind === 'price') {
                 $url = $base . '?securityToken=' . urlencode($token)
-                    . '&documentType=A44&in_Domain=' . urlencode($domain) . '&out_Domain=' . urlencode($domain)
+                    . '&documentType=A44&in_Domain=' . urlencode($priceDomain) . '&out_Domain=' . urlencode($priceDomain)
                     . '&periodStart=' . $periodStart . '&periodEnd=' . $periodEnd;
                 $valueField = 'price.amount';
             } elseif ($kind === 'generation') {

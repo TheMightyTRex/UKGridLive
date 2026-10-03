@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Italy day-ahead price)
+
+- **Italy's price fetch always failed:** ENTSO-E answered "No matching data found for ENERGY_PRICES" because the configured area, `10YIT-GRTN-----B`, is Terna's whole-country control area. ENTSO-E has generation and load for that area, but day-ahead prices only per price zone (Italy has several).
+- `includes/ingest.php` now supports an optional `price_domain` per country in `entsoe_countries`. Italy defaults to the North zone (IT-North, `10Y1001A1001A73I`, the largest by demand) even without it, so the live config.php doesn't need editing. `config.php.example` shows the setting.
+- The Italy page now labels the price "Day-ahead price (North zone)" and explains why in its caption and data sources note.
+
 ## 2026-10-03 (Full refresh covers every ENTSO-E country by name; clearer chart loading state)
 
 ### tools/full-refresh.php

@@ -147,7 +147,7 @@
 
     <dl class="status-grid status-grid--4" aria-label="Italy grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>Day-ahead price</dt><dd class="is-loading-value">€<span id="stat-price">–</span><small>/MWh</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap is-loading"><canvas id="spark-price" aria-hidden="true"></canvas></div></dd></div>
+      <div class="stat"><dt>Day-ahead price (North zone)</dt><dd class="is-loading-value">€<span id="stat-price">–</span><small>/MWh</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap is-loading"><canvas id="spark-price" aria-hidden="true"></canvas></div></dd></div>
       <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap is-loading"><canvas id="spark-demand" aria-hidden="true"></canvas></div></dd></div>
       <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap is-loading"><canvas id="spark-generation" aria-hidden="true"></canvas></div></dd></div>
     </dl>
@@ -205,7 +205,7 @@
         <div class="range-panel chart-grid">
           <div class="chart-card"><h3>Demand</h3><div class="chart-wrap is-loading"><canvas data-metric="demand"></canvas></div></div>
           <div class="chart-card"><h3>Generation</h3><div class="chart-wrap is-loading"><canvas data-metric="generation"></canvas></div></div>
-          <div class="chart-card"><h3>Day-ahead price</h3><div class="chart-wrap is-loading"><canvas data-metric="price"></canvas></div></div>
+          <div class="chart-card"><h3>Day-ahead price (North zone)</h3><div class="chart-wrap is-loading"><canvas data-metric="price"></canvas></div></div>
         </div>
       </template>
 
@@ -269,7 +269,7 @@
 
 <footer class="site-footer">
   <div class="wrap">
-    <p style="margin-top:.5rem;">Demand, generation, day-ahead price and generation mix are live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a>.</p>
+    <p style="margin-top:.5rem;">Demand, generation, day-ahead price and generation mix are live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a>. Italy's wholesale market is split into several price zones, so ENTSO-E has no single national day-ahead price - the price shown is the North zone's (IT-North), Italy's largest. Demand, generation and the mix cover the whole country.</p>
     <p style="margin-top:1rem;">© <span data-current-year></span> UK Grid: Live+ <span class="badge">Not affiliated with Terna, ENTSO-E or the Italian government</span></p>
   </div>
 </footer>
@@ -282,7 +282,7 @@
   const METRICS = {
     demand:     { label: "Demand",     unit: "GW",    color: "#1d6fe0" },
     generation: { label: "Generation", unit: "GW",    color: "#0a6e5c" },
-    price:      { label: "Price",      unit: "€/MWh", color: "#d98e04", signed: "price" },
+    price:      { label: "Price (North zone)", unit: "€/MWh", color: "#d98e04", signed: "price" },
   };
 
   const template = document.getElementById("range-panel-template");
@@ -367,7 +367,7 @@
       if (caption) {
         caption.textContent = isCached
           ? "Showing the last successfully loaded figures while this page fetches the latest data."
-          : "Live demand, generation and day-ahead price from the ENTSO-E Transparency Platform (Italy bidding zone)" +
+          : "Live demand and generation for the whole of Italy, and the day-ahead price for Italy's North price zone (Italy is split into several price zones), from the ENTSO-E Transparency Platform" +
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".");
       }
 
