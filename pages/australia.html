@@ -143,13 +143,13 @@
       <p>The National Electricity Market (NEM), coordinated by the Australian Energy Market Operator (AEMO), connects New South Wales, Queensland, Victoria, South Australia and Tasmania into one interconnected wholesale market and 5-minute spot price - it does <strong>not</strong> include Western Australia or the Northern Territory, which run their own separate, unconnected grids. Coal still supplies the largest single share of NEM generation, but wind and utility-scale solar have grown fast, and the NEM is home to some of the world's largest grid-scale batteries. It isn't physically interconnected to Great Britain, so it's included here for comparison rather than as one of GB's own interconnector partners. Demand, spot price and generation mix below are live from the Open Electricity API.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="au-status-banner"><span class="dot" aria-hidden="true"></span>Connecting to live data…</p>
+    <p class="data-status-banner is-loading" id="au-status-banner"><span class="dot" aria-hidden="true"></span>Connecting to live data…</p>
 
     <dl class="status-grid status-grid--4" aria-label="Australia (NEM) grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>Spot price</dt><dd>A$<span id="stat-price">-</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">-</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">-</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Spot price</dt><dd class="is-loading-value">A$<span id="stat-price">–</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
     </dl>
     <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Loading live data from the Open Electricity API…</p>
 

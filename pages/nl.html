@@ -143,44 +143,36 @@
       <p>The Netherlands runs a compact, densely-interconnected grid at the heart of north-west Europe's electricity market, operated by TenneT. It's shifting fast from a gas-dominated mix towards offshore wind and solar - the Dutch North Sea is filling with turbines, and the country has one of the highest rates of solar capacity per person in the world. It connects to Great Britain through BritNed, a subsea interconnector to the Isle of Grain in Kent. Demand, generation, day-ahead price and generation mix below are live from the ENTSO-E Transparency Platform.</p>
     </section>
 
-    <p class="data-status-banner is-illustrative" id="nl-status-banner"><span class="dot" aria-hidden="true"></span>Illustrative figures - not yet connected to a live source</p>
+    <p class="data-status-banner is-loading" id="nl-status-banner"><span class="dot" aria-hidden="true"></span>Loading live data…</p>
 
     <dl class="status-grid status-grid--4" aria-label="the Netherlands grid snapshot">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>Day-ahead price</dt><dd>€<span id="stat-price">72.00</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">15.5</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">16.8</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Day-ahead price</dt><dd class="is-loading-value">€<span id="stat-price">–</span><small>/MWh</small></dd><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
     </dl>
-    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Illustrative figures in the rough range of the Netherlands' actual totals, not a live reading. Each figure shows an illustrative trend over the last 3 hours.</p>
+    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Loading live data…</p>
 
     <section class="panel" aria-labelledby="mix-heading">
       <h2 id="mix-heading">Generation mix right now</h2>
-      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#nl-sources">data sources</a>.</p>
+      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Loading live data…</p>
       <div class="panel-grid panel-grid--2">
         <table class="mix">
-          <caption class="visually-hidden">Illustrative Netherlands generation by source</caption>
+          <caption class="visually-hidden">Netherlands generation by source</caption>
           <thead>
             <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
           </thead>
           <tbody id="mix-tbody">
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">5.9</td><td class="num">35.1</td></tr>
-            <tr><td>Gas</td><td class="num">5.2</td><td class="num">31.0</td></tr>
-            <tr><td>Coal</td><td class="num">0.7</td><td class="num">4.2</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">8.4</td><td class="num">50.0</td></tr>
-            <tr><td>Wind (offshore)</td><td class="num">3.6</td><td class="num">21.4</td></tr>
-            <tr><td>Wind (onshore)</td><td class="num">1.8</td><td class="num">10.7</td></tr>
-            <tr><td>Solar</td><td class="num">3.0</td><td class="num">17.9</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--other)"></span>Nuclear</th><td class="num">0.5</td><td class="num">3.0</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Other &amp; storage</th><td class="num">2.0</td><td class="num">11.9</td></tr>
+            <tr><td colspan="3" style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">Loading live data…</td></tr>
           </tbody>
         </table>
         <div>
-          <div class="chart-wrap"><canvas id="mix-donut" role="img" aria-label="Donut chart of the Netherlands generation mix by source"></canvas></div>
+          <div class="chart-wrap is-loading"><canvas id="mix-donut" role="img" aria-label="Donut chart of the Netherlands generation mix by source"></canvas></div>
           <ul class="chart-legend" id="mix-donut-legend"></ul>
           <p class="chart-caption" id="mix-donut-caption">Gas still fills the gaps, but offshore wind and solar now regularly supply over half of Dutch demand on a good day.</p>
         </div>
       </div>
-      <div class="chart-wrap" style="height:220px;margin-top:1.5rem;">
+      <div class="chart-wrap is-loading" style="height:220px;margin-top:1.5rem;">
         <canvas id="mix-bar" role="img" aria-label="Bar chart comparing the Netherlands generation by source"></canvas>
       </div>
       <p class="chart-caption">Generation by source right now, ranked highest to lowest.</p>
@@ -318,20 +310,6 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  const SOURCE_LABELS = ["Gas", "Wind (offshore)", "Solar", "Wind (onshore)", "Other & storage", "Coal", "Nuclear"];
-  const SOURCE_VALUES = [5.2, 3.6, 3.0, 1.8, 2.0, 0.7, 0.5];
-  // From GridData's site-wide canonical label->colour map (assets/data.js).
-  const SOURCE_COLORS = window.GridData.colorsFor(SOURCE_LABELS);
-
-  GridPreview.renderDonutChart(
-    document.getElementById("mix-donut"), SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-legend", unit: "GW", decimals: 1, pctDecimals: 1, centerLabel: "16.8GW", centerSub: "generated (illustrative)" }
-  );
-
-  (function () {
-    const paired = SOURCE_LABELS.map((l, i) => ({ l, v: SOURCE_VALUES[i], c: SOURCE_COLORS[i] })).sort((a, b) => b.v - a.v);
-    GridPreview.renderBarChart(document.getElementById("mix-bar"), paired.map((p) => p.l), paired.map((p) => p.v), paired.map((p) => p.c), { unit: "GW" });
-  })();
 
   const SPARK_METRICS = {
     price:      { base: 72,   amp: 50, color: "#d98e04", min: -40, max: 250 },
