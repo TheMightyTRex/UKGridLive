@@ -29,6 +29,11 @@ All notable changes to this project are documented here. Dates are when the chan
 - Registration: consumer unit label step, notify on removal, ENA Connect Direct digital notification in development.
 - Mounting: England GPDO (SI 2026/896) detail - balcony enclosure limits, wood/timber exclusions, conservation areas fronting a highway; IPS boundary-wall and escape-route rules.
 
+### Follow-up (same day)
+
+- **Registration:** myplugin.solar linked again, described as the form Electricity North West directs its customers to (sourced to ENWL's own page).
+- **Behind-glass figures (Considerations, Calculator):** replaced the unsourced "industry commentary" with glass manufacturers' EN 410 data - Saint-Gobain PLANICLEAR 4mm single glazing passes 89% of solar energy (~11% loss); PLANITHERM NEO low-E double glazing passes 73% of visible light but 48% of solar energy (so ~27-52% loss for a solar cell). Guardian Glass definitions and Approved Document L (1.4 W/m²K replacement windows) cited. The unsourced "most UK double glazing since the early 2010s is Low-E" claim was replaced. The calculator's 0.55/0.65 factors are unchanged (they assume ~30-35% glass loss, inside that range).
+
 ## 2026-10-02 (Records re-checked on every page; dated records added for every country; notable moments fixed)
 
 ### Records panels - re-verified against official/reputable sources (all "Last checked" now 2 October 2026)
