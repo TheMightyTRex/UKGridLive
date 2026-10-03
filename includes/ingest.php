@@ -1447,6 +1447,31 @@ function ukgrid_entsoe_resolution_seconds(string $resolution): ?int
  * building this).
  */
 /**
+ * When each ENTSO-E country was last attempted, for
+ * ukgrid_ingest_entsoe()'s round-robin ordering. Stored as a small JSON
+ * file beside includes/refresh.log (already writable on any install where
+ * logging works); every failure here is silently ignored and just means
+ * ordering falls back to data age.
+ */
+function ukgrid_entsoe_attempts_path(): string
+{
+    return __DIR__ . '/entsoe_attempts.json';
+}
+function ukgrid_entsoe_attempts_read(): array
+{
+    $path = ukgrid_entsoe_attempts_path();
+    if (!is_readable($path)) return [];
+    $data = json_decode((string) @file_get_contents($path), true);
+    return is_array($data) ? $data : [];
+}
+function ukgrid_entsoe_attempts_mark(string $countryCode): void
+{
+    $data = ukgrid_entsoe_attempts_read();
+    $data[$countryCode] = time();
+    @file_put_contents(ukgrid_entsoe_attempts_path(), json_encode($data), LOCK_EX);
+}
+
+/**
  * Epoch timestamp of $countryCode's most recent ENTSO-E reading, across all
  * three per-metric tables - or 0 if it's never had one (COALESCE falls back
  * to "1970-01-01", which sorts first as "most in need of a refresh" either
@@ -1460,15 +1485,28 @@ function ukgrid_entsoe_country_latest_ts(PDO $pdo, string $countryCode): int
 {
     static $stmt = null;
     if ($stmt === null) {
+        // Freshness is judged on ACTUAL readings only (generation and
+        // demand), and only up to now. Day-ahead prices used to count too,
+        // but they're published for the whole of tomorrow - so any country
+        // whose price fetch had worked looked "fresh" until the end of the
+        // next day, got skipped by $skipFresherThanMinutes and sorted to the
+        // back of the queue, and its demand/generation went a day or more
+        // without being fetched (Spain and Portugal, Oct 2026, showed
+        // "Not enough recorded history" on every History tab because of
+        // this). A country that only fetches price falls back to price <= now.
         $stmt = $pdo->prepare(
             'SELECT GREATEST(
-                COALESCE((SELECT MAX(ts) FROM readings_entsoe_price WHERE country_code = :cc1), "1970-01-01"),
-                COALESCE((SELECT MAX(ts) FROM readings_entsoe_generation WHERE country_code = :cc2), "1970-01-01"),
-                COALESCE((SELECT MAX(ts) FROM readings_entsoe_demand WHERE country_code = :cc3), "1970-01-01")
+                COALESCE((SELECT MAX(ts) FROM readings_entsoe_generation WHERE country_code = :cc2 AND ts <= UTC_TIMESTAMP()), "1970-01-01"),
+                COALESCE((SELECT MAX(ts) FROM readings_entsoe_demand WHERE country_code = :cc3 AND ts <= UTC_TIMESTAMP()), "1970-01-01"),
+                CASE WHEN EXISTS (SELECT 1 FROM readings_entsoe_generation WHERE country_code = :cc4)
+                       OR EXISTS (SELECT 1 FROM readings_entsoe_demand WHERE country_code = :cc5)
+                     THEN "1970-01-01"
+                     ELSE COALESCE((SELECT MAX(ts) FROM readings_entsoe_price WHERE country_code = :cc1 AND ts <= UTC_TIMESTAMP()), "1970-01-01")
+                END
             ) AS latest'
         );
     }
-    $stmt->execute(['cc1' => $countryCode, 'cc2' => $countryCode, 'cc3' => $countryCode]);
+    $stmt->execute(['cc1' => $countryCode, 'cc2' => $countryCode, 'cc3' => $countryCode, 'cc4' => $countryCode, 'cc5' => $countryCode]);
     $latest = $stmt->fetchColumn();
     if ($latest === false) {
         return 0;
@@ -1542,8 +1580,22 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
         }
         $candidates[$countryCode] = $latestTs;
     }
-    asort($candidates); // oldest/never-fetched (lowest timestamp) first
-    $toFetch = array_keys($candidates);
+    // Order: least recently ATTEMPTED first, then oldest data. Ordering by
+    // data age alone let one country whose requests keep failing (so its
+    // data never gets newer) take every capped run, starving the rest;
+    // remembering when each country was last tried gives a true round
+    // robin. The attempt times live in a small JSON file next to
+    // refresh.log - if that can't be written, ordering falls back to data
+    // age only, as before.
+    $attempts = ukgrid_entsoe_attempts_read();
+    $order = array_keys($candidates);
+    usort($order, function ($a, $b) use ($attempts, $candidates) {
+        $ta = $attempts[$a] ?? 0;
+        $tb = $attempts[$b] ?? 0;
+        if ($ta !== $tb) return $ta <=> $tb;
+        return $candidates[$a] <=> $candidates[$b];
+    });
+    $toFetch = $order;
     if ($maxCountriesPerRun > 0) {
         $toFetch = array_slice($toFetch, 0, $maxCountriesPerRun);
     }
@@ -1552,7 +1604,11 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
     // refresh cycles and TSOs that publish with a delay - see
     // entsoe_staleness_minutes in config.php.example for the matching
     // frontend-facing threshold.
-    $periodStart = gmdate('YmdHi', time() - 6 * 3600);
+    // Normally the last 6 hours, but when a country's latest actual
+    // reading is older than that (no visitors for a while, or earlier
+    // failed requests), reach back to just before that reading - capped
+    // at 24 hours - so the gap gets filled in rather than left as a hole
+    // in the History charts.
     $periodEnd = gmdate('YmdHi', time() + 3600); // a little into the future - day-ahead prices are known in advance
 
     $priceStmt = $pdo->prepare('INSERT INTO readings_entsoe_price (ts, country_code, price_eur_mwh) VALUES (:ts, :cc, :v) ON DUPLICATE KEY UPDATE price_eur_mwh = VALUES(price_eur_mwh)');
@@ -1574,6 +1630,15 @@ function ukgrid_ingest_entsoe(PDO $pdo, array $config, int $timeoutSeconds = 25,
         $countryCfg = $countries[$countryCode];
         $domain = $countryCfg['domain'];
         $fetch = $countryCfg['fetch'];
+        $latestActual = $candidates[$countryCode] ?? 0;
+        $startTs = time() - 6 * 3600;
+        if ($latestActual > 0 && $latestActual < $startTs) {
+            $startTs = max(time() - 24 * 3600, $latestActual - 3600);
+        } elseif ($latestActual === 0) {
+            $startTs = time() - 24 * 3600;
+        }
+        $periodStart = gmdate('YmdHi', $startTs);
+        ukgrid_entsoe_attempts_mark($countryCode);
 
         foreach ($fetch as $kind) {
             // Same reasoning as ukgrid_ingest_eirgrid()'s inter-request

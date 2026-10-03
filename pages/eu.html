@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261003">
+<link rel="stylesheet" href="../assets/style.css?v=20261003b">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -27,9 +27,9 @@
 <!-- End Matomo Code -->
 </head>
 <body>
-<div class="preview-banner">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></div>
-
 <a class="skip-link" href="#main">Skip to content</a>
+
+<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
 
 <div class="site-head">
 <header class="site-header">
@@ -254,8 +254,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003"></script>
-<script src="../assets/data.js?v=20261003"></script>
+<script src="../assets/app.js?v=20261003b"></script>
+<script src="../assets/data.js?v=20261003b"></script>
 <script>
 (function () {
   // EU member states this site tracks live via ENTSO-E - a subset of the
@@ -302,7 +302,7 @@
   const HISTORY_METRICS = {
     demand:     { label: "Demand",     unit: "GW",    color: "#1d6fe0", mode: "sum" },
     generation: { label: "Generation", unit: "GW",    color: "#0a6e5c", mode: "sum" },
-    price:      { label: "Price",      unit: "€/MWh", color: "#d98e04", mode: "avg" },
+    price:      { label: "Price",      unit: "€/MWh", color: "#d98e04", mode: "avg", signed: "price" },
   };
 
   const template = document.getElementById("range-panel-template");
@@ -326,7 +326,7 @@
       const cfg = HISTORY_METRICS[metric];
       const series = summed[i];
       if (series && series.values.length) {
-        GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit });
+        GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit, signed: cfg.signed });
       } else {
         GridPreview.showChartError(canvas, "Not enough recorded history yet for this range.");
       }

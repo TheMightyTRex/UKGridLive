@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20261003">
+<link rel="stylesheet" href="../assets/style.css?v=20261003b">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -28,9 +28,9 @@
 <!-- End Matomo Code -->
 </head>
 <body>
-<div class="preview-banner">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></div>
-
 <a class="skip-link" href="#main">Skip to content</a>
+
+<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
 
 <div class="site-head">
 <header class="site-header">
@@ -342,16 +342,16 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003"></script>
-<script src="../assets/data.js?v=20261003"></script>
+<script src="../assets/app.js?v=20261003b"></script>
+<script src="../assets/data.js?v=20261003b"></script>
 <script>
 (function () {
   const METRICS = {
     demand:     { label: "Demand",     unit: "GW", color: "#1d6fe0" },
     generation: { label: "Generation", unit: "GW", color: "#0a6e5c" },
-    price:      { label: "Price",      unit: "£/MWh", color: "#d98e04" },
+    price:      { label: "Price",      unit: "£/MWh", color: "#d98e04", signed: "price" },
     emissions:  { label: "Emissions",  unit: "g/kWh", color: "#8a5a3c" },
-    transfers:  { label: "Transfers",  unit: "GW", color: "#6a5acd" },
+    transfers:  { label: "Transfers",  unit: "GW", color: "#6a5acd", signed: "flow" },
   };
 
   const template = document.getElementById("range-panel-template");
@@ -386,7 +386,7 @@
     // with a second, near-identical "Copy as text" button. Their own
     // "Download PNG" buttons are wired separately below (wirePngButtons),
     // since PNG export had no equivalent here before.
-    const baseOpts = { label: cfg.label, color: cfg.color, unit: primary.unit || cfg.unit, noExport: true };
+    const baseOpts = { label: cfg.label, color: cfg.color, unit: primary.unit || cfg.unit, noExport: true, signed: cfg.signed };
     if (!compareToggle || !compareToggle.checked) {
       GridPreview.renderLineChart(canvas, primary, baseOpts);
       return;
@@ -640,7 +640,7 @@
           if (range === "season") {
             renderMetricWithCompare(canvas, metric, cfg, series);
           } else {
-            GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit, noExport: true });
+            GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit, noExport: true, signed: cfg.signed });
           }
         } else {
           GridPreview.showChartError(canvas, "Live data unavailable for this range.");
@@ -745,7 +745,7 @@
     function drawChart() {
       const canvas = document.getElementById("hist-battery-chart");
       batterySeries = GridPreview.buildSeries("day", -0.04, 0.7, 61, { min: -0.9, max: 0.9, cycles: 3 });
-      GridPreview.renderLineChart(canvas, batterySeries, { label: "Battery", color: "#2a8fbd", unit: "GW", noExport: true }); // illustrative-only data (see caption below) - not something to export as if it were real
+      GridPreview.renderLineChart(canvas, batterySeries, { label: "Battery", color: "#2a8fbd", unit: "GW", noExport: true, signed: "battery" }); // illustrative-only data (see caption below) - not something to export as if it were real
     }
 
     toggle.addEventListener("change", () => {
