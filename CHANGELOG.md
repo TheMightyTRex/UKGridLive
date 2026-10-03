@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Country pages: a real loading state instead of illustrative figures)
+
+- **Belgium, Denmark, France, Germany, Italy, Netherlands, Norway, Poland, Portugal, Spain, Sweden:** a first-time visitor no longer sees made-up "illustrative" numbers (headline figures, mix table, donut and bar chart) and an "Illustrative figures - not yet connected to a live source" banner while the page loads. Instead:
+  - a grey "Loading live data…" banner with a pulsing dot;
+  - pulsing dashes in the headline figures;
+  - "Loading live data…" in the mix table and captions;
+  - shimmers on the donut and bar chart.
+
+  These change to the live, cached ("refreshing…") or "No data available" state as soon as the fetch settles. The illustrative first-paint donut/bar code has been removed.
+- **Australia, Canada, USA, EU:** same grey loading banner (they said "Connecting to live data…" in the amber "illustrative" style) and pulsing dashes in the headline figures.
+- `assets/app.js`: headline figures that a page has no value for now settle to "-" as soon as the page's "Data as of" tile or status banner stops loading, rather than pulsing until the 30-second safety net. New `.data-status-banner.is-loading` style in `assets/style.css`.
+
 ## 2026-10-03 (Loading states checked across the whole site)
 
 Every page (39) was loaded with live data, with the API failing outright, and with the API delayed by 5 seconds, clicking through every range tab, to find anything stuck loading, any loading state with no animation, and anything that showed made-up numbers while it loaded.

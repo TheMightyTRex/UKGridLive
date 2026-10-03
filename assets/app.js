@@ -3196,13 +3196,28 @@
      script, a request that hangs), stop pulsing after 30 seconds and show
      a plain dash instead of animating forever. */
   function initLoadingValueTimeout() {
-    setTimeout(() => {
+    const settle = () => {
       document.querySelectorAll(".stat dd.is-loading-value").forEach((dd) => {
         dd.classList.remove("is-loading-value");
         const span = dd.querySelector('[id^="stat-"]');
         if (span && span.textContent.trim() === "–") span.textContent = "-";
       });
-    }, 30000);
+    };
+    setTimeout(settle, 30000);
+    // Also settle as soon as the page itself says its first fetch is done
+    // - the "Data as of" tile stops loading, or the status banner moves off
+    // "Loading live data…" - so a figure that page has no value for (and
+    // never writes) shows a plain dash straight away rather than pulsing.
+    // Deferred a tick so values written in the same update land first.
+    const watched = Array.from(document.querySelectorAll("#stat-time.is-loading-text, .data-status-banner.is-loading"));
+    if (!watched.length) return;
+    const obs = new MutationObserver(() => {
+      if (watched.some((el) => !el.classList.contains("is-loading-text") && !el.classList.contains("is-loading"))) {
+        obs.disconnect();
+        setTimeout(settle, 0);
+      }
+    });
+    watched.forEach((el) => obs.observe(el, { attributes: true, attributeFilter: ["class"] }));
   }
 
   function initStatRefreshAnim() {

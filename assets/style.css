@@ -1567,6 +1567,17 @@ table.mix tr.group-row td, table.mix tr.group-row th { border-top: 1px solid var
   background: #d98e04;
   animation: none;
 }
+/* .is-loading: the page is still fetching its first live figures - a
+   neutral pill with a pulsing grey dot, replaced by the live, delayed,
+   cached or "No data available" state as soon as the fetch settles. */
+.data-status-banner.is-loading {
+  background: var(--bg-inset);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+.data-status-banner.is-loading .dot {
+  background: var(--text-muted);
+}
 /* .is-delayed: genuinely live data, just not real-time (e.g. pages/usa.html
    once its EIA figures are connected - typically ~1 day behind). Same
    amber background as .is-illustrative so it still reads as "not as fresh
