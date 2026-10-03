@@ -1884,11 +1884,27 @@ function ukgrid_ingest_ieso(PDO $pdo, array $config, int $timeoutSeconds = 20): 
     }
 
     // ---------- generation by fuel type (hourly) ----------
-    // This one is IESO's year-to-date file - it grows all year (about 6MB
-    // by October), so it gets a longer timeout than the small
-    // RealtimeTotals report above. A full refresh on 3 Oct 2026 timed out
-    // at 8s with 4.4MB of 6.2MB received.
-    $fuelBody = ukgrid_http_get_raw($fuelUrl, max($timeoutSeconds, 25));
+    // IESO's GenOutputbyFuelHourly is a year-to-date file that grows all
+    // year (about 6MB by October, ~22KB per day). Downloading all of it
+    // timed out (8s, 3 Oct 2026), and with a longer timeout the request
+    // ran past the web host's own time limit on tools/full-refresh.php,
+    // which then returned an HTML error page instead of a result. Only the
+    // last few days are ever needed, so ask for just the end of the file
+    // (an HTTP Range request) and rebuild a small valid document from the
+    // complete <DailyData> days in it. If the server ignores the Range
+    // header it sends the whole file, which is parsed as before.
+    $tailBytes = 250000; // about 10 days
+    $fuelBody = ukgrid_http_get_raw($fuelUrl, max($timeoutSeconds, 12), ['Range: bytes=-' . $tailBytes]);
+    if ($fuelBody !== null && stripos(ltrim($fuelBody), '<?xml') !== 0 && stripos(ltrim($fuelBody), '<Document') !== 0) {
+        $first = strpos($fuelBody, '<DailyData>');
+        $last = strrpos($fuelBody, '</DailyData>');
+        $fuelBody = ($first !== false && $last !== false && $last > $first)
+            ? '<Document><DocBody>' . substr($fuelBody, $first, $last + strlen('</DailyData>') - $first) . '</DocBody></Document>'
+            : null;
+        if ($fuelBody === null) {
+            $errors[] = 'GenOutputbyFuelHourly: the end-of-file range had no complete <DailyData> day in it.';
+        }
+    }
     if ($fuelBody === null) {
         $errors[] = 'GenOutputbyFuelHourly request failed.';
     } else {

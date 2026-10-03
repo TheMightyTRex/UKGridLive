@@ -158,9 +158,13 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
  * to each document's schema and belongs in the caller. Returns null on any
  * HTTP/network failure, same convention as ukgrid_http_get_json().
  */
-function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20): ?string
+function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20, array $extraHeaders = []): ?string
 {
     $safeUrl = ukgrid_redact_url($url);
+    // A "Range: bytes=-N" request (see ukgrid_ingest_ieso()) asks for just
+    // the last N bytes of a file - compression is left off for those, since
+    // byte ranges of a compressed response can't be unpacked on their own.
+    $isRange = (bool) array_filter($extraHeaders, function ($h) { return stripos($h, 'Range:') === 0; });
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -168,10 +172,9 @@ function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20): ?string
         CURLOPT_CONNECTTIMEOUT => min(8, $timeoutSeconds),
         CURLOPT_FOLLOWLOCATION => true,
         // Ask for gzip/deflate and let curl unpack it - big XML reports
-        // (IESO's year-to-date GenOutputbyFuelHourly file is 6MB+ by the
-        // autumn) download far faster compressed.
-        CURLOPT_ENCODING => '',
-        CURLOPT_HTTPHEADER => ['Accept: application/xml'],
+        // download far faster compressed.
+        CURLOPT_ENCODING => $isRange ? 'identity' : '',
+        CURLOPT_HTTPHEADER => array_merge(['Accept: application/xml'], $extraHeaders),
         CURLOPT_USERAGENT => 'UK-Grid-Live-Plus/1.0 (+https://github.com/KateMorley/grid; contact via site data-sources page)',
     ]);
     $body = curl_exec($ch);
