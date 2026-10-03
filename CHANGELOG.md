@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (IESO: fetch only the end of the year-to-date file)
+
+- **IESO step on the full refresh failed with "Unexpected token '<'".** With the longer 25s timeout, the IESO step (two downloads) ran past the web host's own request time limit, and the host returned an HTML error page instead of the tool's JSON.
+- **Fix:** IESO's `GenOutputbyFuelHourly` is a year-to-date file (~6MB by October, ~22KB a day), but only the last few days are ever needed. `ukgrid_ingest_ieso()` now asks for just the last ~250KB (an HTTP Range request, about 10 days) and rebuilds a small valid document from the complete days in it. If the server ignores Range it gets the whole file and parses it as before. The timeout is back to a minimum of 12s.
+- `ukgrid_http_get_raw()` takes optional extra headers (used for the Range header; compression is switched off for range requests).
+- `tools/full-refresh.php`: when the server returns its own error page instead of a result, the card now says so plainly (HTTP status, page title, "probably ran past the host's time limit - re-running usually works") rather than a raw JSON parse error.
+
 ## 2026-10-03 (IESO timeout on the big generation-by-fuel file)
 
 - Full refresh results: every ENTSO-E country now succeeds, including Italy's price.

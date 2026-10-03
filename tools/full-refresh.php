@@ -380,7 +380,18 @@ if (empty($config['refresh']['on_demand'])) {
 
     try {
       var res = await fetch('?ajax=1&source=' + encodeURIComponent(name) + '&_=' + Date.now());
-      var data = await res.json();
+      var raw = await res.text();
+      var data;
+      try {
+        data = JSON.parse(raw);
+      } catch (parseErr) {
+        // The web server answered with a page of its own (HTML) instead of
+        // this tool's JSON - usually the host's request time limit or a
+        // gateway error, i.e. the step took too long rather than failed.
+        var title = (raw.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+        throw new Error('the web server returned HTTP ' + res.status + (title ? ' (' + title.trim() + ')' : '') +
+          ' instead of a result - most likely this step ran past the host\'s time limit. Re-running it usually works.');
+      }
 
       r.calls++;
       r.seconds += (data.seconds || 0);
