@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (IESO timeout on the big generation-by-fuel file)
+
+- Full refresh results: every ENTSO-E country now succeeds, including Italy's price.
+- **Canada (IESO):** `GenOutputbyFuelHourly` timed out at 8s with 4.4MB of 6.2MB received. It's IESO's year-to-date file and keeps growing through the year. Fixes:
+  - that one request now gets at least 25 seconds;
+  - every HTTP request (`includes/http.php`) now asks for gzip/deflate compression and curl unpacks it, so large XML and JSON downloads are much smaller wherever the server supports it.
+- No change needed for EirGrid's "HTTP 503 Service Unavailable" (their Smart Grid Dashboard was down at the time; the retry still wrote 118 rows) or Ireland's SEM price "No matching data found" from ENTSO-E (a gap in ENTSO-E's SEM price data for that window - the Ireland page shows "-" for the day-ahead price when it's missing).
+
 ## 2026-10-03 (Italy day-ahead price)
 
 - **Italy's price fetch always failed:** ENTSO-E answered "No matching data found for ENERGY_PRICES" because the configured area, `10YIT-GRTN-----B`, is Terna's whole-country control area. ENTSO-E has generation and load for that area, but day-ahead prices only per price zone (Italy has several).
