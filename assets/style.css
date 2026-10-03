@@ -537,6 +537,20 @@ a:not(:hover) { text-decoration-thickness: 1px; }
   color: var(--text-muted);
   animation: pulseText 1.6s ease-in-out infinite;
 }
+/* Any other "Loading…" placeholder text (captions, chart notes, "Updated"
+   lines) pulses the same way, so every loading state on the site looks
+   alike. Pages remove the class once real data (or an error) arrives. */
+.is-loading-text {
+  color: var(--text-muted);
+  animation: pulseText 1.6s ease-in-out infinite;
+}
+/* A headline stat value that hasn't loaded yet: shows a dash and pulses
+   until its first real value (or an error dash) is written - see
+   initStatRefreshAnim in assets/app.js, which removes this class. */
+.stat dd.is-loading-value {
+  color: var(--text-muted);
+  animation: pulseText 1.6s ease-in-out infinite;
+}
 @keyframes pulseText {
   0%, 100% { opacity: .5; }
   50% { opacity: 1; }

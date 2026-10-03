@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-03 (Loading states checked across the whole site)
+
+Every page (39) was loaded with live data, with the API failing outright, and with the API delayed by 5 seconds, clicking through every range tab, to find anything stuck loading, any loading state with no animation, and anything that showed made-up numbers while it loaded.
+
+- **No stuck loading states** in any scenario: every chart shimmer, "Loading live data…" tile and caption clears once data arrives or the request fails.
+- **Homepage and Ireland headline figures no longer show placeholder numbers while loading.** The stat cards used to show hardcoded values (e.g. £135.47/MWh, 28.9GW on the homepage; €92.30 on Ireland) until the live fetch finished. They now show a pulsing dash until the real value - or an error dash - arrives.
+- **Ireland:** the SEM day-ahead price kept its placeholder €92.30 for good if ENTSO-E returned no price; it now shows "-". The SEM imbalance price now also shows "-" when EirGrid can't be reached.
+- **One consistent loading animation.** Any plain "Loading…" text anywhere on the site (chart captions, table rows, the interconnectors "Updated" lines) now pulses the same way as the "Data as of" tile, and stops as soon as its text is replaced - handled once in `assets/app.js` (`initLoadingTextObserver`), so captions a page resets to "Loading…" on a tab switch are covered too.
+- **Homepage:** the generation-by-source bar chart and the 24-hour mix chart now show the loading shimmer while they load (they were blank).
+- Safety net: a headline value that's still loading after 30 seconds stops pulsing and shows "-".
+- Asset version bumped to `?v=20261003` on every page, since `assets/style.css` and `assets/app.js` changed.
+
 ## 2026-10-03 (Interconnectors: labelled axes, zero line, capacity column)
 
 - **History charts** redrawn in the same import/export style as the by-country charts: amber area above the line = importing, blue below = exporting, with a zero line that's always shown, value labels on the y axis (GW or %) and UK-time labels on the x axis (hours, days, dates, months or years depending on the range). Hover shows the exact value. They keep Copy as text / Download CSV / Download snapshot (PNG); the PNG redraws the chart at full size so the labels stay readable.

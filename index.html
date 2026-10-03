@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20260930">
+<link rel="stylesheet" href="assets/style.css?v=20261003">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -146,11 +146,11 @@
 
     <dl class="status-grid" aria-label="Current grid status">
       <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
-      <div class="stat"><dt>Price</dt><dd><span id="stat-price">£135.47</span><small>/MWh</small></dd><div class="stat-band-slot"><span id="stat-price-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Emissions</dt><dd><span id="stat-emissions">84</span><small>g/kWh</small></dd><div class="stat-band-slot"><span id="stat-emissions-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-emissions" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Demand</dt><dd><span id="stat-demand">28.9</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Generation</dt><dd><span id="stat-generation">28.7</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
-      <div class="stat"><dt>Transfers</dt><dd><span id="stat-transfers">0.2</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-transfers-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-transfers" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Price</dt><dd class="is-loading-value"><span id="stat-price">–</span><small>/MWh</small></dd><div class="stat-band-slot"><span id="stat-price-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-price" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Emissions</dt><dd class="is-loading-value"><span id="stat-emissions">–</span><small>g/kWh</small></dd><div class="stat-band-slot"><span id="stat-emissions-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-emissions" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Demand</dt><dd class="is-loading-value"><span id="stat-demand">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-demand-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-demand" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-generation" aria-hidden="true"></canvas></div></div>
+      <div class="stat"><dt>Transfers</dt><dd class="is-loading-value"><span id="stat-transfers">–</span><small>GW</small></dd><div class="stat-band-slot"><span id="stat-transfers-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap"><canvas id="spark-transfers" aria-hidden="true"></canvas></div></div>
     </dl>
     <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Each figure shows its trend over the last 3 hours.</p>
 
@@ -213,7 +213,7 @@
         <p class="chart-caption">Positive values mean batteries are discharging onto the grid; negative values mean they're charging up.</p>
       </div>
 
-      <div class="chart-wrap" style="height:220px;margin-top:1.5rem;">
+      <div class="chart-wrap is-loading" style="height:220px;margin-top:1.5rem;">
         <canvas id="mix-bar" role="img" aria-label="Bar chart comparing generation by source"></canvas>
       </div>
       <p class="chart-caption">Generation by source right now, ranked highest to lowest.</p>
@@ -221,7 +221,7 @@
 
     <section class="panel" aria-labelledby="stack-heading">
       <h2 id="stack-heading">Generation mix over the last 24 hours</h2>
-      <div class="chart-wrap" style="height:300px;">
+      <div class="chart-wrap is-loading" style="height:300px;">
         <canvas id="mix-stack" role="img" aria-label="Stacked area chart of fossil fuel, renewable and other generation over the last 24 hours"></canvas>
       </div>
       <ul class="chart-legend" id="mix-stack-legend" style="justify-content:center;"></ul>
@@ -444,8 +444,8 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=20260930"></script>
-<script src="assets/data.js?v=20260930"></script>
+<script src="assets/app.js?v=20261003"></script>
+<script src="assets/data.js?v=20261003"></script>
 <script>
 (function () {
   // Donut chart for current mix

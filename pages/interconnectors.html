@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20260930">
+<link rel="stylesheet" href="../assets/style.css?v=20261003">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <style>
 /* Interconnector import/export colours: amber = importing into GB,
@@ -204,7 +204,7 @@
 
     <section class="panel" aria-labelledby="now-heading">
       <h2 id="now-heading">Right now, by country</h2>
-      <p class="ic-updated" id="ic-now-updated" aria-live="polite">Loading live data…</p>
+      <p class="ic-updated is-loading-text" id="ic-now-updated" aria-live="polite">Loading live data…</p>
       <div class="ic-legend"><span><i class="sw-exp"></i>Exporting from GB</span><span><i class="sw-imp"></i>Importing into GB</span><span><i class="sw-track"></i>Total cable capacity to that country</span></div>
       <div class="ic-chart" id="ic-now-bars" role="img" aria-label="Live import and export by country"></div>
       <p class="chart-caption">Bars run right for imports and left for exports, from the centre line. The grey track is the combined capacity of every cable to that country, so you can see how hard each link is running. Hover or tap a bar for each cable's own figure.</p>
@@ -406,7 +406,7 @@
           <text data-cable-label="eleclink" data-base="ElecLink 1,000MW" x="443.0" y="384" font-size="10.5">ElecLink 1,000MW</text>
         </g>
       </svg>
-      <p class="ic-updated" id="ic-map-updated" aria-live="polite">Live flows: loading…</p>
+      <p class="ic-updated is-loading-text" id="ic-map-updated" aria-live="polite">Loading live flows…</p>
       <div class="ic-legend"><span><i class="sw-exp"></i>Exporting from GB</span><span><i class="sw-imp"></i>Importing into GB</span><span>Thicker line = more power flowing; moving dashes show the direction</span></div>
       <p class="download-row">
         <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="map"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
@@ -472,7 +472,7 @@
       <template id="ic-country-template">
         <h3 style="font-size:1rem;margin:.6rem 0 .1rem;">Net flow over time</h3>
         <div class="ic-legend"><span><i class="sw-imp"></i>Above the line: importing</span><span><i class="sw-exp"></i>Below the line: exporting</span></div>
-        <div class="ic-sm-grid" data-ic="multiples"><p class="ic-empty">Loading…</p></div>
+        <div class="ic-sm-grid" data-ic="multiples"><p class="ic-empty is-loading-text">Loading…</p></div>
         <p class="chart-caption" data-ic="multiples-caption"></p>
         <p class="download-row">
           <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="multiples"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
@@ -481,7 +481,7 @@
         </p>
         <h3 style="font-size:1rem;margin:1.2rem 0 .1rem;">Energy imported and exported</h3>
         <div class="ic-legend"><span><i class="sw-exp"></i>Exported (GWh)</span><span><i class="sw-imp"></i>Imported (GWh)</span></div>
-        <div class="ic-chart" data-ic="totals"><p class="ic-empty">Loading…</p></div>
+        <div class="ic-chart" data-ic="totals"><p class="ic-empty is-loading-text">Loading…</p></div>
         <p class="chart-caption" data-ic="totals-caption"></p>
         <p class="download-row">
           <button type="button" class="copy-btn" data-ic-export="copy" data-ic-target="totals"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg><span data-copy-label aria-live="polite">Copy as text</span></button>
@@ -543,8 +543,8 @@
 </footer>
 
 <div class="ic-tip" id="ic-tip" role="tooltip"></div>
-<script src="../assets/app.js?v=20260930"></script>
-<script src="../assets/data.js?v=20260930"></script>
+<script src="../assets/app.js?v=20261003"></script>
+<script src="../assets/data.js?v=20261003"></script>
 <script>
 (function () {
   const template = document.getElementById("range-panel-template");
@@ -722,7 +722,9 @@
       if (gwEl) gwEl.textContent = gw;
       if (pctEl) pctEl.textContent = pct;
     };
+    const doneLoading = () => [nowNote, mapNote].forEach((el) => { if (el) el.classList.remove("is-loading-text"); });
     function showNoData() {
+      doneLoading();
       [outputEl, shareEl, timeEl].forEach((el) => { if (el) { el.textContent = "No data available"; el.classList.remove("is-loading-text"); } });
       if (nowNote) nowNote.textContent = "Live data is unavailable right now.";
       if (mapNote) mapNote.textContent = "Live flows are unavailable right now - the map shows each cable's capacity instead.";
@@ -732,6 +734,7 @@
     const current = await window.GridData.fetchCurrent();
     if (!current || current.demand_mw == null) { if (firstLoad) showNoData(); return; }
     firstLoad = false;
+    doneLoading();
     const summary = window.GridData.summarizeGeneration(current.generation);
     const byInterconnector = summary.byInterconnector || {};
     const byCountryMw = {};

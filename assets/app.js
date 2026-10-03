@@ -3164,13 +3164,60 @@
      flash. Deliberately excludes ids ending "-band" (the traffic-light dot
      text, which toggles [hidden] rather than refreshing a value) since that
      already has its own visual treatment. */
+  /* Every plain-text "Loading…" placeholder on the site (chart captions,
+     table rows, "Updated" lines, the "Data as of" tile) gets the same
+     gentle pulse, and loses it the moment its text is replaced - whether
+     the page writes real data, an error, or "No data available". Done
+     here once rather than in every page's own script, so a placeholder a
+     page adds later (e.g. a caption reset to "Loading…" on a tab switch)
+     is covered automatically too. */
+  function initLoadingTextObserver() {
+    const re = /^\s*Loading\b/;
+    const check = (el) => {
+      if (!el || el.nodeType !== 1 || el.closest("script, style, template, .ic-tip, .chart-tooltip")) return;
+      const loading = el.children.length === 0 && re.test(el.textContent);
+      if (loading) el.classList.add("is-loading-text");
+      else if (el.classList.contains("is-loading-text") && !re.test(el.textContent)) el.classList.remove("is-loading-text");
+    };
+    document.querySelectorAll("p, td, dd, span, div, li").forEach((el) => {
+      if (el.children.length === 0 && re.test(el.textContent)) check(el);
+    });
+    new MutationObserver((mutations) => {
+      mutations.forEach((m) => {
+        const el = m.type === "characterData" ? m.target.parentElement : m.target;
+        check(el);
+        if (m.type === "childList") m.addedNodes.forEach((n) => { if (n.nodeType === 1 && n.children.length === 0) check(n); });
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  /* Safety net for the pulsing "not loaded yet" stat values: if a page's
+     own fetch never writes a value or an error (an older cached page
+     script, a request that hangs), stop pulsing after 30 seconds and show
+     a plain dash instead of animating forever. */
+  function initLoadingValueTimeout() {
+    setTimeout(() => {
+      document.querySelectorAll(".stat dd.is-loading-value").forEach((dd) => {
+        dd.classList.remove("is-loading-value");
+        const span = dd.querySelector('[id^="stat-"]');
+        if (span && span.textContent.trim() === "–") span.textContent = "-";
+      });
+    }, 30000);
+  }
+
   function initStatRefreshAnim() {
     const targets = Array.from(document.querySelectorAll('[id^="stat-"]')).filter(
       (el) => !/-band$/.test(el.id)
     );
     if (!targets.length) return;
     const lastText = new WeakMap();
-    targets.forEach((el) => lastText.set(el, el.textContent));
+    targets.forEach((el) => {
+      lastText.set(el, el.textContent);
+      // Already written before this ran (e.g. a synchronous first paint
+      // from cached data) - it isn't loading any more.
+      const dd = el.closest("dd");
+      if (dd && el.textContent.trim() !== "–") dd.classList.remove("is-loading-value");
+    });
 
     const flash = (el) => {
       el.classList.remove("stat-refresh-pulse");
@@ -3191,6 +3238,8 @@
         const next = el.textContent;
         if (lastText.get(el) !== next) {
           lastText.set(el, next);
+          const dd = el.closest("dd");
+          if (dd) dd.classList.remove("is-loading-value");
           flash(el);
         }
       });
@@ -3209,6 +3258,8 @@
     initCopyButtons();
     initIngestStatusPill();
     initStatRefreshAnim();
+    initLoadingValueTimeout();
+    initLoadingTextObserver();
     externalizeLinks();
 
     // Update aria-current year in footer
