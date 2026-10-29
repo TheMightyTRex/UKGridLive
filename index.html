@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261029f">
-<link rel="stylesheet" href="assets/design-c.css?v=20261029f">
+<link rel="stylesheet" href="assets/style.css?v=20261029g">
+<link rel="stylesheet" href="assets/design-c.css?v=20261029g">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -285,26 +285,7 @@
         <tbody id="mix-tbody">
           <tr><td colspan="3" style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">Loading live data…</td></tr>
         </tbody>
-        <tbody id="idx-battery-tbody" hidden>
-          <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--storage)"></span>Battery <em>(preview, not live - not in the %)</em></th><td class="num" id="idx-battery-gw" aria-live="polite">-</td><td class="num" id="idx-battery-pct" aria-live="polite">-</td></tr>
-        </tbody>
       </table>
-
-      <label class="toggle-row" style="margin-top:1.25rem;">
-        <span class="switch">
-          <input type="checkbox" id="idx-battery-toggle">
-          <span class="switch__track"><span class="switch__thumb"></span></span>
-        </span>
-        <span>Include battery charge/discharge detail <em>(preview of a planned feature - see the <a href="pages/storage.html">Storage page</a> for more)</em></span>
-      </label>
-
-      <div id="idx-battery-panel" hidden style="margin-top:1rem;">
-        <h3 style="font-size:.95rem;">Battery charge/discharge over the last 24 hours</h3>
-        <div class="chart-wrap" style="height:200px;">
-          <canvas id="idx-battery-chart" role="img" aria-label="Line chart of battery storage swinging between charging and discharging over the last 24 hours"></canvas>
-        </div>
-        <p class="chart-caption">Positive values mean batteries are discharging onto the grid; negative values mean they are charging up.</p>
-      </div>
 
     </section>
 
@@ -337,7 +318,7 @@
 
     <section class="panel" aria-labelledby="history-heading">
       <h2 id="history-heading">History</h2>
-      <p>Demand, generation, price, emissions, transfers and the generation mix, from the past day to the past decade - now on its own dashboard with more charts, the current UK season, a battery toggle, and data you can copy to the clipboard.</p>
+      <p>Demand, generation, price, emissions, transfers and the generation mix, from the past day to the past decade - now on its own dashboard with more charts, the current UK season, and data you can copy to the clipboard.</p>
       <p><a href="pages/history.html">Open the History dashboard →</a></p>
     </section>
 
@@ -551,18 +532,10 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=20261029f"></script>
-<script src="assets/data.js?v=20261029f"></script>
+<script src="assets/app.js?v=20261029g"></script>
+<script src="assets/data.js?v=20261029g"></script>
 <script>
 (function () {
-  // Donut chart for current mix
-  const SOURCE_LABELS = ["Gas", "Solar", "Wind", "Hydro", "Nuclear", "Biomass"];
-  const SOURCE_VALUES = [7.58, 4.19, 10.33, 0.21, 3.86, 2.52];
-  // Colours come from GridData's site-wide canonical label->colour map (see
-  // assets/data.js) rather than being hardcoded here, so this donut always
-  // matches every other chart that shows the same fuel - see that map's own
-  // comment for why per-page hardcoded arrays are worth avoiding.
-  const SOURCE_COLORS = window.GridData.colorsFor(SOURCE_LABELS);
 
   // "Generation mix right now": table + two donuts + bar chart, rebuilt
   // live every time current data loads from summarizeGeneration()'s
@@ -704,7 +677,7 @@
     const list = document.getElementById("figures-list");
     if (!mix || !mix.totalMw) {
       if (shareEl) shareEl.textContent = "–%";
-      if (summaryEl) summaryEl.textContent = "Live figures appear here when the next reading arrives.";
+      if (summaryEl) { summaryEl.textContent = "Live figures appear here when the next reading arrives."; summaryEl.classList.remove("is-loading-text"); }
       return;
     }
     const ren = mix.positive.filter((r) => r.group === "renewable").reduce((a, r) => a + r.mw, 0);
@@ -715,7 +688,7 @@
     let text = `${biggest.label} is the biggest source, at ${Math.round(biggest.mw / mix.totalMw * 100)}% of supply.`;
     if (carbon) text += ` Carbon is ${carbon.label.toLowerCase()}.`;
     if (price) text += ` The price is ${price.label.toLowerCase()}.`;
-    if (summaryEl) summaryEl.textContent = text;
+    if (summaryEl) { summaryEl.textContent = text; summaryEl.classList.remove("is-loading-text"); }
     if (list) {
       const rows = [];
       const add = (label, value, band) => rows.push(`<li><span>${label}</span><strong>${value}${band ? ", " + band.label.toLowerCase() : ""}</strong></li>`);
@@ -727,51 +700,22 @@
     }
   }
 
-  // Sparklines + headline numbers in the status strip. Tries the real
-  // backend first (api/current.php + api/series.php); falls back to
-  // placeholder data if there is nothing live yet, so the dashboard never
-  // looks broken before ingestion has run.
+  // Sparklines + headline numbers in the status strip, from the real
+  // backend (api/current.php + api/series.php). With nothing live, each
+  // one shows an empty state rather than any placeholder line.
   const SPARK_METRICS = {
-    price:      { base: 135.47, amp: 60, color: "#d98e04", min: -40, max: 220 },
-    emissions:  { base: 84, amp: 60, color: "#8a5a3c", min: 0, max: 300 },
-    demand:     { base: 28.9, amp: 8, color: "#1d6fe0", min: 15, max: 45 },
-    generation: { base: 28.7, amp: 8, color: "#0a6e5c", min: 12, max: 42 },
-    transfers:  { base: 0.2, amp: 3, color: "#6a5acd", min: -6, max: 8 },
+    price:      { color: "#d98e04" },
+    emissions:  { color: "#8a5a3c" },
+    demand:     { color: "#1d6fe0" },
+    generation: { color: "#0a6e5c" },
+    transfers:  { color: "#6a5acd" },
   };
 
-  function drawMockSparkline(key, i) {
-    const canvas = document.getElementById("spark-" + key);
-    if (!canvas) return;
-    const cfg = SPARK_METRICS[key];
-    const series = GridPreview.buildSeries("3hour", cfg.base, cfg.amp, i * 41 + 5, { min: cfg.min, max: cfg.max, cycles: 1 });
-    GridPreview.renderSparkline(canvas, series.values, cfg.color);
-  }
-
-  function drawAllMockSparklines() {
-    Object.keys(SPARK_METRICS).forEach((key, i) => drawMockSparkline(key, i));
-  }
 
   // Data behind the "Download snapshot" button (see GridPreview.downloadSnapshotCard
-  // in assets/app.js). Starts out built from this page's own illustrative
-  // placeholder figures above, so the button works even before the first
-  // live fetch resolves, then gets overwritten with real data by
-  // renderStats below - first from any cached data, then again once the
-  // live fetch confirms.
-  let latestSnapshot = {
-    title: "UK Grid: Live+",
-    asOf: "illustrative preview data",
-    sourceLabels: SOURCE_LABELS,
-    sourceValues: SOURCE_VALUES,
-    sourceColors: SOURCE_COLORS,
-    renewablePct: (14.73 / 28.7) * 100,
-    stats: [
-      { label: "Price", value: "135.47", unit: "£/MWh" },
-      { label: "Emissions", value: "84", unit: "g/kWh" },
-      { label: "Demand", value: "28.9", unit: "GW" },
-      { label: "Generation", value: "28.7", unit: "GW" },
-    ],
-    filename: "ukgridlive-snapshot-preview.png",
-  };
+  // in assets/app.js). Null until real figures load (cached or live), so
+  // the button never saves made-up numbers.
+  let latestSnapshot = null;
 
   function buildSnapshot(current, summary, isCached) {
     const labels = Object.keys(summary.bySource);
@@ -804,6 +748,14 @@
     const label = document.getElementById("snapshot-btn-label");
     if (!btn) return;
     btn.addEventListener("click", () => {
+      if (!latestSnapshot) {
+        if (label) {
+          const original = label.textContent;
+          label.textContent = "No live figures to save yet";
+          setTimeout(() => { label.textContent = original; }, 2200);
+        }
+        return;
+      }
       GridPreview.downloadSnapshotCard(latestSnapshot);
       if (label) {
         const original = label.textContent;
@@ -1034,6 +986,7 @@
           if (canvas) GridPreview.showChartError(canvas, null);
         });
         showNoGbMixData();
+        renderHero(null);
         if (caption) caption.textContent = "The live figures did not load.";
       }
       return;
@@ -1187,49 +1140,6 @@
     document.getElementById("records-tablist").addEventListener("rangechange", (e) => drawRecords(e.detail.range));
   })();
 
-  // Battery charge/discharge toggle (overview) - preview of a planned
-  // feature (see this control's own on-page caption): Elexon's fuel-type
-  // feed has no battery-specific reading at all, so unlike the rest of
-  // this section there is no live source to wire this up to yet, and the
-  // chart/figure below are clearly-labelled illustrative preview data
-  // rather than something claiming to be live. Because it is not live, it
-  // is deliberately kept OUT of the mix table's percentages and out of
-  // both donuts (it used to be added onto the live pumped-storage row,
-  // mixing a made-up figure into a live total) - it is shown as its own
-  // clearly-labelled preview row only while the toggle is on.
-  (function () {
-    const toggle = document.getElementById("idx-battery-toggle");
-    const panel = document.getElementById("idx-battery-panel");
-    const batteryRows = document.getElementById("idx-battery-tbody");
-    const batteryGw = document.getElementById("idx-battery-gw");
-    const batteryPct = document.getElementById("idx-battery-pct");
-    let drawn = false;
-
-    function drawChart() {
-      const canvas = document.getElementById("idx-battery-chart");
-      const series = GridPreview.buildSeries("day", -0.04, 0.7, 61, { min: -0.9, max: 0.9, cycles: 3 });
-      GridPreview.renderLineChart(canvas, series, { color: "#2a8fbd", unit: "GW", signed: "battery" });
-    }
-
-    function update(on) {
-      if (on) {
-        const batteryNow = -0.18;
-        batteryGw.textContent = batteryNow.toFixed(2);
-        batteryPct.textContent = "-";
-        if (batteryRows) batteryRows.hidden = false;
-        panel.hidden = false;
-        if (!drawn) { drawChart(); drawn = true; }
-      } else {
-        batteryGw.textContent = "-";
-        batteryPct.textContent = "-";
-        if (batteryRows) batteryRows.hidden = true;
-        panel.hidden = true;
-      }
-    }
-
-    toggle.addEventListener("change", () => update(toggle.checked));
-    update(false);
-  })();
 })();
 </script>
 </body>

@@ -218,7 +218,9 @@
     });
   }
 
-  /* ---------- Placeholder data generation (used before live data exists) ---------- */
+  /* ---------- Time ranges ----------
+     The site never draws generated or placeholder data: a chart with no
+     real figures shows an empty state instead. */
   const RANGE_CONFIG = {
     "3hour": { points: 13, label: "Last 3 hours", stepMs: 15 * 60 * 1000, fmt: "time" },
     day: { points: 48, label: "Past day", stepMs: 30 * 60 * 1000, fmt: "time" },
@@ -287,15 +289,6 @@
     return { name, label, start: start.getTime(), end: end.getTime() };
   }
 
-  function seededRandom(seed) {
-    let s = seed % 2147483647;
-    if (s <= 0) s += 2147483646;
-    return function () {
-      s = (s * 16807) % 2147483647;
-      return (s - 1) / 2147483646;
-    };
-  }
-
   function formatLabel(date, fmt) {
     const d = new Date(date);
     switch (fmt) {
@@ -314,44 +307,6 @@
       default:
         return d.toLocaleDateString();
     }
-  }
-
-  function buildSeries(range, base, amplitude, seed, opts) {
-    opts = opts || {};
-    const cfg = RANGE_CONFIG[range];
-    const rand = seededRandom(seed);
-    const now = Date.now();
-
-    // "season" is calendar-anchored to the current UK meteorological season
-    // (see getCurrentUkSeason()) rather than a fixed rolling window, so its
-    // point count and step size are derived here instead of read straight
-    // from RANGE_CONFIG - a season only a few days old should produce a
-    // short chart, not one padded out to a full 13 weeks.
-    let points = cfg.points;
-    let stepMs = cfg.stepMs;
-    if (range === "season") {
-      const season = getCurrentUkSeason(now);
-      const elapsedMs = Math.max(cfg.stepMs, now - season.start);
-      points = Math.max(2, Math.min(20, Math.ceil(elapsedMs / cfg.stepMs) + 1));
-      stepMs = elapsedMs / (points - 1);
-    }
-
-    const labels = [];
-    const times = [];
-    const values = [];
-    for (let i = points - 1; i >= 0; i--) {
-      const t = now - i * stepMs;
-      labels.push(formatLabel(t, cfg.fmt));
-      times.push(new Date(t).toISOString());
-      const trend = opts.trend ? opts.trend * (points - 1 - i) : 0;
-      const cyclic = Math.sin((i / points) * Math.PI * (opts.cycles || 2)) * amplitude * 0.5;
-      const noise = (rand() - 0.5) * amplitude;
-      let v = base + trend + cyclic + noise;
-      if (opts.min !== undefined) v = Math.max(opts.min, v);
-      if (opts.max !== undefined) v = Math.min(opts.max, v);
-      values.push(Math.round(v * 100) / 100);
-    }
-    return { labels, times, values };
   }
 
   /* Human-readable calendar period covered by a range, e.g. "3 – 9 Aug 2026".
@@ -393,7 +348,6 @@
 
   window.GridPreview = {
     RANGE_CONFIG,
-    buildSeries,
     getRangePeriodLabel,
     formatLabel,
     getCurrentUkSeason,

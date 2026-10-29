@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261029f">
-<link rel="stylesheet" href="../assets/design-c.css?v=20261029f">
+<link rel="stylesheet" href="../assets/style.css?v=20261029g">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029g">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -351,8 +351,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261029f"></script>
-<script src="../assets/data.js?v=20261029f"></script>
+<script src="../assets/app.js?v=20261029g"></script>
+<script src="../assets/data.js?v=20261029g"></script>
 <script>
 (function () {
   const METRICS = {
@@ -389,19 +389,12 @@
 
 
   const SPARK_METRICS = {
-    price:      { base: 48,   amp: 45, color: "#d98e04", min: -20, max: 220 },
-    demand:     { base: 5.6, amp: 1.8, color: "#1d6fe0", min: 3,  max: 8.5 },
-    generation: { base: 7.2, amp: 2.2, color: "#0a6e5c", min: 3.5,  max: 11 },
+    price:      { color: "#d98e04" },
+    demand:     { color: "#1d6fe0" },
+    generation: { color: "#0a6e5c" },
   };
   const SPARK_KEYS = Object.keys(SPARK_METRICS);
 
-  function drawMockSparkline(key) {
-    const canvas = document.getElementById("spark-" + key);
-    if (!canvas) return;
-    const cfg = SPARK_METRICS[key];
-    const series = GridPreview.buildSeries("3hour", cfg.base, cfg.amp, SPARK_KEYS.indexOf(key) * 41 + 13, { min: cfg.min, max: cfg.max, cycles: 1 });
-    GridPreview.renderSparkline(canvas, series.values, cfg.color);
-  }
 
   // Norway (NO2)'s ENTSO-E config fetches price, generation and demand (see
   // entsoe_countries in includes/config.php.example) - that is everything
