@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Phone header stays on one line)
+
+- On phones (560px and narrower) the logo, Display and Menu now always sit on one line, with a 10px gap above the yellow line. Before, with the phone's own large-text setting on, the buttons wrapped onto a second row, sat right on the yellow line and pushed the logo out of view in the sticky header. The header sizes here are in px so text size cannot break the layout. Buttons are smaller: 38px tall (36px under 380px wide), and Display is a square icon.
+- Fixed two small sideways overflows at large text sizes: the mix legend values (150% text) and the homepage solar and records cards (175% text on a 320px screen).
+
 ## 2026-10-29 (Ireland: generation mix from EirGrid, plus EirGrid's 24-hour fuel mix)
 
 - **Ireland's mix was wrong.** It came from ENTSO-E, which only publishes Ireland's wind, hydro and peat in near real time, with no gas. So it added up to about 2.7GW when EirGrid showed about 5.8GW, and wind came out at 93%. The mix right now and the 24-hour mix chart now come from EirGrid's Smart Grid Dashboard: wind, solar, net GB interconnection, and "gas and other sources", calculated as EirGrid's total generation minus wind and solar. Captions say it is calculated and that hydro and biomass sit in it.
