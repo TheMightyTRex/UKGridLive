@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-28 (Battery storage figures updated from DESNZ, NESO and RenewableUK)
+
+- **Storage page, Records:** added the official DESNZ figures (7.5GW of UK grid-scale batteries at the end of 2025; a record 2.3GW connected in 2025; GB battery output of 2.3TWh in 2025, up from 0.8TWh in 2023; average efficiency 85% for batteries and 81% for pumped storage). Also added RenewableUK's latest industry count (8.7GW / 14.1GWh operational by 12 October 2026; about 9.1GW / 19GWh under construction) and NESO's long-duration storage figure (2.8GW / 23.9GWh, June 2026, via the DESNZ Clean flexibility roadmap). Caption renamed "The storage facts"; battery figures last checked 28 October 2026.
+- **Storage page, About and Methodology:** short paragraph on the battery fleet and the 2030 target, plus a note on why DESNZ, Modo/NESO and RenewableUK figures differ (DESNZ scales up BM-registered batteries by about 1.3x; RenewableUK counts projects and models some sizes). New sources listed.
+- **Renewables plans page:** the "Storage" target card is now "Battery storage". The old chart compared a battery-only "today" figure with a combined battery + long-duration target; it now shows the plan's 4.5GW baseline, 7.5GW at the end of 2025 (DESNZ) and the 23-27GW 2030 target (Clean Power 2030 Action Plan, Table 1). Long-duration storage (2.9GW to 4-6GW) is mentioned separately in the caption.
+- Sources: primary publications only (DESNZ, NESO via DESNZ, RenewableUK EnergyPulse). The press article that prompted this (electricalnews.co.uk) is not cited.
+
 ## 2026-10-03 (IESO: fetch only the end of the year-to-date file)
 
 - **IESO step on the full refresh failed with "Unexpected token '<'".** With the longer 25s timeout, the IESO step (two downloads) ran past the web host's own request time limit, and the host returned an HTML error page instead of the tool's JSON.
