@@ -200,9 +200,9 @@
           <p class="chart-caption">16.6GW today → 45–47GW target</p>
         </div>
         <div class="chart-card">
-          <h3>Battery &amp; long-duration storage</h3>
+          <h3>Battery storage</h3>
           <div class="chart-wrap" style="height:180px;"><canvas id="target-storage"></canvas></div>
-          <p class="chart-caption">Roughly 5GW today → 27–33GW combined target</p>
+          <p class="chart-caption">4.5GW in the plan's baseline → 7.5GW at the end of 2025 (<a href="https://assets.publishing.service.gov.uk/media/6a3ea00d30b491f55b3c4b3d/Grid-scale_battery_storage_statistics.pdf">DESNZ</a>; RenewableUK's industry count was <a href="https://www.renewableuk.com/energypulse/blog/stacking-up-the-storage-2026-how-the-uk-battery-storage-market-has-changed-in-the-last-year/">8.7GW by 12 October 2026</a>) → 23–27GW target. Long-duration storage, mostly pumped hydro, is a separate 2.9GW → 4–6GW target.</p>
         </div>
       </div>
       <p class="chart-caption">"Today" figures are approximate installed capacity as of the plan's December 2024 baseline. The government estimates the buildout will need around <strong>£40 billion a year</strong> in investment between 2025 and 2030.</p>
@@ -296,7 +296,11 @@
   twoBar("target-offshore", 14.8, 46.5, "#2fa876");
   twoBar("target-onshore", 14.2, 28, "#2fa876");
   twoBar("target-solar", 16.6, 46, "#e0a800");
-  twoBar("target-storage", 5, 30, "#2a8fbd");
+  // Batteries only (Clean Power 2030 Table 1: 4.5GW current, 23-27GW by
+  // 2030), with DESNZ's official end-of-2025 figure in between. This card
+  // used to compare "roughly 5GW" of batteries with the combined
+  // battery + long-duration target (27-33GW), which mixed two measures.
+  GridPreview.renderBarChart(document.getElementById("target-storage"), ["Plan baseline", "End of 2025", "2030 target"], [4.5, 7.5, 25], "#2a8fbd", { unit: "GW", horizontal: false, thickness: 50 });
 
   GridPreview.renderBarChart(
     document.getElementById("cfd-rounds"),
