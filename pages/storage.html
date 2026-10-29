@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20261029f">
-<link rel="stylesheet" href="../assets/design-c.css?v=20261029f">
+<link rel="stylesheet" href="../assets/style.css?v=20261029g">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029g">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -233,30 +233,14 @@
     <section class="panel">
       <h2>Breakdown</h2>
 
-      <label class="toggle-row">
-        <span class="switch">
-          <input type="checkbox" id="battery-toggle">
-          <span class="switch__track"><span class="switch__thumb"></span></span>
-        </span>
-        <span>Include battery charge/discharge detail <em>(preview of a planned feature - see note below)</em></span>
-      </label>
-
       <table class="mix">
         <caption class="visually-hidden">Storage generation by source</caption>
         <thead><tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr></thead>
         <tbody>
             <tr><td>Pumped hydro</td><td class="num" id="row-pumped-gw">-</td><td class="num" id="row-pumped-pct">-</td></tr>
-            <tr><td>Battery</td><td class="num" id="battery-gw" aria-live="polite">-</td><td class="num" id="battery-pct" aria-live="polite">-</td></tr>
         </tbody>
       </table>
 
-      <div id="battery-panel" hidden style="margin-top:1.5rem;">
-        <h3>Battery charge/discharge over the last 24 hours</h3>
-        <div class="chart-wrap" style="height:220px;">
-          <canvas id="battery-chart" role="img" aria-label="Line chart of battery storage swinging between charging and discharging over the last 24 hours"></canvas>
-        </div>
-        <p class="chart-caption">Positive values mean batteries are discharging onto the grid; negative values mean they are charging up, usually when power is cheap or abundant.</p>
-      </div>
     </section>
 
     <section class="panel" aria-labelledby="history-heading">
@@ -299,11 +283,7 @@
 <p>Batteries typically discharge for shorter bursts than pumped hydro - commonly half an hour to two hours - making them well suited to smoothing short-term mismatches between renewable output and demand, and to providing fast frequency response that keeps the grid stable moment to moment.</p>
 <p>The growth is now very fast. Government statistics put UK grid-scale battery capacity at 7.5GW by the end of 2025, after a record 2.3GW was connected during that year, and Great Britain's batteries supplied 2.3TWh in 2025, up from 0.8TWh in 2023. They are also slightly more efficient than pumped hydro: in 2025 batteries returned 85% of the energy put into them, against 81% for pumped storage (DESNZ). The industry body RenewableUK counted 8.7GW / 14.1GWh operational across the UK by 12 October 2026, with around 9.1GW / 19GWh more under construction. The government's Clean Power 2030 plan aims for 23-27GW of batteries by 2030.</p>
 <p>Different counts of battery capacity do not always match: DESNZ's figure scales up the batteries registered in Elexon's Balancing Mechanism (by about 1.3 times) to include smaller sites that are not registered, the government's July 2026 flexibility roadmap quotes 7.3GW for June 2026 from Modo Energy's tracking, and RenewableUK's database counts projects individually and models some sizes where specifications are not published.</p>
-<p id="battery-note-default">The Elexon Insights Solution currently only reports battery discharging, not charging. Charging figures are not shown here to avoid double-counting generation elsewhere on the system; giving a fuller picture of battery storage, including charging, is one of this site's future plans.</p>
-<p id="battery-note-expanded" hidden>
-  <s style="color:var(--text-muted);">The Elexon Insights Solution currently only reports battery discharging, not charging. Charging figures are not shown here to avoid double-counting generation elsewhere on the system; giving a fuller picture of battery storage, including charging, is one of this site's future plans.</s>
-  With the toggle above switched on, this shows a combined view: battery output swinging between charging (drawing power to store, shown as negative) and discharging (feeding power back out, shown as positive) across the day. Reporting charging live safely, without double-counting generation recorded elsewhere, needs a second data source alongside Elexon - most likely each battery operator's own metering, or a market-wide feed such as Modo Energy - which is why this view is still a placeholder rather than a live feed.
-</p>
+<p>The Elexon Insights Solution currently only reports battery discharging, not charging. Charging figures are not shown here to avoid double-counting generation elsewhere on the system; giving a fuller picture of battery storage, including charging, is one of this site's future plans.</p>
 <h3 style="font-size:.95rem;margin-top:1.5rem;">Sources</h3>
 <ul style="font-size:.85rem;color:var(--text-muted);">
   <li><a href="https://en.wikipedia.org/wiki/Dinorwig_Power_Station">Dinorwig Power Station</a>, <a href="https://en.wikipedia.org/wiki/Ffestiniog_Power_Station">Ffestiniog</a>, <a href="https://en.wikipedia.org/wiki/Cruachan_Power_Station">Cruachan</a> and <a href="https://en.wikipedia.org/wiki/Foyers_Power_Station">Foyers</a> - Wikipedia.</li>
@@ -354,8 +334,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261029f"></script>
-<script src="../assets/data.js?v=20261029f"></script>
+<script src="../assets/app.js?v=20261029g"></script>
+<script src="../assets/data.js?v=20261029g"></script>
 <script>
 (function () {
   const ranges = ["day", "week", "month", "season", "year", "5year", "10year"];
@@ -397,69 +377,27 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  // Battery charge/discharge toggle. PUMPED_GW/PUMPED_PCT/TOTAL_GENERATION_GW
-  // used to be a fixed, hand-typed snapshot with no indication it was not
-  // live - now null until the live api/current.php fetch below resolves,
-  // so "Current output"/"Share of generation" (and the Breakdown table's
-  // Pumped hydro row) show "Figures appear here when the next reading arrives." rather than a number that
-  // could only ever go stale. The battery figure itself stays a labelled
-  // preview (see this toggle's own caption) - there is no live per-battery
-  // reading in Elexon's fuel-type feed to wire it to.
-  let PUMPED_GW = null, PUMPED_PCT = null, TOTAL_GENERATION_GW = null;
-  const toggle = document.getElementById("battery-toggle");
-  const batteryPanel = document.getElementById("battery-panel");
-  const batteryGw = document.getElementById("battery-gw");
-  const batteryPct = document.getElementById("battery-pct");
+  // Pumped storage, live from api/current.php. Battery output is not shown:
+  // Elexon's fuel-type feed has no battery reading (see the note below).
+  let PUMPED_GW = null, PUMPED_PCT = null;
   const outputStat = document.getElementById("storage-output-stat");
   const shareStat = document.getElementById("storage-share-stat");
-  const noteDefault = document.getElementById("battery-note-default");
-  const noteExpanded = document.getElementById("battery-note-expanded");
-  let batteryDrawn = false;
-
-  function drawBatteryChart() {
-    const canvas = document.getElementById("battery-chart");
-    const series = GridPreview.buildSeries("day", -0.04, 0.7, 87, { min: -0.9, max: 0.9, cycles: 3 });
-    GridPreview.renderLineChart(canvas, series, { color: "#2a8fbd", unit: "GW", signed: "battery" });
-  }
-
-  // Stays false until the live fetch below has finished (either way), so
-  // the stat cards keep their "Loading live data…" pulse until then rather
-  // than flashing "Figures appear here when the next reading arrives." while the request is still running.
   let liveSettled = false;
   function setStat(el, text) {
     el.textContent = text;
     el.classList.toggle("is-loading-text", !liveSettled && text === "Loading live data…");
   }
-  function updateBattery(on) {
-    const haveLive = PUMPED_GW != null && PUMPED_PCT != null && TOTAL_GENERATION_GW != null;
+  function updatePumped() {
+    const haveLive = PUMPED_GW != null && PUMPED_PCT != null;
     const noData = liveSettled ? "Waiting for the next reading" : "Loading live data…";
-    if (on) {
-      const batteryNow = -0.18; // placeholder: currently net charging
-      batteryGw.textContent = batteryNow.toFixed(2);
-      batteryPct.textContent = haveLive ? ((batteryNow / TOTAL_GENERATION_GW) * 100).toFixed(1) : "-";
-      setStat(outputStat, haveLive ? (PUMPED_GW + batteryNow).toFixed(2) + "GW" : noData);
-      setStat(shareStat, haveLive ? (PUMPED_PCT + (batteryNow / TOTAL_GENERATION_GW) * 100).toFixed(1) + "%" : noData);
-      batteryPanel.hidden = false;
-      if (!batteryDrawn) { drawBatteryChart(); batteryDrawn = true; }
-      noteDefault.hidden = true;
-      noteExpanded.hidden = false;
-    } else {
-      batteryGw.textContent = "-";
-      batteryPct.textContent = "-";
-      setStat(outputStat, haveLive ? PUMPED_GW.toFixed(2) + "GW" : noData);
-      setStat(shareStat, haveLive ? PUMPED_PCT.toFixed(1) + "%" : noData);
-      batteryPanel.hidden = true;
-      noteDefault.hidden = false;
-      noteExpanded.hidden = true;
-    }
+    setStat(outputStat, haveLive ? PUMPED_GW.toFixed(2) + "GW" : noData);
+    setStat(shareStat, haveLive ? PUMPED_PCT.toFixed(1) + "%" : noData);
     const pumpedGwEl = document.getElementById("row-pumped-gw");
     const pumpedPctEl = document.getElementById("row-pumped-pct");
     if (pumpedGwEl) pumpedGwEl.textContent = haveLive ? PUMPED_GW.toFixed(2) : (liveSettled ? "-" : "…");
     if (pumpedPctEl) pumpedPctEl.textContent = haveLive ? PUMPED_PCT.toFixed(1) : (liveSettled ? "-" : "…");
   }
-
-  toggle.addEventListener("change", () => updateBattery(toggle.checked));
-  updateBattery(false);
+  updatePumped();
 
   (async function initLivePumpedStorage() {
     const current = window.GridData ? await window.GridData.fetchCurrent() : null;
@@ -467,10 +405,9 @@
     if (summary && summary.totalGenMw) {
       PUMPED_GW = summary.storageMw / 1000;
       PUMPED_PCT = summary.storageMw / summary.totalGenMw * 100;
-      TOTAL_GENERATION_GW = summary.totalGenMw / 1000;
     }
     liveSettled = true;
-    updateBattery(toggle.checked);
+    updatePumped();
   })();
 })();
 </script>

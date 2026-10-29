@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261029f">
-<link rel="stylesheet" href="../assets/design-c.css?v=20261029f">
+<link rel="stylesheet" href="../assets/style.css?v=20261029g">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029g">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -234,7 +234,7 @@
 
     <section class="panel" aria-labelledby="mix-heading">
       <h2 id="mix-heading">Generation mix right now</h2>
-      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Illustrative figures - see <a href="#ie-sources">data sources</a>.</p>
+      <p class="chart-caption" id="mix-status-caption" style="margin-top:-.25rem;">Loading live data…</p>
       <div class="panel-grid panel-grid--2">
         <table class="mix">
           <caption class="visually-hidden">Current Ireland generation by source</caption>
@@ -242,24 +242,13 @@
             <tr><th scope="col">Source</th><th scope="col" class="num">GW</th><th scope="col" class="num">%</th></tr>
           </thead>
           <tbody id="mix-tbody">
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--renewable)"></span>Renewables</th><td class="num">2.48</td><td class="num">53.8</td></tr>
-            <tr><td>Wind</td><td class="num">2.11</td><td class="num">45.8</td></tr>
-            <tr><td>Solar</td><td class="num">0.28</td><td class="num">6.1</td></tr>
-            <tr><td>Hydro</td><td class="num">0.09</td><td class="num">2.0</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--fossil)"></span>Fossil fuels</th><td class="num">1.84</td><td class="num">39.9</td></tr>
-            <tr><td>Gas</td><td class="num">1.78</td><td class="num">38.6</td></tr>
-            <tr><td>Oil / distillate peakers</td><td class="num">0.06</td><td class="num">1.3</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--other)"></span>Other &amp; storage</th><td class="num">0.07</td><td class="num">1.5</td></tr>
-            <tr><td>Battery storage</td><td class="num">0.07</td><td class="num">1.5</td></tr>
-            <tr class="group-row"><th scope="row"><span class="swatch" style="background:var(--interconnector)"></span>GB interconnect</th><td class="num">0.22</td><td class="num">4.8</td></tr>
-            <tr><td>Moyle (to Scotland)</td><td class="num">0.05</td><td class="num">1.1</td></tr>
-            <tr><td>EWIC (to Wales)</td><td class="num">0.17</td><td class="num">3.7</td></tr>
+            <tr><td colspan="3" style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">Loading live data…</td></tr>
           </tbody>
         </table>
         <div>
           <div class="chart-wrap"><canvas id="mix-donut" role="img" aria-label="Donut chart of current Ireland generation mix by source"></canvas></div>
           <ul class="chart-legend" id="mix-donut-legend"></ul>
-          <p class="chart-caption" id="mix-donut-caption">Generation 4.61GW plus 0.22GW imported, meeting 4.83GW of demand. The ESB peat stations closed in 2020 (the last peat-fired generation, at Edenderry, ended in 2023), and Moneypoint's coal units now run only as an emergency backup.</p>
+          <p class="chart-caption" id="mix-donut-caption"></p>
         </div>
       </div>
       <div class="chart-wrap" style="height:220px;margin-top:1.5rem;">
@@ -376,8 +365,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261029f"></script>
-<script src="../assets/data.js?v=20261029f"></script>
+<script src="../assets/app.js?v=20261029g"></script>
+<script src="../assets/data.js?v=20261029g"></script>
 <script>
 (function () {
   // demand/generation/emissions/transfers come from EirGrid via
@@ -431,39 +420,16 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  const SOURCE_LABELS = ["Wind", "Gas", "Solar", "GB interconnect", "Hydro", "Battery storage", "Oil / distillate peakers"];
-  const SOURCE_VALUES = [2.11, 1.78, 0.28, 0.22, 0.09, 0.07, 0.06];
-  // From GridData's canonical label->colour map (assets/data.js) - this
-  // array used to hardcode Hydro and Battery to the exact same blue,
-  // making the two indistinguishable in this donut. See that map's comment.
-  const SOURCE_COLORS = window.GridData.colorsFor(SOURCE_LABELS);
-
-  GridPreview.renderDonutChart(
-    document.getElementById("mix-donut"), SOURCE_LABELS, SOURCE_VALUES, SOURCE_COLORS,
-    { legendTarget: "mix-donut-legend", unit: "GW", decimals: 2, pctDecimals: 1, centerLabel: "4.61GW", centerSub: "generated" }
-  );
-
-  (function () {
-    const paired = SOURCE_LABELS.map((l, i) => ({ l, v: SOURCE_VALUES[i], c: SOURCE_COLORS[i] })).sort((a, b) => b.v - a.v);
-    GridPreview.renderBarChart(document.getElementById("mix-bar"), paired.map((p) => p.l), paired.map((p) => p.v), paired.map((p) => p.c), { unit: "GW" });
-  })();
 
   const SPARK_METRICS = {
-    price:      { base: 92.3, amp: 55, color: "#d98e04", min: -20, max: 220 },
-    emissions:  { base: 190, amp: 100, color: "#8a5a3c", min: 40, max: 420 },
-    demand:     { base: 4.8, amp: 1.4, color: "#1d6fe0", min: 2.8, max: 7.2 },
-    generation: { base: 4.6, amp: 1.4, color: "#0a6e5c", min: 2.5, max: 7.0 },
-    transfers:  { base: 0.15, amp: 0.5, color: "#d98e04", min: -0.9, max: 0.9 },
+    price:      { color: "#d98e04" },
+    emissions:  { color: "#8a5a3c" },
+    demand:     { color: "#1d6fe0" },
+    generation: { color: "#0a6e5c" },
+    transfers:  { color: "#d98e04" },
   };
   const SPARK_KEYS = Object.keys(SPARK_METRICS);
 
-  function drawMockSparkline(key) {
-    const canvas = document.getElementById("spark-" + key);
-    if (!canvas) return;
-    const cfg = SPARK_METRICS[key];
-    const series = GridPreview.buildSeries("3hour", cfg.base, cfg.amp, SPARK_KEYS.indexOf(key) * 37 + 9, { min: cfg.min, max: cfg.max, cycles: 1 });
-    GridPreview.renderSparkline(canvas, series.values, cfg.color);
-  }
 
   async function initIeStatusStrip() {
     const caption = document.getElementById("stat-caption");

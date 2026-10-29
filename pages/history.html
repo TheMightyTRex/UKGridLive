@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20261029f">
-<link rel="stylesheet" href="../assets/design-c.css?v=20261029f">
+<link rel="stylesheet" href="../assets/style.css?v=20261029g">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029g">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -387,28 +387,6 @@
       <p class="chart-caption">Want more on price specifically? See <a href="electricity-prices.html">how the price is calculated</a> or the dedicated <a href="price-history.html">historic prices page</a>.</p>
     </section>
 
-    <section class="panel" aria-labelledby="hist-battery-heading">
-      <h2 id="hist-battery-heading" style="font-size:1.05rem;">Battery charge/discharge</h2>
-      <label class="toggle-row">
-        <span class="switch">
-          <input type="checkbox" id="hist-battery-toggle">
-          <span class="switch__track"><span class="switch__thumb"></span></span>
-        </span>
-        <span>Include battery charge/discharge detail <em>(preview of a planned feature - see the <a href="storage.html">Storage page</a> for more)</em></span>
-      </label>
-
-      <div id="hist-battery-panel" hidden>
-        <h3 style="font-size:.95rem;">Battery charge/discharge over the last 24 hours</h3>
-        <div class="chart-wrap" style="height:220px;">
-          <canvas id="hist-battery-chart" role="img" aria-label="Line chart of battery storage swinging between charging and discharging over the last 24 hours"></canvas>
-        </div>
-        <p class="chart-caption">Positive values mean batteries are discharging onto the grid; negative values mean they are charging up. Illustrative until battery output is separately confirmed in the live feed - see the Storage page.</p>
-        <button type="button" class="copy-btn" style="margin-top:.7rem;" id="hist-battery-copy">
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/></svg>
-          <span data-copy-label aria-live="polite">Copy data</span>
-        </button>
-      </div>
-    </section>
 
   </div>
 </main>
@@ -420,8 +398,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261029f"></script>
-<script src="../assets/data.js?v=20261029f"></script>
+<script src="../assets/app.js?v=20261029g"></script>
+<script src="../assets/data.js?v=20261029g"></script>
 <script>
 (function () {
   const METRICS = {
@@ -811,39 +789,6 @@
   drawRange("day");
   document.querySelector('[data-tablist]').addEventListener("rangechange", (e) => drawRange(e.detail.range));
 
-  // Battery charge/discharge toggle - same illustrative preview as the
-  // Overview page's "Generation mix right now" panel, ported here so it is
-  // available alongside the rest of the historical detail.
-  (function () {
-    const toggle = document.getElementById("hist-battery-toggle");
-    const panel = document.getElementById("hist-battery-panel");
-    const copyBtn = document.getElementById("hist-battery-copy");
-    let batterySeries = null;
-
-    function drawChart() {
-      const canvas = document.getElementById("hist-battery-chart");
-      batterySeries = GridPreview.buildSeries("day", -0.04, 0.7, 61, { min: -0.9, max: 0.9, cycles: 3 });
-      GridPreview.renderLineChart(canvas, batterySeries, { label: "Battery", color: "#2a8fbd", unit: "GW", noExport: true, signed: "battery" }); // illustrative-only data (see caption below) - not something to export as if it were real
-    }
-
-    toggle.addEventListener("change", () => {
-      panel.hidden = !toggle.checked;
-      if (toggle.checked && !batterySeries) drawChart();
-    });
-
-    copyBtn.addEventListener("click", () => {
-      if (!batterySeries) {
-        GridPreview.announceCopyResult(copyBtn, false);
-        return;
-      }
-      const text = GridPreview.seriesToText(batterySeries.times, batterySeries.labels, [{ name: "Battery", unit: "GW", values: batterySeries.values }], {
-        title: "Battery charge/discharge - last 24 hours - UK Grid: Live+",
-      });
-      GridPreview.copyText(text)
-        .then(() => GridPreview.announceCopyResult(copyBtn, true))
-        .catch(() => GridPreview.announceCopyResult(copyBtn, false));
-    });
-  })();
 })();
 </script>
 </body>

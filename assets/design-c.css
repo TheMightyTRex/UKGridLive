@@ -642,3 +642,20 @@ html.nav-compact .site-nav { flex: 0 0 0; width: 0; min-width: 0; }
   .display-btn { width: 36px; min-height: 36px; }
   .nav-toggle { min-height: 36px; padding: 0 8px; gap: 6px; font-size: 14px; }
 }
+
+/* ---------- Open menu tab joins its panel ----------
+   On desktop, an open menu button becomes a tab: it takes the panel's
+   colour and runs down over the black bar and the yellow line into the
+   panel, so there is no gap between the button and its menu. */
+@media (min-width: 1180px) {
+  html:not(.nav-compact) .nav-group__toggle[aria-expanded="true"] {
+    position: relative; z-index: 3;
+    background: var(--bg-elevated); color: var(--text);
+    border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+  }
+  html:not(.nav-compact) .nav-group__toggle[aria-expanded="true"]::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 100%;
+    height: calc((72px - 100%) / 2 + 4px); background: var(--bg-elevated);
+  }
+  html:not(.nav-compact) .nav-panel { z-index: 2; }
+}

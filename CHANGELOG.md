@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Chart check: no made-up data anywhere; menu tab joins its panel)
+
+- **Checked every chart on all 39 pages** three ways: with live data for every API, with every API returning an error, and with the network down. With data, every live chart draws. With no data, every live chart shows an empty state or a "not available" note. Nothing stays stuck on "Loading", and no page throws a JavaScript error. Only fixed, sourced charts (records, capacity and plan figures) draw without the API.
+- **Removed every piece of made-up data:**
+  - The battery charge/discharge "preview" on the homepage, History and Storage pages drew a generated wave and showed a fixed -0.18GW. History's version could even copy that as text. It is gone: Elexon's feed has no battery reading, and the Storage page's note already says so.
+  - The homepage "Download snapshot" button used built-in example figures before live data loaded. It now says "No live figures to save yet" until real figures arrive.
+  - Ireland's page drew a hard-coded example bar chart, donut and table (2.11GW wind and so on), and the bar chart could reappear under "no data". These are gone; the table starts on "Loading live data…".
+  - The unused example sparkline functions and their made-up base values are removed from 13 pages, and `GridPreview.buildSeries()` (the generator behind all of it) is removed from `assets/app.js`.
+- **Homepage hero:** with no live data, the summary card no longer stays on "Loading live data…".
+- **Menus (desktop):** an open menu button now turns into a tab in the panel's colour and runs down over the black bar and the yellow line into the panel, so there is no gap between the button and its menu.
+
 ## 2026-10-29 (Ireland: mix combines EirGrid and ENTSO-E)
 
 - Ireland's generation mix right now uses EirGrid's total generation, wind, solar and GB interconnection (every 15 minutes), plus ENTSO-E's other types for Ireland: hydro, peat, pumped storage and any others it publishes. Wind and solar come only from EirGrid. What is left of EirGrid's total is "Gas and other (calculated)" (or "Other (calculated)" if ENTSO-E ever publishes gas). ENTSO-E figures more than 6 hours older than EirGrid's are left out, and the caption says so. The caption gives both sources' times and notes that ENTSO-E still lists Edenderry under peat.
