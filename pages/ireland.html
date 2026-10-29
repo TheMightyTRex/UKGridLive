@@ -279,7 +279,7 @@
         <canvas id="mix-stack" role="img" aria-label="Stacked area chart of renewable and fossil fuel generation over the last 24 hours"></canvas>
       </div>
       <ul class="chart-legend" id="mix-stack-legend" style="justify-content:center;"></ul>
-      <p class="chart-caption">Wind so often dominates Ireland's mix that gas output usually moves in the opposite direction, hour by hour. From EirGrid's Smart Grid Dashboard. Gas and other sources is total generation minus wind and solar.</p>
+      <p class="chart-caption">Wind so often dominates Ireland's mix that gas output usually moves in the opposite direction, hour by hour. From EirGrid's Smart Grid Dashboard. Gas and other (calculated) is total generation minus wind and solar.</p>
     </section>
 
     <section class="panel" aria-labelledby="history-heading">
@@ -361,9 +361,9 @@
         <li><strong><a href="https://www.smartgriddashboard.com/">EirGrid Group's Smart Grid Dashboard</a></strong> - live for demand, total generation, wind, solar, GB interconnection and carbon intensity across the island of Ireland, and for the generation mix: right now, over the last 24 hours, and EirGrid's own 24-hour fuel mix.</li>
         <li><strong>SONI</strong> - EirGrid's Northern Ireland transmission system operator counterpart, covered within the same all-island figures.</li>
         <li><strong><a href="https://www.sem-o.com/">SEMO</a></strong> (Single Electricity Market Operator) - now wired up live for the "SEM imbalance price" stat above: the real, ex-post settlement price at 5-minute granularity, via SEMO's own public, keyless Reports API (report BM-025, "Imbalance Price Report"). This is genuinely different from the day-ahead price below - it is what generators/suppliers are actually paid or charged for being out of balance with their day-ahead position, not the price agreed the day before. SEMO also publishes the day-ahead price itself, but this site gets that via ENTSO-E instead (see below), since it already needed that feed for the generation mix.</li>
-        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM day-ahead price stat and the History section's price panel above, via its Ireland (SEM) bidding zone. It is no longer used for Ireland's generation mix: in near real time it only carries wind, hydro and peat for Ireland, with no gas. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one is not set or ingestion has not run yet.</li>
+        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM day-ahead price stat and the History section's price panel above, via its Ireland (SEM) bidding zone. For the generation mix it supplies hydro, peat and the other smaller types it publishes for Ireland. It is not used for wind or gas: in near real time it carries no gas for Ireland, and EirGrid's own wind figure is more up to date. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one is not set or ingestion has not run yet.</li>
       </ul>
-      <p>EirGrid publishes total generation, wind and solar in real time, but not gas, hydro, biomass, batteries or oil separately. The mix shows those together as "gas and other sources": total generation minus wind and solar. GB interconnection is EirGrid's net figure across Moyle, EWIC and Greenlink. Each chart shows "not enough recorded history yet" rather than a placeholder if this install has not collected enough history for a given range.</p>
+      <p>EirGrid publishes total generation, wind and solar in real time, but not gas, oil or batteries separately. The mix adds ENTSO-E's hydro and peat figures (left out if they are more than 6 hours older than EirGrid's) and shows what is left of EirGrid's total as one calculated "gas and other" figure. GB interconnection is EirGrid's net figure across Moyle, EWIC and Greenlink. Each chart shows "not enough recorded history yet" rather than a placeholder if this install has not collected enough history for a given range.</p>
     </section>
 
   </div>
@@ -484,46 +484,82 @@
     // instead. Called once immediately with whatever's cached (either
     // source may be missing or stale independently) and again once each
     // fetch resolves.
-    // Generation mix right now, all from EirGrid at one timestamp. ENTSO-E's
-    // Ireland breakdown only carries wind, hydro and peat in near real time
-    // (no gas), so it showed wind as over 90% of a mix that was missing half
-    // the island's generation. EirGrid publishes total generation, wind and
-    // solar; the rest is shown as one calculated figure.
-    function renderIeMix(cur, cached) {
+    // Generation mix right now. EirGrid (every 15 minutes) gives total
+    // generation, wind, solar and GB interconnection. ENTSO-E adds the
+    // smaller types it publishes for Ireland in near real time (hydro, peat,
+    // pumped storage and any others), read at its own nearest time. What is
+    // left of EirGrid's total is shown as one calculated "gas and other"
+    // figure, since nobody publishes Irish gas output in real time. ENTSO-E
+    // figures more than 6 hours older than EirGrid's are not used.
+    const ENTSOE_MAX_LAG_MS = 6 * 3600 * 1000;
+    function renderIeMix(cur, cached, entsoe) {
       const opts = {
         tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
         donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
       };
       const m = cur && cur.mix;
       if (!m || m.total_mw == null || m.wind_mw == null) { GridPreview.showNoMixData(opts); return; }
+      const D = window.GridData || {};
       const wind = Math.max(0, m.wind_mw), solar = Math.max(0, m.solar_mw || 0);
-      const rest = Math.max(0, m.total_mw - wind - solar);
       const rows = [
         { label: "Wind", mw: wind, group: "renewable", color: "#2fa876" },
         { label: "Solar", mw: solar, group: "renewable", color: "#e0a800" },
-        { label: "Gas and other sources", mw: rest, group: "fossil", color: "#8a5a3c" },
       ];
+      // ENTSO-E's other types, if recent enough. Wind and solar come from EirGrid only.
+      const mix = entsoe && entsoe.mix_mw;
+      const lag = mix && entsoe.mix_ts ? new Date(m.ts) - new Date(entsoe.mix_ts) : Infinity;
+      const useEntsoe = mix && Math.abs(lag) <= ENTSOE_MAX_LAG_MS;
+      let fromEntsoe = 0, hasGas = false;
+      const entsoeLabels = [];
+      if (useEntsoe) {
+        Object.keys(mix).forEach((code) => {
+          if (["B16", "B18", "B19"].indexOf(code) !== -1) return;
+          const mw = Number(mix[code]);
+          if (!isFinite(mw)) return;
+          if (code === "B04") hasGas = true;
+          const group = code === "B10" ? "storage"
+            : (D.ENTSOE_RENEWABLE_PSR || []).indexOf(code) !== -1 ? "renewable"
+            : (D.ENTSOE_FOSSIL_PSR || []).indexOf(code) !== -1 ? "fossil" : "other";
+          const label = (D.ENTSOE_PSR_LABELS && D.ENTSOE_PSR_LABELS[code]) || code;
+          rows.push({ label, mw, group, color: (D.ENTSOE_PSR_COLORS && D.ENTSOE_PSR_COLORS[code]) || "#7a7a7a" });
+          if (mw > 0) { fromEntsoe += mw; entsoeLabels.push(label.toLowerCase()); }
+        });
+      }
+      const restLabel = hasGas ? "Other (calculated)" : "Gas and other (calculated)";
+      rows.push({ label: restLabel, mw: Math.max(0, m.total_mw - wind - solar - fromEntsoe), group: "fossil", color: hasGas ? "#7a7a7a" : "#8a5a3c" });
       const icMw = m.interconnection_mw;
       if (icMw != null && isFinite(icMw)) {
         rows.push({ label: icMw >= 0 ? "GB interconnect (importing)" : "GB interconnect (exporting)", mw: icMw, group: "interconnection", color: "#d98e04" });
       }
-      const asOf = GridPreview.formatClockTime(m.ts);
+      const eirAt = GridPreview.formatClockTime(m.ts);
+      const entAt = useEntsoe ? GridPreview.formatClockTime(entsoe.mix_ts) : "";
       GridPreview.renderMixBreakdown(rows, Object.assign({}, opts, {
         groups: [
           { key: "renewable", label: "Renewables", color: "#1f9d5a" },
-          { key: "fossil", label: "Gas and other sources", color: "#8a5a3c" },
+          { key: "fossil", label: "Gas and other fossil fuels", color: "#8a5a3c" },
+          { key: "storage", label: "Storage", color: "#0e8f7a" },
+          { key: "other", label: "Other", color: "#7a7a7a" },
           { key: "interconnection", label: "Imports", color: "#d98e04" },
         ],
         decimals: 2,
         centerSub: icMw > 0 ? "supply" : "generated",
         statusCaptionHtml: cached
           ? "Showing the last successfully loaded generation mix while this page fetches the latest data."
-          : 'Live from <a href="https://www.smartgriddashboard.com/">EirGrid\'s Smart Grid Dashboard</a> - see <a href="#ie-sources">data sources</a>.',
+          : 'Live from <a href="https://www.smartgriddashboard.com/">EirGrid\'s Smart Grid Dashboard</a>' +
+            (useEntsoe ? ' and the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a>' : "") +
+            ' - see <a href="#ie-sources">data sources</a>.',
         captionFn: (sm) => {
           const imported = sm.positive.filter((r) => r.group === "interconnection").reduce((t, r) => t + r.mw, 0);
-          return `Generation ${sm.gw(sm.totalMw - imported)}GW` + (imported > 0 ? ` plus ${sm.gw(imported)}GW imported (${sm.gw(sm.totalMw)}GW total)` : "") +
-            `, from EirGrid's Smart Grid Dashboard` + (asOf ? ` at ${asOf}` : "") + ". " +
-            "Gas and other sources is EirGrid's total generation minus wind and solar. It is mostly gas, plus hydro, biomass, batteries and oil, which EirGrid does not publish separately in real time. So the renewable share here is slightly low.";
+          let text = `Generation ${sm.gw(sm.totalMw - imported)}GW` + (imported > 0 ? ` plus ${sm.gw(imported)}GW imported (${sm.gw(sm.totalMw)}GW total)` : "") + ". " +
+            `Total generation, wind, solar and GB interconnection are from EirGrid` + (eirAt ? ` at ${eirAt}` : "") + ". ";
+          if (useEntsoe && entsoeLabels.length) {
+            text += `${entsoeLabels.join(", ").replace(/, ([^,]*)$/, " and $1").replace(/^./, (c) => c.toUpperCase())} ${entsoeLabels.length === 1 ? "is" : "are"} from ENTSO-E` + (entAt ? ` at ${entAt}` : "") + ". ";
+          } else if (mix && !useEntsoe) {
+            text += "ENTSO-E's figures for hydro and other smaller types are more than 6 hours old, so they are left out and counted in the calculated figure. ";
+          }
+          text += `${restLabel.replace(" (calculated)", "")} is EirGrid's total minus everything listed: ${hasGas ? "oil, batteries, waste and other plants" : "mostly gas, plus oil, batteries and waste"}. Nobody publishes ${hasGas ? "these" : "Irish gas output"} in real time.`;
+          if (useEntsoe && mix.B08 > 0) text += " ENTSO-E lists Edenderry under peat; it now burns biomass.";
+          return text;
         },
       }));
     }
@@ -573,7 +609,7 @@
       const ic = icSource !== undefined ? icSource : current;
       const priceEl = document.getElementById("stat-price");
       if (priceEl) priceEl.textContent = entsoe && entsoe.price_eur_mwh != null ? entsoe.price_eur_mwh.toFixed(2) : "-";
-      renderIeMix(ic, isCached || (!current && !!ic));
+      renderIeMix(ic, isCached || (!current && !!ic), entsoe);
       renderFuel24(ic);
 
       if (!current) return;
@@ -698,7 +734,7 @@
     // saying nothing, same reasoning as index.html's GB status strip.
     const issueBanner = await GridPreview.buildApiIssueBanner({
       EIRGRID: "demand, generation, wind, GB interconnection & generation mix (EirGrid)",
-      ENTSOE: { label: "SEM day-ahead price (ENTSO-E)", country: "IE" },
+      ENTSOE: { label: "SEM day-ahead price, hydro and peat (ENTSO-E)", country: "IE" },
       SEMO: "SEM imbalance price (SEMO)",
     });
     if (issueBanner) {
@@ -756,7 +792,7 @@
     GridPreview.renderStackedAreaChart(canvas, times, labels, [
       { name: "Wind", color: "#2fa876", values: windV },
       { name: "Solar", color: "#e0a800", values: solarV },
-      { name: "Gas and other sources", color: "#8a5a3c", values: restV },
+      { name: "Gas and other (calculated)", color: "#8a5a3c", values: restV },
     ], { unit: "GW", legendTarget: "mix-stack-legend" });
   })();
 
