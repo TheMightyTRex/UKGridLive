@@ -187,6 +187,16 @@
   }
 
   /** Latest all-island Ireland snapshot: demand/generation/wind/interconnection/emissions (EirGrid), plus semo_imbalance_price_eur_mwh/semo_ts (SEMO, independently null if that half is not live - see api/ireland_current.php's docblock). Returns null if unavailable. */
+  /** GB battery storage (api/battery.php): notified now + 24h, metered 7 days. Null if unavailable. */
+  async function fetchBattery(apiBase) {
+    try {
+      const data = await fetchJSON((apiBase || DEFAULT_API_BASE) + "battery.php");
+      return data && data.ok ? data : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   async function fetchIrelandCurrent(apiBase) {
     try {
       const data = await fetchJSON((apiBase || DEFAULT_API_BASE) + "ireland_current.php");
@@ -674,6 +684,7 @@
     fetchWeatherSeries,
     fetchConstraintsSummary,
     fetchNotableMoments,
+    fetchBattery,
     fetchIrelandCurrent,
     fetchIrelandSeries,
     fetchUsaCurrent,

@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/style.css?v=20261029h">
-<link rel="stylesheet" href="../assets/design-c.css?v=20261029h">
+<link rel="stylesheet" href="../assets/style.css?v=20261029i">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029i">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -243,6 +243,29 @@
 
     </section>
 
+    <section class="panel" aria-labelledby="battery-heading">
+      <h2 id="battery-heading">Batteries</h2>
+      <p>Nobody publishes a measured total for Great Britain's batteries as it happens. So this adds up the battery units registered in the Balancing Mechanism, using Elexon's data. Charging is shown as negative.</p>
+      <dl class="status-grid status-grid--3" aria-label="Batteries right now">
+        <div class="stat"><dt>Batteries right now (notified)</dt><dd id="bat-now" class="is-loading-text" aria-live="polite">Loading live data…</dd></div>
+        <div class="stat"><dt>Charging</dt><dd id="bat-charge" aria-live="polite">-</dd></div>
+        <div class="stat"><dt>Discharging</dt><dd id="bat-discharge" aria-live="polite">-</dd></div>
+      </dl>
+      <p class="chart-caption" id="bat-now-caption">Loading live data…</p>
+      <h3>Notified, last 24 hours</h3>
+      <div class="chart-wrap is-loading" style="height:220px;"><canvas id="bat-notified-chart" role="img" aria-label="Line chart of battery output notified to NESO over the last 24 hours, negative when charging"></canvas></div>
+      <p class="chart-caption">Notified figures are what each battery told NESO it plans to do in each half hour, about an hour ahead. They are plans, not measurements: NESO's instructions can change what a battery actually does.</p>
+      <h3>Metered, latest 7 days published</h3>
+      <div class="chart-wrap is-loading" style="height:220px;"><canvas id="bat-metered-chart" role="img" aria-label="Line chart of metered battery output over the latest 7 days Elexon has published, negative when charging"></canvas></div>
+      <p class="chart-caption" id="bat-metered-caption">Metered figures are what each battery actually did. Elexon publishes them about a week later.</p>
+      <p class="chart-caption">These figures cover only batteries registered in the Balancing Mechanism. Smaller batteries outside it, including home batteries, are not included. Elexon does not label units as batteries, so they are picked out from Elexon's register by name, ID and the ability to both charge and discharge. Battery output is not shown separately in Elexon's generation by fuel type, so it is not added to the mix elsewhere on this site.</p>
+      <h3 style="font-size:.95rem;margin-top:1.5rem;">Sources</h3>
+      <ul style="font-size:.85rem;color:var(--text-muted);">
+        <li><a href="https://bmrs.elexon.co.uk/">Elexon Insights Solution</a> - Physical Notifications (PN) for notified output, B1610 actual generation output per unit for metered output, and the BM unit register. Contains BMRS data © Elexon Limited copyright and database right 2026.</li>
+        <li><a href="https://www.neso.energy/data-portal/historic-generation-mix">NESO: historic generation mix</a> - "Batteries (NET discharge) are currently included in the OTHER category". Checked 29 October 2026.</li>
+      </ul>
+    </section>
+
     <section class="panel" aria-labelledby="history-heading">
       <h2 id="history-heading">History</h2>
       <div class="range-tabs" role="tablist" data-tablist aria-label="Time range">
@@ -283,11 +306,11 @@
 <p>Batteries typically discharge for shorter bursts than pumped hydro - commonly half an hour to two hours - making them well suited to smoothing short-term mismatches between renewable output and demand, and to providing fast frequency response that keeps the grid stable moment to moment.</p>
 <p>The growth is now very fast. Government statistics put UK grid-scale battery capacity at 7.5GW by the end of 2025, after a record 2.3GW was connected during that year, and Great Britain's batteries supplied 2.3TWh in 2025, up from 0.8TWh in 2023. They are also slightly more efficient than pumped hydro: in 2025 batteries returned 85% of the energy put into them, against 81% for pumped storage (DESNZ). The industry body RenewableUK counted 8.7GW / 14.1GWh operational across the UK by 12 October 2026, with around 9.1GW / 19GWh more under construction. The government's Clean Power 2030 plan aims for 23-27GW of batteries by 2030.</p>
 <p>Different counts of battery capacity do not always match: DESNZ's figure scales up the batteries registered in Elexon's Balancing Mechanism (by about 1.3 times) to include smaller sites that are not registered, the government's July 2026 flexibility roadmap quotes 7.3GW for June 2026 from Modo Energy's tracking, and RenewableUK's database counts projects individually and models some sizes where specifications are not published.</p>
-<p>The Elexon Insights Solution currently only reports battery discharging, not charging. Charging figures are not shown here to avoid double-counting generation elsewhere on the system; giving a fuller picture of battery storage, including charging, is one of this site's future plans.</p>
+<p>Elexon's generation by fuel type has no battery category, and NESO's historic generation mix counts battery discharge inside "Other" and leaves charging out. The Batteries section above adds up the battery units in the Balancing Mechanism instead.</p>
 <h3 style="font-size:.95rem;margin-top:1.5rem;">Sources</h3>
 <ul style="font-size:.85rem;color:var(--text-muted);">
   <li><a href="https://en.wikipedia.org/wiki/Dinorwig_Power_Station">Dinorwig Power Station</a>, <a href="https://en.wikipedia.org/wiki/Ffestiniog_Power_Station">Ffestiniog</a>, <a href="https://en.wikipedia.org/wiki/Cruachan_Power_Station">Cruachan</a> and <a href="https://en.wikipedia.org/wiki/Foyers_Power_Station">Foyers</a> - Wikipedia.</li>
-  <li><a href="https://www.elexon.co.uk/bsc/about/interconnectors/">Elexon</a> - on current battery-discharge-only reporting in the Balancing Mechanism.</li>
+  <li><a href="https://www.neso.energy/data-portal/historic-generation-mix">NESO: historic generation mix</a> - how batteries are counted in the generation mix (in "Other", discharge only).</li>
   <li><a href="https://assets.publishing.service.gov.uk/media/6a3ea00d30b491f55b3c4b3d/Grid-scale_battery_storage_statistics.pdf">DESNZ: Grid-scale battery storage statistics</a> (Energy Trends special article, 30 June 2026) - capacity, output and efficiency.</li>
   <li><a href="https://www.gov.uk/government/publications/clean-flexibility-roadmap/clean-flexibility-roadmap-july-2026-update-accessible-webpage">DESNZ: Clean flexibility roadmap, July 2026 update</a> - June 2026 battery (Modo Energy) and long-duration storage (NESO) figures.</li>
   <li><a href="https://www.renewableuk.com/energypulse/blog/stacking-up-the-storage-2026-how-the-uk-battery-storage-market-has-changed-in-the-last-year/">RenewableUK EnergyPulse: Stacking up the storage 2026</a> (21 October 2026, data as of 12 October 2026) - operational and under-construction battery capacity.</li>
@@ -334,8 +357,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261029h"></script>
-<script src="../assets/data.js?v=20261029h"></script>
+<script src="../assets/app.js?v=20261029i"></script>
+<script src="../assets/data.js?v=20261029i"></script>
 <script>
 (function () {
   const ranges = ["day", "week", "month", "season", "year", "5year", "10year"];
@@ -398,6 +421,45 @@
     if (pumpedPctEl) pumpedPctEl.textContent = haveLive ? PUMPED_PCT.toFixed(1) : (liveSettled ? "-" : "…");
   }
   updatePumped();
+
+  // Batteries: notified (PN) right now and over 24 hours, metered (B1610) latest 7 days
+  (async function initBatteries() {
+    const d = window.GridData && window.GridData.fetchBattery ? await window.GridData.fetchBattery() : null;
+    const nowEl = document.getElementById("bat-now");
+    const cEl = document.getElementById("bat-charge"), dEl = document.getElementById("bat-discharge");
+    const cap = document.getElementById("bat-now-caption");
+    const gw = (mw) => (mw / 1000).toFixed(2) + "GW";
+    nowEl.classList.remove("is-loading-text");
+    if (d && d.now) {
+      const n = d.now.net_mw;
+      nowEl.textContent = (n < 0 ? "Charging " : "Discharging ") + gw(Math.abs(n));
+      cEl.textContent = gw(Math.abs(d.now.charge_mw));
+      dEl.textContent = gw(d.now.discharge_mw);
+      cap.textContent = `Net of all ${d.now.units} battery units with a notification for the half hour from ${GridPreview.fmtTime12(new Date(d.now.ts))}` +
+        (d.units ? `, out of ${d.units} battery units in Elexon's register` : "") + ". Some charge while others discharge, so both are shown.";
+    } else {
+      nowEl.textContent = "Waiting for the next reading";
+      cap.textContent = "Battery figures appear here after the site's next data refresh.";
+    }
+    function draw(id, points, fmt, empty) {
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      canvas.closest(".chart-wrap").classList.remove("is-loading");
+      if (!points || points.length < 2) { GridPreview.showChartError(canvas, empty); return; }
+      GridPreview.renderLineChart(canvas, {
+        times: points.map((p) => p.t),
+        labels: points.map((p) => GridPreview.formatLabel(p.t, fmt)),
+        values: points.map((p) => +(p.net / 1000).toFixed(3)),
+      }, { label: "Batteries", color: "#0e8f7a", unit: "GW", signed: "battery" });
+    }
+    draw("bat-notified-chart", d && d.notified, "time", "Figures appear here when the next reading arrives.");
+    draw("bat-metered-chart", d && d.metered, "day", "Elexon publishes metered figures about a week later. They appear here once the site has collected them.");
+    const mc = document.getElementById("bat-metered-caption");
+    if (mc && d && d.metered_latest) {
+      mc.textContent = "Metered figures are what each battery actually did. Elexon publishes them about a week later; the newest here is for the half hour from " +
+        GridPreview.formatClockTime(d.metered_latest) + ".";
+    }
+  })();
 
   (async function initLivePumpedStorage() {
     const current = window.GridData ? await window.GridData.fetchCurrent() : null;

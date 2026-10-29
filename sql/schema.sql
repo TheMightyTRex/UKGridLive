@@ -140,6 +140,24 @@ CREATE TABLE IF NOT EXISTS readings_ie_fuelmix (
   KEY idx_ts (ts)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- GB battery storage (Balancing Mechanism battery units, Elexon):
+-- NOTIFIED from Physical Notifications (planned), METERED from B1610
+-- (actual, published days later). Negative = charging. See includes/battery.php.
+-- ukgrid_ingest_battery() also creates this table if it is missing.
+CREATE TABLE IF NOT EXISTS readings_battery (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ts DATETIME NOT NULL COMMENT 'UTC - settlement period start',
+  kind VARCHAR(10) NOT NULL COMMENT 'NOTIFIED (PN) or METERED (B1610)',
+  net_mw DECIMAL(10,2) NOT NULL,
+  charge_mw DECIMAL(10,2) NOT NULL,
+  discharge_mw DECIMAL(10,2) NOT NULL,
+  units SMALLINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_ts_kind (ts, kind),
+  KEY idx_kind_ts (kind, ts)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- SEMO (Single Electricity Market Operator) - the all-island (ROI + NI)
 -- Imbalance Price / System Marginal Price, at 5-minute settlement-period
 -- granularity, ex-post. Genuinely new alongside readings_ie_demand/

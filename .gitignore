@@ -21,3 +21,4 @@ Thumbs.db
 .vscode/
 .idea/
 includes/entsoe_attempts.json
+includes/battery_units.json
