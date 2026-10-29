@@ -1336,12 +1336,19 @@
   async function buildApiIssueBanner(sourceLabels) {
     const status = window.GridData ? await window.GridData.fetchStatus() : null;
     if (!status || !status.sources) return null; // status.php itself unreachable - cannot tell either way, so say nothing
+    // A label can be { label, country }: ENTSO-E's status covers whichever
+    // countries its last run fetched ("Countries: IT. ..."), so a failure
+    // for another country is not this page's problem.
     const broken = Object.keys(sourceLabels).filter((key) => {
       const s = status.sources[key];
-      return s && s.status !== "OK";
+      if (!s || s.status === "OK") return false;
+      const want = typeof sourceLabels[key] === "object" ? sourceLabels[key].country : null;
+      const m = want && /Countries:\s*([A-Z]{2}(?:\s*,\s*[A-Z]{2})*)/.exec(s.message || "");
+      if (m && m[1].split(/\s*,\s*/).indexOf(want) === -1) return false;
+      return true;
     });
     if (!broken.length) return null;
-    const labels = broken.map((key) => sourceLabels[key]);
+    const labels = broken.map((key) => (typeof sourceLabels[key] === "object" ? sourceLabels[key].label : sourceLabels[key]));
     return (
       (broken.length === 1 ? "One of this page's live data sources is" : "Some of this page's live data sources are") +
       " having trouble right now: " + labels.join("; ") + ". Those figures may be out of date until it recovers."
@@ -1677,7 +1684,7 @@
 
       if (horizontal) {
         ctx.font = '12px "Open Sans", sans-serif';
-        const labelW = Math.min(110, Math.max(...labels.map((l) => ctx.measureText(l).width)) + 4);
+        const labelW = Math.min(160, Math.max(...labels.map((l) => ctx.measureText(l).width)) + 4);
         const pad = { l: labelW + 12, r: 46, t: 8, b: 8 };
         const plotW = w - pad.l - pad.r;
         const plotH = h - pad.t - pad.b;
