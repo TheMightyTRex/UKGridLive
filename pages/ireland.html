@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261029c">
-<link rel="stylesheet" href="../assets/design-c.css?v=20261029c">
+<link rel="stylesheet" href="../assets/style.css?v=20261029d">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029d">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -221,8 +221,8 @@
       <p>The island of Ireland runs a single, synchronous grid spanning both jurisdictions - the Republic of Ireland and Northern Ireland - balanced together as the Single Electricity Market (SEM) by EirGrid and SONI. It is one of the windiest grids in Europe and has to manage that without the cushioning of a large synchronous neighbour.</p>
     </section>
 
+    <p class="home-hero__pill page-pill"><span class="home-hero__dot" aria-hidden="true"></span><span class="home-hero__updated">Data as of</span> <span id="stat-time" class="is-loading-text">Loading live data…</span></p>
     <dl class="status-grid" aria-label="Current Ireland grid status">
-      <div class="stat stat--live"><dt>Data as of</dt><dd id="stat-time" class="is-loading-text">Loading live data…</dd></div>
       <div class="stat"><dt>SEM day-ahead price</dt><dd class="is-loading-value">€<span id="stat-price">–</span><small>/MWh</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap is-loading"><canvas id="spark-price" aria-hidden="true"></canvas></div></dd></div>
       <div class="stat"><dt>SEM imbalance price</dt><dd class="is-loading-value">€<span id="stat-semo-price">–</span><small>/MWh</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap is-loading"><canvas id="spark-semo-price" aria-hidden="true"></canvas></div></dd></div>
       <div class="stat"><dt>Emissions</dt><dd class="is-loading-value"><span id="stat-emissions">–</span><small>g/kWh</small></dd><dd class="stat__extra"><div class="stat__spark chart-wrap is-loading"><canvas id="spark-emissions" aria-hidden="true"></canvas></div></dd></div>
@@ -371,8 +371,8 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261029c"></script>
-<script src="../assets/data.js?v=20261029c"></script>
+<script src="../assets/app.js?v=20261029d"></script>
+<script src="../assets/data.js?v=20261029d"></script>
 <script>
 (function () {
   // demand/generation/emissions/transfers come from EirGrid via

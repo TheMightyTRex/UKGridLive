@@ -4083,6 +4083,10 @@
       }
       tools.appendChild(wrap);
     }
+    // Country pages: the "Data as of" pill sits on the left of the same line
+    const pill = main.querySelector(".page-pill");
+    const sw = tools.querySelector(".country-switch");
+    if (pill && sw) tools.insertBefore(pill, sw);
     if (tools.children.length) hero.parentNode.insertBefore(tools, hero.nextSibling);
   }
 
