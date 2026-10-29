@@ -79,7 +79,7 @@
     const navToggle = document.querySelector("[data-nav-toggle]");
     const navList = document.querySelector("[data-nav-list]");
     const groupToggles = Array.from(document.querySelectorAll("[data-nav-group]"));
-    const navEl = document.querySelector(".site-nav");
+    const navEl = document.querySelector(".site-head") || document.querySelector(".site-nav");
 
     function closeAllGroups(exceptBtn) {
       groupToggles.forEach((btn) => {
@@ -100,6 +100,7 @@
     if (navToggle && navList) {
       navToggle.addEventListener("click", () => {
         const isOpen = !navList.classList.contains("is-open");
+        if (isOpen && window.GridPreview.closeDisplayPanel) window.GridPreview.closeDisplayPanel(false);
         navList.classList.toggle("is-open", isOpen);
         navToggle.setAttribute("aria-expanded", String(isOpen));
         if (!isOpen) closeAllGroups();
@@ -110,6 +111,7 @@
       const menu = document.getElementById(btn.getAttribute("aria-controls"));
       if (!menu) return;
       btn.addEventListener("click", () => {
+        if (window.GridPreview.closeDisplayPanel) window.GridPreview.closeDisplayPanel(false);
         const willOpen = !menu.classList.contains("is-open");
         closeAllGroups(willOpen ? btn : undefined);
         menu.classList.toggle("is-open", willOpen);
@@ -136,9 +138,14 @@
     });
 
     let navResizeTimer;
+    let wasWide = window.innerWidth >= 1180;
     window.addEventListener("resize", () => {
       clearTimeout(navResizeTimer);
-      navResizeTimer = setTimeout(closeMobileNav, 150);
+      navResizeTimer = setTimeout(() => {
+        const wide = window.innerWidth >= 1180;
+        if (wide !== wasWide) closeMobileNav();
+        wasWide = wide;
+      }, 150);
     });
   }
 
@@ -417,7 +424,7 @@
     const wrap = canvas.closest(".chart-wrap");
     if (wrap) {
       wrap.classList.remove("is-loading");
-      // Also clear a previous "No data available" state. showChartError()
+      // Also clear a previous "Figures appear here when the next reading arrives." state. showChartError()
       // hides the canvas (.has-error canvas { visibility: hidden }) and
       // nothing ever un-hid it, so a chart that had once shown "no data"
       // stayed invisible even after real data arrived and was drawn -
@@ -807,7 +814,7 @@
      seasons" checkbox calling renderLineChart a second time on the same
      canvas with a compareSeries added) - without it, hover would keep
      showing whichever series/opts happened to be bound first, regardless
-     of what's actually on screen. */
+     of what is actually on screen. */
   function bindLineChartHover(canvas, getLayout, series, opts, color, draw) {
     canvas._lineHoverState = { getLayout, series, opts, color, draw };
     if (canvas.dataset.hoverBound) return;
@@ -1248,7 +1255,7 @@
   /* ---------- Live-data error states ----------
      Used wherever a page has a real backend to talk to (the GB status strip
      and History charts on index.html, the Ireland status strip on
-     pages/ireland.html) so that when the backend genuinely can't be reached,
+     pages/ireland.html) so that when the backend genuinely cannot be reached,
      the page says so plainly instead of quietly drawing illustrative data
      in its place. This is deliberately NOT used on sections that were never
      wired to a live source in the first place (the generation-mix donuts,
@@ -1294,7 +1301,7 @@
    * all-or-nothing use (called when a page's own fetch* call came back
    * completely empty): a source can still be serving stale-but-present data
    * from an earlier successful run while its MOST RECENT ingest attempt is
-   * erroring - that's a real, current API problem worth surfacing, but
+   * erroring - that is a real, current API problem worth surfacing, but
    * "the figures below could not be loaded" would be wrong to say since
    * they did load, just not freshly. Callers pass a map of the exact
    * ingest_log source keys that feed their page to a short label describing
@@ -1303,12 +1310,12 @@
    *
    * A source with no entry at all in status.php's response (never logged a
    * run - e.g. EIA/ENTSOE before an API key is configured) is NOT treated
-   * as an issue here, same as status.php's own "overall" semantics - that's
+   * as an issue here, same as status.php's own "overall" semantics - that is
    * "illustrative by design", not "broken".
    */
   async function buildApiIssueBanner(sourceLabels) {
     const status = window.GridData ? await window.GridData.fetchStatus() : null;
-    if (!status || !status.sources) return null; // status.php itself unreachable - can't tell either way, so say nothing
+    if (!status || !status.sources) return null; // status.php itself unreachable - cannot tell either way, so say nothing
     const broken = Object.keys(sourceLabels).filter((key) => {
       const s = status.sources[key];
       return s && s.status !== "OK";
@@ -1317,7 +1324,7 @@
     const labels = broken.map((key) => sourceLabels[key]);
     return (
       (broken.length === 1 ? "One of this page's live data sources is" : "Some of this page's live data sources are") +
-      " currently having trouble: " + labels.join("; ") + ". Affected figures may be showing stale data until it recovers - see the footer for pipeline status."
+      " having trouble right now: " + labels.join("; ") + ". Those figures may be out of date until it recovers."
     );
   }
   window.GridPreview.buildApiIssueBanner = buildApiIssueBanner;
@@ -1325,7 +1332,7 @@
   /**
    * Marks one chart/sparkline as unavailable instead of drawing anything
    * into it. Pass message === null to just hide the canvas with no overlay
-   * text - for small sparklines there isn't room for a message, and the
+   * text - for small sparklines there is not room for a message, and the
    * page-level banner (showLiveDataBanner) already explains why.
    */
   function showChartError(canvas, message) {
@@ -1363,7 +1370,7 @@
    *
    * This matters because the first line's timezone is whatever the
    * visitor's own browser/OS is set to, NOT necessarily UK time - a site
-   * called "UK Grid: Live+" showing "2:32pm" with no timezone attached is
+   * called "UK Grid: Live+" showing "2.32pm" with no timezone attached is
    * ambiguous for anyone not physically in the UK right now (a reader
    * abroad, or checking a non-GB country page where it'd be easy to assume
    * the time shown is that country's local time instead). Labelling the
@@ -1372,14 +1379,14 @@
    * visitor is.
    *
    * extraOptions lets usa.html add month/day (its EIA data can be the best
-   * part of a day old, so the date matters there in a way it doesn't for
+   * part of a day old, so the date matters there in a way it does not for
    * the near-real-time GB/Ireland/ENTSO-E pages).
    */
   function formatAsOfHtml(tsIso, extraOptions) {
     const d = new Date(tsIso);
     const base = Object.assign({ hour: "numeric", minute: "2-digit" }, extraOptions || {});
-    const localStr = d.toLocaleTimeString([], Object.assign({ timeZoneName: "short" }, base));
-    const ukStr = d.toLocaleTimeString([], Object.assign({ timeZone: "Europe/London" }, base));
+    const localStr = fmtTime12(d, Object.assign({ timeZoneName: "short" }, extraOptions || {}));
+    const ukStr = fmtTime12(d, Object.assign({ timeZone: "Europe/London" }, extraOptions || {}));
     return localStr + '<br><small class="stat-time-uk">' + ukStr + " UK time</small>";
   }
   window.GridPreview.formatAsOfHtml = formatAsOfHtml;
@@ -1388,11 +1395,11 @@
       rather than a confirmed-fresh fetch - "Showing: 14:32" rather than the
       normal two-line local+UK time. Deliberately plainer than
       formatAsOfHtml (no UK-time subline) since this is a transient state:
-      it's replaced by formatAsOfHtml the moment the real fetch resolves. */
+      it is replaced by formatAsOfHtml the moment the real fetch resolves. */
   function formatShowingHtml(tsIso) {
     const d = new Date(tsIso);
-    const str = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
-    return "Showing: " + str + ' <small class="stat-time-uk">last update - refreshing…</small>';
+    const str = fmtTime12(d, { timeZoneName: "short" });
+    return "Showing " + str + ' <small class="stat-time-uk">Refreshing…</small>';
   }
   window.GridPreview.formatShowingHtml = formatShowingHtml;
 
@@ -1411,7 +1418,7 @@
   window.GridPreview.carbonBand = carbonBand;
 
   /** Wholesale price traffic-light band, in £/MWh. Unlike carbon intensity,
-      there's no official public banding for GB wholesale price, so these
+      there is no official public banding for GB wholesale price, so these
       are rough, disclosed thresholds based on the typical range seen in
       this site's own recorded price history (roughly -£20 to £250/MWh) -
       not a claim of any official "cheap/expensive" standard. */
@@ -1426,7 +1433,7 @@
   /** Generic 5-tier traffic-light band from a value's position within a
       rough [low, high] reference range - shared by every region page's
       demand/generation stat cards. Unlike carbonBand's NESO-official
-      thresholds, there's no official "low/high demand" standard for any
+      thresholds, there is no official "low/high demand" standard for any
       grid, so - like priceBand - each page passes its own rough,
       disclosed-as-not-official round-number reference points (typically an
       approximate summer-overnight low and a recent winter-evening peak for
@@ -1447,12 +1454,12 @@
   window.GridPreview.bandFromRange = bandFromRange;
 
   /** Net interconnector flow traffic-light band, in MW - positive means
-      this grid is importing, negative means it's exporting (see
+      this grid is importing, negative means it is exporting (see
       pages/interconnectors.html's own "positive = importing, negative =
       exporting" convention note, which this matches). Framed as a neutral
       trade status rather than a moral "good/bad": exporting reads as the
       calmest state (green) since it means this grid has spare capacity,
-      but importing isn't inherently bad - it's ordinary cross-border
+      but importing is not inherently bad - it is ordinary cross-border
       trading - so it only escalates toward amber/red as the volume grows,
       reflecting heavier reliance on neighbouring grids rather than
       wrongdoing. Thresholds are round, disclosed-as-rough reference points
@@ -1471,7 +1478,7 @@
   /** Applies a computed band {label, cls} (or null) to a small indicator
       element next to a stat value - sets the CSS class that drives its
       colour/dot and a text label plus a title tooltip explaining what it
-      means, so the signal isn't colour-only (accessibility). Clears the
+      means, so the signal is not colour-only (accessibility). Clears the
       indicator entirely (no dot, no text) when band is null, e.g. while a
       value is unavailable. */
   function setStatBand(id, band, tooltipSuffix) {
@@ -1499,7 +1506,7 @@
    *   already does this), never reject.
    * renderFn(data, isCached): called synchronously with the cached data
    *   (if any) before this function returns, and again with the fresh
-   *   data once fetchFn() resolves (only if it didn't resolve to null -
+   *   data once fetchFn() resolves (only if it did not resolve to null -
    *   a failed fetch leaves whatever renderFn(cached, true) already drew
    *   as the final on-screen state, rather than blanking it out).
    *
@@ -1515,9 +1522,9 @@
     const storageKey = "ukgl-cache-" + cacheKey;
     let usedCache = false;
     // A periodic refresh (see autoRefresh) - the page is already showing
-    // the last good figures, so don't repaint them as "cached/refreshing",
+    // the last good figures, so do not repaint them as "cached/refreshing",
     // and report usedCache so a failed fetch keeps them rather than
-    // switching the page to "No data available".
+    // switching the page to "Figures appear here when the next reading arrives."
     if (window.GridPreview && window.GridPreview._refreshing) {
       return { usedCache: true, promise: fetchFn().then((fresh) => {
         if (fresh) {
@@ -1729,16 +1736,16 @@
      charts (see drawOverlay() above), so every chart on the site now shares
      one tooltip look. This replaces the old opts.leaderLines mode, which
      drew each label directly on the canvas next to its segment: elegant on
-     a wide desktop panel, but the horizontal leader-line + text run wasn't
+     a wide desktop panel, but the horizontal leader-line + text run was not
      bounded by the canvas's own width, so it clipped off-canvas on phones
      and the cramped two-column tablet band (see the mobile fix this
-     replaces). A pointer-anchored tooltip has no such failure mode - it's
-     always positioned and clamped against the canvas it's drawn on - so
+     replaces). A pointer-anchored tooltip has no such failure mode - it is
+     always positioned and clamped against the canvas it is drawn on - so
      every donut can now safely have the same rich hover treatment the
      overview page used to reserve for just its two largest charts.
      Segments are drawn with a small angular gap between them (rather than
      one continuous ring) so each slice reads as a distinct piece at a
-     glance, before you've hovered anything - still filled with the same
+     glance, before you have hovered anything - still filled with the same
      centre-to-rim radial gradient every other chart on the site uses. */
   function renderDonutChart(canvas, labels, values, colors, opts) {
     opts = opts || {};
@@ -1756,7 +1763,7 @@
     // invoked the SECOND (or later) closure's draw() - which read its OWN
     // always-(-1/null) hoverIndex/pointer instead, so the hover glow and
     // tooltip silently stopped appearing after any re-render (bug report:
-    // "the donut in Ireland doesn't allow hover over" - reproducible on
+    // "the donut in Ireland does not allow hover over" - reproducible on
     // every page using renderPsrMixSection, not just Ireland). Storing this
     // state on the canvas itself means every draw() call - whichever
     // render "owns" canvas._donutDraw at the time - reads and writes the
@@ -1970,13 +1977,13 @@
 
   /**
    * Replaces a "generation mix right now" section's table/donut/bar with an
-   * explicit "No data available" state, rather than leaving old illustrative
+   * explicit "Figures appear here when the next reading arrives." state, rather than leaving old illustrative
    * numbers on screen looking like they might be current. Shared by
    * renderPsrMixSection below and by callers that already know up front
    * they have nothing to show (e.g. a totally failed fetch with no cache).
    */
   function showNoMixData(opts, message) {
-    const msg = message || "No data available";
+    const msg = message || "Figures appear here when the next reading arrives.";
     const tbody = document.getElementById(opts.tbodyId);
     if (tbody) {
       const colCount = tbody.closest("table") ? tbody.closest("table").querySelectorAll("thead th").length : 3;
@@ -1984,6 +1991,8 @@
     }
     const donutCanvas = document.getElementById(opts.donutId);
     if (donutCanvas) showChartError(donutCanvas, msg);
+    const mixHost = donutCanvas && mixHostFor(donutCanvas, opts);
+    if (mixHost) mixHost.innerHTML = `<p class="mixchart__readout">${escapeHtml(msg)}</p>`;
     const barCanvas = document.getElementById(opts.barId);
     if (barCanvas) showChartError(barCanvas, msg);
     if (opts.legendId) {
@@ -1992,11 +2001,11 @@
     }
     if (opts.donutCaptionId) {
       const el = document.getElementById(opts.donutCaptionId);
-      if (el) el.textContent = msg + ".";
+      if (el) el.textContent = msg;
     }
     if (opts.statusCaptionId) {
       const el = document.getElementById(opts.statusCaptionId);
-      if (el) el.textContent = msg + " - see data sources below.";
+      if (el) el.textContent = msg;
     }
   }
   window.GridPreview.showNoMixData = showNoMixData;
@@ -2028,15 +2037,15 @@
    *     also the donut's centre figure.
    *   - Negative rows (pumping load, battery charging, net exports) are
    *     listed in their own clearly-labelled table group, with "-" for %,
-   *     since a negative can't be a slice of a donut. They're excluded
+   *     since a negative cannot be a slice of a donut. They are excluded
    *     from the total, and the caption says so.
    *   - Rows that are exactly zero (e.g. solar at night) are left out of
    *     both, and named in the caption instead.
-   *   - A row whose group isn't one of opts.groups lands in an "Other"
+   *   - A row whose group is not one of opts.groups lands in an "Other"
    *     group rather than vanishing from the table.
    *
    * rows: [{ label, mw, group, color }] - color must be a literal hex (it
-   *       feeds the donut's canvas gradient, which can't resolve var()).
+   *       feeds the donut's canvas gradient, which cannot resolve var()).
    * opts: tbodyId, donutId, legendId, barId (required); donutCaptionId,
    *       statusCaptionId, statusCaptionHtml (optional);
    *       groups: [{ key, label, color }] in table order;
@@ -2115,7 +2124,8 @@
     const colors = ordered.map((r) => r.color);
 
     const donutCanvas = document.getElementById(opts.donutId);
-    if (donutCanvas) {
+    const mixHost = mixHostFor(donutCanvas, opts);
+    if (donutCanvas && !mixHost) {
       const wrap = donutCanvas.closest(".chart-wrap");
       if (wrap) wrap.classList.remove("is-loading");
       renderDonutChart(donutCanvas, labels, values, colors, {
@@ -2133,19 +2143,29 @@
     }
 
     const summary = { totalMw, positive: ordered, negative, zero, gw, pct };
+    let note = opts.captionFn ? opts.captionFn(summary) : `Total ${gw(totalMw)}GW.`;
+    note += " Every percentage is a share of this same total.";
+    if (negative.length) {
+      note += ` ${joinAnd(negative.map((r) => r.label))} ${negative.length === 1 ? "is" : "are"} using power or exporting right now, so the table lists ${negative.length === 1 ? "it" : "them"} on ${negative.length === 1 ? "its" : "their"} own and leaves ${negative.length === 1 ? "it" : "them"} out of the total.`;
+    }
+    if (zero.length) {
+      note += ` At zero right now: ${joinAnd(zero.map((r) => r.label))}.`;
+    }
     if (opts.donutCaptionId) {
       const el = document.getElementById(opts.donutCaptionId);
-      if (el) {
-        let text = opts.captionFn ? opts.captionFn(summary) : `Total ${gw(totalMw)}GW.`;
-        text += " Percentages in the table, legend and donut are all shares of this same total.";
-        if (negative.length) {
-          text += ` ${negative.map((r) => r.label).join(", ")} ${negative.length === 1 ? "is" : "are"} currently negative (consuming or exporting), so listed separately in the table and not counted in the total.`;
-        }
-        if (zero.length) {
-          text += ` Currently at zero: ${zero.map((r) => r.label).join(", ")}.`;
-        }
-        el.textContent = text;
+      if (el) el.textContent = note;
+    }
+    if (mixHost) {
+      renderMixChart(mixHost, ordered, totalMw, { gw, pct, note, centerSub: opts.centerSub || "generated" });
+      const table = tbody && tbody.closest("table");
+      const section = mixHost.closest("section") || mixHost.parentNode;
+      let tools = section && section.querySelector(".download-row");
+      if (!tools && table && !table._showTable) {
+        tools = document.createElement("p");
+        tools.className = "download-row";
+        mixHost.parentNode.insertBefore(tools, mixHost.nextSibling);
       }
+      attachShowTable(table, tools);
     }
     if (opts.statusCaptionId && opts.statusCaptionHtml) {
       const el = document.getElementById(opts.statusCaptionId);
@@ -2214,12 +2234,12 @@
   window.GridPreview.renderPsrMixSection = renderPsrMixSection;
 
   /** "14:05"-style local time for an ISO timestamp ("29 Sep, 14:05" if it
-      isn't today, so an older reading can't pass for a fresh one), or "". */
+      is not today, so an older reading cannot pass for a fresh one), or "". */
   function formatClockTime(iso) {
     const d = new Date(iso);
     if (isNaN(d.getTime())) return "";
-    const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    return d.toDateString() === new Date().toDateString() ? time : d.toLocaleDateString([], { day: "numeric", month: "short" }) + ", " + time;
+    const time = fmtTime12(d);
+    return d.toDateString() === new Date().toDateString() ? time : d.toLocaleDateString("en-GB", { day: "numeric", month: "long" }) + ", " + time;
   }
   window.GridPreview.formatClockTime = formatClockTime;
 
@@ -2227,7 +2247,7 @@
    * Keeps a page's live figures current while it stays open: calls fn()
    * now, then again every intervalMs (default 5 minutes) while the tab is
    * visible, and straight away when a hidden tab becomes visible again if
-   * it's due. Every page's status strip + mix section used to load exactly
+   * it is due. Every page's status strip + mix section used to load exactly
    * once, so a tab left open showed an ever-older table and donut. During
    * a refresh (GridPreview._refreshing), withCachedFallback skips its
    * cached first paint - the page is already showing those figures - and
@@ -2259,27 +2279,27 @@
      ==========================================================================
      Attached automatically by renderLineChart, renderStackedAreaChart,
      renderBarChart and renderDonutChart below, rather than requiring every
-     page to hand-wire its own buttons - that's what makes "every graph and
+     page to hand-wire its own buttons - that is what makes "every graph and
      donut on the site" tractable: enhance the ~5 shared render functions
      once, and every one of the ~100 chart calls across every page picks it
      up automatically. Two exclusions, both automatic:
        - a canvas marked aria-hidden="true" (the small inline sparklines
          next to the headline stats) has nothing meaningful to export, so
-         it's skipped;
+         it is skipped;
        - a call that passes opts.noExport (e.g. history.html's charts,
          which already have their own more capable per-metric Copy data
          button plus a combined whole-range CSV/JSON download - adding a
          second, near-duplicate toolbar there would just be clutter).
      A page can still pass opts.exportTitle for a nicer label; if it
-     doesn't, deriveChartTitle() below finds one from the page's own
+     does not, deriveChartTitle() below finds one from the page's own
      heading structure, which every page already has consistently (an <h2>
      for the section, an <h3> inside chart-card for an individual metric).
   */
 
   /** Finds a human title for a chart with no explicit opts.exportTitle, by
       walking up from the canvas to the nearest heading, prefixed with the
-      page's own <h1> so "Demand" (say) doesn't read as ambiguous once
-      copied/downloaded somewhere that's lost the page context. */
+      page's own <h1> so "Demand" (say) does not read as ambiguous once
+      copied/downloaded somewhere that is lost the page context. */
   function deriveChartTitle(canvas) {
     const card = canvas.closest(".chart-card");
     const cardHeading = card && card.querySelector("h3, h4");
@@ -2307,7 +2327,7 @@
       plain text with no markdown syntax (no *bold*, no #headings|), so it
       pastes cleanly into a forum/social comment box or a plain-text email
       exactly as written, rather than leaving stray asterisks visible on a
-      site that doesn't render markdown. */
+      site that does not render markdown. */
   function categoriesToText(labels, values, unit, title) {
     const lines = [];
     if (title) lines.push(title, "");
@@ -2336,7 +2356,7 @@
       (donut/bar), or one swatch + series name per line in a multi-column
       time series (stacked area, or a line chart with a compare overlay).
       A single-column time series (the common case: one metric, one line)
-      gets no legend at all - there's nothing to distinguish, and the
+      gets no legend at all - there is nothing to distinguish, and the
       chart's own title already says what it is. */
   function buildLegendEntries(spec) {
     if (spec.kind === "categories") {
@@ -2407,7 +2427,7 @@
   }
 
   /** Fits a title onto one line, truncating with an ellipsis only in the
-      rare case a page heading plus section heading combined don't fit -
+      rare case a page heading plus section heading combined do not fit -
       simpler and more predictable than wrapping to a second line and
       having to recompute every other element's y-offset underneath it. */
   function fitTitleLine(ctx, text, maxWidth) {
@@ -2529,9 +2549,9 @@
       to call on every (re-)render of the same canvas: toolbar creation and
       button wiring happen once (guarded by toolbar.dataset.wired), while
       canvas._exportSpec - what the buttons actually read when clicked - is
-      refreshed every time, so a chart that's re-rendered with new data
+      refreshed every time, so a chart that is re-rendered with new data
       (illustrative placeholder swapped for live data, a range-tab switch
-      reusing the same canvas) always exports what's currently on screen. */
+      reusing the same canvas) always exports what is currently on screen. */
   function attachChartExport(canvas, spec) {
     if (!spec || spec.noExport) return;
     if (canvas.getAttribute("aria-hidden") === "true") return;
@@ -2603,7 +2623,7 @@
     const lines = [];
     if (title) lines.push(title, '');
     // Skips rows inside a hidden <tbody> (e.g. index.html's battery preview
-    // row while its toggle is off), so exports match what's on screen.
+    // row while its toggle is off), so exports match what is on screen.
     table.querySelectorAll('tbody:not([hidden]) tr').forEach((tr) => {
       const cells = Array.from(tr.children).map((c) => c.textContent.replace(/\s+/g, ' ').trim());
       if (!cells[0]) return;
@@ -2631,7 +2651,7 @@
     const headers = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
     const lines = [headers.map(csvField).join(',')];
     // Skips rows inside a hidden <tbody> (e.g. index.html's battery preview
-    // row while its toggle is off), so exports match what's on screen.
+    // row while its toggle is off), so exports match what is on screen.
     table.querySelectorAll('tbody:not([hidden]) tr').forEach((tr) => {
       const cells = Array.from(tr.children).map((c) => c.textContent.replace(/\s+/g, ' ').trim());
       if (!cells[0]) return;
@@ -2785,7 +2805,7 @@
       amount of extra safety for the rare bucket that only one of the two
       queries returns a row for (e.g. a fuel type with a single zero-mw
       reading that got excluded upstream). Returns null if either input is
-      null, so callers can treat "can't compute a share" the same as any
+      null, so callers can treat "cannot compute a share" the same as any
       other "no data yet" case. */
   function computeShareSeries(partSeries, totalSeries) {
     if (!partSeries || !totalSeries) return null;
@@ -3119,15 +3139,15 @@
      load once things are stable.
 
      Deliberately toasts on the very FIRST check a browser ever makes too
-     (there's nothing to compare against yet, so no prior state just counts
+     (there is nothing to compare against yet, so no prior state just counts
      as "different" from whatever's live now) - the alternative, requiring
      two page loads before ever showing a "live data updated" toast, means
-     you'd never see confirmation right after the pipeline starts working,
+     you would never see confirmation right after the pipeline starts working,
      which defeats the point. After that first toast, it naturally settles
      into only firing on actual changes (a new last_run_at, a new error).
 
-     Falls back to doing nothing if localStorage isn't available (private
-     browsing, etc.); that's a minor loss of the "don't repeat" dedupe,
+     Falls back to doing nothing if localStorage is not available (private
+     browsing, etc.); that is a minor loss of the "do not repeat" dedupe,
      never a functional problem. */
   function notifyPipelineChange(data) {
     const STORAGE_KEY = "ukgrid_pipeline_last_seen";
@@ -3143,7 +3163,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
     } catch (e) {
-      /* ignore - storage full/unavailable, notifications just won't dedupe */
+      /* ignore - storage full/unavailable, notifications just will not dedupe */
     }
 
     const prevOverall = prev ? prev.overall : null;
@@ -3157,7 +3177,7 @@
         "error"
       );
     } else if (data.overall === "error" && prevOverall !== "error") {
-      showToast("Couldn't reach the data pipeline status check. The site may be showing illustrative data.", "error");
+      showToast("We cannot check the data feed right now. Figures may be out of date.", "error");
     } else if (data.overall === "success" && current.last_run_at && current.last_run_at !== prevLastRunAt) {
       showToast("Live data updated.", "success");
     }
@@ -3172,17 +3192,17 @@
 
      Three real states, matching how api/status.php reports things, plus a
      transient "checking" state while the request is in flight:
-       - "success" - the backend is reachable and every source that's run
+       - "success" - the backend is reachable and every source that is run
          at least once last succeeded
        - "fail"    - the backend is reachable but at least one source's
          last run ended in ERROR (e.g. an API was down, NESO's schema
          changed) - hover/focus the pill for which source and why
        - "pending" - the backend is reachable but nothing has run yet
-         (fresh install, on-demand refresh hasn't triggered yet)
-       - "error"   - couldn't even reach/parse api/status.php (this preview
+         (fresh install, on-demand refresh has not triggered yet)
+       - "error"   - could not even reach/parse api/status.php (this preview
          build with no backend at all, a missing config.php, a database
          connection failure, network error, etc.)
-     If there's no .site-footer on the page at all, this does nothing. */
+     If there is no .site-footer on the page at all, this does nothing. */
   function initIngestStatusPill() {
     const footerWrap = document.querySelector(".site-footer .wrap");
     if (!footerWrap) return;
@@ -3244,7 +3264,7 @@
 
   /* ---------- Scroll-reveal animation for panels/cards ---------- */
   function initReveal() {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches || root.classList.contains("pref-calm");
     const targets = document.querySelectorAll(".panel, .source-card");
     if (reduceMotion || !("IntersectionObserver" in window)) {
       targets.forEach((el) => el.classList.add("is-visible"));
@@ -3267,7 +3287,7 @@
 
   /* Every page sets live figures by writing straight into an element whose
      id starts with "stat-" (id="stat-demand", id="stat-price", the "Data as
-     of" id="stat-time" line, etc.) once a background fetch resolves. That's
+     of" id="stat-time" line, etc.) once a background fetch resolves. That is
      a silent DOM write - nothing tells the reader a number just moved. This
      watches every such element for a genuine text change and toggles
      .stat-refresh-pulse (see style.css) to give it a brief, self-clearing
@@ -3277,7 +3297,7 @@
   /* Every plain-text "Loading…" placeholder on the site (chart captions,
      table rows, "Updated" lines, the "Data as of" tile) gets the same
      gentle pulse, and loses it the moment its text is replaced - whether
-     the page writes real data, an error, or "No data available". Done
+     the page writes real data, an error, or "Figures appear here when the next reading arrives." Done
      here once rather than in every page's own script, so a placeholder a
      page adds later (e.g. a caption reset to "Loading…" on a tab switch)
      is covered automatically too. */
@@ -3339,14 +3359,14 @@
     targets.forEach((el) => {
       lastText.set(el, el.textContent);
       // Already written before this ran (e.g. a synchronous first paint
-      // from cached data) - it isn't loading any more.
+      // from cached data) - it is not loading any more.
       const dd = el.closest("dd");
       if (dd && el.textContent.trim() !== "–") dd.classList.remove("is-loading-value");
     });
 
     const flash = (el) => {
       el.classList.remove("stat-refresh-pulse");
-      // Force a reflow so the animation restarts even if it's already
+      // Force a reflow so the animation restarts even if it is already
       // mid-flight from a very recent previous update.
       void el.offsetWidth;
       el.classList.add("stat-refresh-pulse");
@@ -3374,10 +3394,463 @@
     );
   }
 
+  /* ==========================================================================
+     Design C additions (2026-10-29)
+     ========================================================================== */
+
+  /* ---------- Times: 12-hour clock, written 12.35pm (content design system) ---------- */
+  function fmtTime12(d, extra) {
+    const s = d.toLocaleTimeString("en-GB", Object.assign({ hour: "numeric", minute: "2-digit", hour12: true }, extra || {}));
+    // "12:35 pm BST" -> "12.35pm BST"
+    return s.replace(/(\d{1,2}):(\d{2})\s?([ap])\.?m\.?/i, (m, h, mm, ap) => `${h}.${mm}${ap.toLowerCase()}m`);
+  }
+  window.GridPreview.fmtTime12 = fmtTime12;
+
+  /* ---------- Display and accessibility settings ---------- */
+  const PREFS_KEY = "grid-live-prefs";
+  const PREF_DEFAULTS = { theme: "system", size: "100", readable: false, hc: false, calm: false, underline: true, spacing: false };
+  let prefs = Object.assign({}, PREF_DEFAULTS);
+
+  function loadPrefs() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
+      if (saved && typeof saved === "object") Object.assign(prefs, saved);
+      else {
+        const oldTheme = localStorage.getItem(THEME_KEY); // the old three-state theme toggle
+        if (oldTheme === "light" || oldTheme === "dark") prefs.theme = oldTheme;
+      }
+    } catch (e) { /* storage blocked: defaults */ }
+  }
+  function savePrefs() {
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) { /* ignore */ }
+  }
+  function ensureReadableFont() {
+    if (document.getElementById("pref-readable-font")) return;
+    const link = document.createElement("link");
+    link.id = "pref-readable-font";
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap";
+    document.head.appendChild(link);
+  }
+  function applyPrefs() {
+    applyTheme(prefs.theme);
+    root.style.fontSize = Number(prefs.size) > 100 ? prefs.size + "%" : "";
+    root.classList.toggle("pref-readable", !!prefs.readable);
+    root.classList.toggle("pref-hc", !!prefs.hc);
+    root.classList.toggle("pref-calm", !!prefs.calm);
+    root.classList.toggle("pref-underline", !!prefs.underline);
+    root.classList.toggle("pref-spacing", !!prefs.spacing);
+    if (prefs.readable) ensureReadableFont();
+    window.GridPreview.reduceMotion = !!prefs.calm || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (window.GridPreview.redrawAll) setTimeout(window.GridPreview.redrawAll, 60);
+    document.dispatchEvent(new CustomEvent("grid-prefs", { detail: Object.assign({}, prefs) }));
+  }
+
+  function initPrefs() {
+    loadPrefs();
+    applyPrefs();
+    const panel = document.getElementById("display-panel");
+    const toggles = Array.from(document.querySelectorAll("[data-display-toggle]"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystem = () => { if (prefs.theme === "system") applyPrefs(); };
+    if (mql.addEventListener) mql.addEventListener("change", onSystem);
+    else if (mql.addListener) mql.addListener(onSystem);
+    if (!panel || !toggles.length) return;
+
+    function sync() {
+      panel.querySelectorAll('input[name="pref-theme"]').forEach((i) => { i.checked = i.value === prefs.theme; });
+      panel.querySelectorAll('input[name="pref-size"]').forEach((i) => { i.checked = i.value === String(prefs.size); });
+      panel.querySelectorAll("input[data-pref]").forEach((i) => { i.checked = !!prefs[i.dataset.pref]; });
+    }
+    let opener = null;
+    function open(btn) {
+      opener = btn; sync(); panel.hidden = false;
+      toggles.forEach((b) => b.setAttribute("aria-expanded", "true"));
+      const first = panel.querySelector("input:checked") || panel.querySelector("input");
+      if (first) first.focus();
+    }
+    function close(returnFocus) {
+      if (panel.hidden) return;
+      panel.hidden = true;
+      toggles.forEach((b) => b.setAttribute("aria-expanded", "false"));
+      if (returnFocus !== false && opener) opener.focus();
+    }
+    window.GridPreview.closeDisplayPanel = close;
+    toggles.forEach((btn) => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (panel.hidden) open(btn); else close();
+    }));
+    panel.addEventListener("change", (e) => {
+      const i = e.target;
+      if (i.name === "pref-theme") prefs.theme = i.value;
+      else if (i.name === "pref-size") prefs.size = i.value;
+      else if (i.dataset.pref) prefs[i.dataset.pref] = i.checked;
+      savePrefs(); applyPrefs();
+    });
+    const reset = panel.querySelector("[data-pref-reset]");
+    if (reset) reset.addEventListener("click", () => { prefs = Object.assign({}, PREF_DEFAULTS); savePrefs(); applyPrefs(); sync(); });
+    const done = panel.querySelector("[data-pref-done]");
+    if (done) done.addEventListener("click", () => close());
+    panel.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); close(); } });
+    document.addEventListener("click", (e) => {
+      if (!panel.hidden && !panel.contains(e.target) && !toggles.some((b) => b.contains(e.target))) close(false);
+    });
+  }
+
+  /* ---------- Generation mix chart: donut first, with a Bar switch ----------
+     Built by renderMixBreakdown from the same ordered rows as the table, so
+     the chart, the table, the copy and the CSV always agree. The outer ring
+     (or top bar) is each source; the inner ring (or bottom bar) is its
+     group: renewable, non-renewable, storage or net imports, in line with
+     the sources above it. Pointing at, focusing or selecting any part
+     highlights it with its group and reads out the figures. */
+  const MIX_VIEW_KEY = "grid-mix-view";
+  const CMP_GROUPS = {
+    ren: { label: "Renewable", ring: "var(--mix-ren)", tint: "var(--mix-ren-tint)", ink: "var(--mix-ren-ink)" },
+    non: { label: "Non-renewable", ring: "var(--mix-non)", tint: "var(--mix-non-tint)", ink: "var(--mix-non-ink)" },
+    sto: { label: "Storage", ring: "var(--mix-sto)", tint: "var(--mix-sto-tint)", ink: "var(--mix-sto-ink)" },
+    imp: { label: "Net imports", ring: "var(--mix-imp)", tint: "var(--mix-imp-tint)", ink: "var(--mix-imp-ink)" },
+  };
+  const CMP_ORDER = ["ren", "non", "sto", "imp"];
+  function cmpKeyOf(group) {
+    if (group === "renewable") return "ren";
+    if (group === "storage") return "sto";
+    if (group === "interconnector" || group === "interconnection") return "imp";
+    return "non";
+  }
+  function joinAnd(list) {
+    if (list.length <= 1) return list.join("");
+    return list.slice(0, -1).join(", ") + " and " + list[list.length - 1];
+  }
+
+  function renderMixChart(host, ordered, totalMw, o) {
+    const gw = o.gw, pct = o.pct;
+    const items = [];
+    const groups = [];
+    CMP_ORDER.forEach((k) => {
+      const members = ordered.filter((r) => cmpKeyOf(r.group) === k).sort((a, b) => b.mw - a.mw);
+      if (!members.length) return;
+      const mw = members.reduce((s, r) => s + r.mw, 0);
+      const g = { key: k, label: CMP_GROUPS[k].label, mw, first: items.length, members: [] };
+      members.forEach((r) => { g.members.push(items.length); items.push({ label: r.label, mw: r.mw, color: r.color, g: k }); });
+      groups.push(g);
+    });
+    if (!items.length) return;
+    const gById = {}; groups.forEach((g) => { gById[g.key] = g; });
+    let view = "donut";
+    try { view = localStorage.getItem(MIX_VIEW_KEY) === "bar" ? "bar" : "donut"; } catch (e) { /* default */ }
+    const esc = escapeHtml;
+    const biggest = items.slice().sort((a, b) => b.mw - a.mw)[0];
+    const ren = gById.ren ? gById.ren.mw : 0;
+    const headline = `${biggest.label} is the biggest source, at ${pct(biggest.mw)}% of supply.` + (totalMw > 0 ? ` ${pct(ren)}% is renewable.` : "");
+    const centreDefault = [gw(totalMw) + "GW", o.centerSub || "total supply"];
+
+    // Donut rings
+    const R1 = 128, R2 = 84, C1 = 2 * Math.PI * R1, C2 = 2 * Math.PI * R2;
+    const gap = items.length > 1 ? 2 : 0;
+    let cum = 0;
+    const outer = items.map((it, i) => {
+      const f = totalMw > 0 ? it.mw / totalMw : 0;
+      const dash = Math.max(f * C1 - gap, 0.6);
+      const s = `<circle cx="160" cy="160" r="${R1}" stroke="${esc(it.color)}" stroke-width="44" stroke-dasharray="${dash.toFixed(2)} ${C1.toFixed(2)}" stroke-dashoffset="${(-cum * C1).toFixed(2)}" data-key="i:${i}"></circle>`;
+      cum += f; return s;
+    }).join("");
+    cum = 0;
+    const inner = groups.map((g) => {
+      const f = totalMw > 0 ? g.mw / totalMw : 0;
+      const dash = Math.max(f * C2 - (groups.length > 1 ? 2 : 0), 0.6);
+      const s = `<circle cx="160" cy="160" r="${R2}" style="stroke:${CMP_GROUPS[g.key].ring}" stroke-width="26" stroke-dasharray="${dash.toFixed(2)} ${C2.toFixed(2)}" stroke-dashoffset="${(-cum * C2).toFixed(2)}" data-key="g:${g.key}"></circle>`;
+      cum += f; return s;
+    }).join("");
+    const srcAria = "Outer ring, supply by source: " + items.map((it) => `${it.label} ${pct(it.mw)}%`).join(", ") + ". Inner ring, by group: " + groups.map((g) => `${g.label.toLowerCase()} ${pct(g.mw)}%`).join(", ") + ".";
+    const legend = groups.map((g) => {
+      const c = CMP_GROUPS[g.key];
+      return `<div class="mixchart__group" style="--g:${c.ring};--gi:${c.ink}">` +
+        `<button type="button" class="mixchart__gbtn" data-key="g:${g.key}"><strong>${esc(g.label)}</strong><span class="mixchart__val">${gw(g.mw)}GW, ${pct(g.mw)}%</span></button>` +
+        g.members.map((i) => `<button type="button" class="mixchart__ibtn" data-key="i:${i}"><span class="mixchart__sw" style="background:${esc(items[i].color)}"></span><strong>${esc(items[i].label)}</strong><span class="mixchart__val">${pct(items[i].mw)}%</span></button>`).join("") +
+        `</div>`;
+    }).join("");
+
+    // Bars
+    cum = 0;
+    const srcBtns = items.map((it, i) => {
+      const w = totalMw > 0 ? it.mw / totalMw * 100 : 0;
+      cum += w;
+      return `<button type="button" data-key="i:${i}" style="width:${w.toFixed(3)}%;background:${esc(it.color)}" aria-label="${esc(it.label)}, ${gw(it.mw)}GW, ${pct(it.mw)}%"></button>`;
+    }).join("");
+    const grpBtns = groups.map((g) => {
+      const w = totalMw > 0 ? g.mw / totalMw * 100 : 0;
+      const c = CMP_GROUPS[g.key];
+      return `<button type="button" data-key="g:${g.key}" style="width:${w.toFixed(3)}%;--g:${c.ring};--t:${c.tint}" aria-label="${esc(g.label)}, ${gw(g.mw)}GW, ${pct(g.mw)}%"></button>`;
+    }).join("");
+
+    host.innerHTML =
+      `<div class="mixchart__top"><p class="mixchart__readout" role="status" aria-live="polite"></p>` +
+      `<div class="mixchart__switch" role="group" aria-label="Chart type"><button type="button" data-view="donut">Donut</button><button type="button" data-view="bar">Bar</button></div></div>` +
+      `<div class="mixchart__donut" data-panel="donut"><div class="mixchart__ring"><svg viewBox="0 0 320 320" role="img" aria-label="${esc(srcAria)}"><g transform="rotate(-90 160 160)" fill="none">${outer}${inner}</g></svg>` +
+      `<div class="mixchart__centre" aria-hidden="true"><strong></strong><span></span></div></div><div class="mixchart__legend">${legend}</div></div>` +
+      `<div class="mixchart__bars" data-panel="bar"><div class="mixchart__labels mixchart__labels--top" aria-hidden="true"></div>` +
+      `<div class="mixchart__strip mixchart__strip--src" role="group" aria-label="Supply by source">${srcBtns}</div>` +
+      `<div class="mixchart__strip mixchart__strip--grp" role="group" aria-label="Supply by group">${grpBtns}</div>` +
+      `<div class="mixchart__labels mixchart__labels--bottom" aria-hidden="true"></div></div>` +
+      `<p class="mixchart__note" data-panel="donut">Outer ring: each source. Inner ring: its group. Each source sits in line with its group, reading clockwise from the top.</p>` +
+      `<p class="mixchart__note" data-panel="bar">Top bar: each source. Bottom bar: its group, directly below the sources in it.</p>` +
+      (o.note ? `<details class="mixchart__how"><summary>How we measure this</summary><p>${esc(o.note)}</p></details>` : "");
+
+    const readout = host.querySelector(".mixchart__readout");
+    const centre = host.querySelector(".mixchart__centre");
+    const keyed = Array.from(host.querySelectorAll("[data-key]"));
+    let hi = "";
+    function groupOfKey(k) { return k.indexOf("i:") === 0 ? items[Number(k.slice(2))].g : k.slice(2); }
+    function lit(k) {
+      if (!hi) return true;
+      if (hi.indexOf("i:") === 0) return k === hi || k === "g:" + items[Number(hi.slice(2))].g;
+      return k === hi || (k.indexOf("i:") === 0 && groupOfKey(k) === hi.slice(2));
+    }
+    function paint() {
+      keyed.forEach((el) => el.classList.toggle("is-dim", !lit(el.dataset.key)));
+      let text = headline, cv = centreDefault[0], cl = centreDefault[1];
+      if (hi.indexOf("i:") === 0) {
+        const it = items[Number(hi.slice(2))], g = gById[it.g];
+        text = it.g === "imp" ? `${it.label}: ${gw(it.mw)}GW, ${pct(it.mw)}% of supply, through the interconnectors.`
+          : `${it.label}: ${gw(it.mw)}GW, ${pct(it.mw)}% of supply. Part of ${g.label.toLowerCase()}, ${pct(g.mw)}%.`;
+        cv = gw(it.mw) + "GW"; cl = it.label.toLowerCase();
+      } else if (hi.indexOf("g:") === 0) {
+        const g = gById[hi.slice(2)];
+        text = g.key === "imp" ? `Net imports: ${gw(g.mw)}GW, ${pct(g.mw)}% of supply, through the interconnectors.`
+          : `${g.label}: ${gw(g.mw)}GW, ${pct(g.mw)}% of supply, from ${joinAnd(g.members.map((i) => items[i].label.toLowerCase()))}.`;
+        cv = gw(g.mw) + "GW"; cl = g.label.toLowerCase();
+      }
+      readout.textContent = text;
+      readout.classList.toggle("is-active", !!hi);
+      centre.querySelector("strong").textContent = cv;
+      centre.querySelector("span").textContent = cl;
+    }
+    function setHi(k) { if (k !== hi) { hi = k; paint(); } }
+    // Listeners are bound once per container; each re-render swaps in its own handlers.
+    host._mix = {
+      over: (e) => { const el = e.target.closest("[data-key]"); if (el && host.contains(el)) setHi(el.dataset.key); },
+      leave: () => setHi(""),
+      focusin: (e) => { const el = e.target.closest("[data-key]"); setHi(el ? el.dataset.key : ""); },
+      focusout: (e) => { if (!host.contains(e.relatedTarget)) setHi(""); },
+      click: (e) => {
+        const v = e.target.closest("[data-view]");
+        if (v) { setView(v.dataset.view, true); return; }
+        const el = e.target.closest("[data-key]");
+        if (el) setHi(el.dataset.key);
+      },
+    };
+    if (!host._mixBound) {
+      host._mixBound = true;
+      host.addEventListener("mouseover", (e) => host._mix.over(e));
+      host.addEventListener("mouseleave", (e) => host._mix.leave(e));
+      host.addEventListener("focusin", (e) => host._mix.focusin(e));
+      host.addEventListener("focusout", (e) => host._mix.focusout(e));
+      host.addEventListener("click", (e) => host._mix.click(e));
+    }
+
+    function layoutBars() {
+      const top = host.querySelector(".mixchart__labels--top");
+      const bottom = host.querySelector(".mixchart__labels--bottom");
+      if (!top || !top.offsetParent) return;
+      const W = top.clientWidth;
+      const TIER = 50;
+      top.innerHTML = ""; bottom.innerHTML = "";
+      const tiers = [];
+      let maxTier = 0;
+      let acc = 0;
+      const placed = items.map((it, i) => {
+        const x = totalMw > 0 ? acc / totalMw * W : 0;
+        acc += it.mw;
+        const lab = document.createElement("div");
+        lab.className = "mixchart__label";
+        lab.dataset.key = "i:" + i;
+        lab.innerHTML = `<strong>${esc(it.label)}</strong><span>${gw(it.mw)}GW, ${pct(it.mw)}%</span>`;
+        lab.style.left = "0px"; lab.style.top = "0px";
+        top.appendChild(lab);
+        return { lab, x, w: lab.offsetWidth + 8 };
+      });
+      // Tiers, worked right to left: a label sits one tier above every
+      // label whose leader line starts underneath it, so no leader line
+      // ever crosses a label, and labels in one tier never overlap.
+      for (let j = placed.length - 1; j >= 0; j--) {
+        const p = placed[j];
+        p.left = p.x + p.w > W ? Math.max(0, W - p.w) : p.x;
+        let t = 0;
+        for (let i = j + 1; i < placed.length; i++) {
+          const q = placed[i];
+          if (q.x < p.left + p.w) t = Math.max(t, q.tier + 1);
+        }
+        while ((tiers[t] || []).some((b) => p.left < b[1] && p.left + p.w > b[0])) t++;
+        (tiers[t] = tiers[t] || []).push([p.left, p.left + p.w]);
+        p.tier = t; maxTier = Math.max(maxTier, t);
+      }
+      const H = (maxTier + 1) * TIER;
+      top.style.height = H + "px";
+      placed.forEach((p) => {
+        const y = H - (p.tier + 1) * TIER;
+        p.lab.style.left = p.left + "px";
+        p.lab.style.top = y + "px";
+        p.lab.style.height = (H - y) + "px";
+        if (p.left !== p.x) { // label pulled left to fit: keep a leader line at the segment's own start
+          p.lab.style.borderLeft = "0";
+          const lead = document.createElement("div");
+          lead.className = "mixchart__label"; lead.dataset.key = p.lab.dataset.key;
+          lead.style.cssText = `left:${p.x}px;top:${y + 40}px;height:${H - y - 40}px;padding:0;border-left:1px solid var(--ink)`;
+          top.appendChild(lead);
+        }
+      });
+      // Bottom: group labels under the start of each group, pushed down a row if they would collide
+      const rows = [];
+      let gacc = 0, gMax = 0;
+      groups.forEach((g) => {
+        const x = totalMw > 0 ? gacc / totalMw * W : 0;
+        gacc += g.mw;
+        const lab = document.createElement("div");
+        lab.className = "mixchart__label";
+        lab.dataset.key = "g:" + g.key;
+        lab.style.setProperty("--gi", CMP_GROUPS[g.key].ink);
+        lab.innerHTML = `<strong>${esc(g.label)}</strong><span>${gw(g.mw)}GW, ${pct(g.mw)}%</span>`;
+        bottom.appendChild(lab);
+        const w = lab.offsetWidth + 8;
+        let left = x + w > W ? Math.max(0, W - w) : x;
+        let r = 0;
+        while ((rows[r] || []).some((b) => left < b[1] && left + w > b[0])) r++;
+        (rows[r] = rows[r] || []).push([left, left + w]);
+        gMax = Math.max(gMax, r);
+        lab.style.left = left + "px";
+        lab.style.top = (8 + r * 46) + "px";
+      });
+      bottom.style.height = (8 + (gMax + 1) * 46) + "px";
+      keyed.splice(0, keyed.length, ...host.querySelectorAll("[data-key]"));
+      paint();
+    }
+
+    function setView(v, save) {
+      view = v === "bar" ? "bar" : "donut";
+      if (save) { try { localStorage.setItem(MIX_VIEW_KEY, view); } catch (e) { /* ignore */ } }
+      host.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
+      host.querySelectorAll("[data-panel]").forEach((p) => { p.hidden = p.dataset.panel !== view; });
+      hi = "";
+      if (view === "bar") layoutBars(); else paint();
+    }
+    setView(view, false);
+    if (!host._mixResize) {
+      host._mixResize = true;
+      let t;
+      window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => { if (host._layoutBars) host._layoutBars(); }, 150); });
+    }
+    host._layoutBars = () => { if (view === "bar") layoutBars(); };
+  }
+  window.GridPreview.renderMixChart = renderMixChart;
+
+  /** Show as table: the mix table starts hidden behind the chart, with a
+      button beside the chart's Copy as text and Download CSV buttons. */
+  function attachShowTable(table, toolsEl) {
+    if (!table || table._showTable) return;
+    table._showTable = true;
+    table.classList.add("mixchart__table");
+    table.hidden = true;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "mixchart__table-btn";
+    btn.setAttribute("aria-pressed", "false");
+    if (!table.id) table.id = "mix-table-" + Math.random().toString(36).slice(2, 8);
+    btn.setAttribute("aria-controls", table.id);
+    btn.textContent = "Show as table";
+    btn.addEventListener("click", () => {
+      const show = table.hidden;
+      table.hidden = !show;
+      btn.setAttribute("aria-pressed", String(show));
+      btn.textContent = show ? "Hide table" : "Show as table";
+    });
+    if (toolsEl) toolsEl.appendChild(btn);
+    else table.parentNode.insertBefore(btn, table);
+  }
+
+  /** Finds (or creates) the mix chart's container in place of the old canvas donut. */
+  function mixHostFor(donutCanvas, opts) {
+    if (!donutCanvas) return null;
+    if (donutCanvas._mixHost) return donutCanvas._mixHost;
+    // The old layout put the donut either in its own grid (GB home) or in a
+    // two-column grid beside the table (country pages). The chart now takes
+    // the full width; the table moves below it, behind Show as table.
+    const grid = donutCanvas.closest(".chart-grid--donuts, .panel-grid");
+    const wrap = donutCanvas.closest(".chart-wrap");
+    const anchor = grid || wrap;
+    if (!anchor || !anchor.parentNode) return null;
+    const host = document.createElement("div");
+    host.className = "mixchart";
+    anchor.parentNode.insertBefore(host, anchor);
+    if (grid) {
+      let after = host;
+      Array.from(grid.querySelectorAll("table")).forEach((t) => { after.parentNode.insertBefore(t, after.nextSibling); after = t; });
+    } else {
+      [opts.legendId, opts.donutCaptionId].forEach((id) => { const el = id && document.getElementById(id); if (el) el.hidden = true; });
+    }
+    anchor.hidden = true;
+    donutCanvas._mixHost = host;
+    return host;
+  }
+
+  /* ---------- Page template: breadcrumb, On this page, country switcher ---------- */
+  function initPageTools() {
+    const main = document.getElementById("main");
+    const hero = main && main.querySelector(".hero");
+    if (!hero || document.body.classList.contains("is-home")) return;
+    const current = document.querySelector('.nav-panel a[aria-current="page"]');
+    // Breadcrumb: section > this page
+    if (current) {
+      const groupBtn = current.closest(".nav-group") && current.closest(".nav-group").querySelector(".nav-group__toggle");
+      if (groupBtn && !hero.querySelector(".breadcrumb")) {
+        const nav = document.createElement("nav");
+        nav.className = "breadcrumb";
+        nav.setAttribute("aria-label", "Breadcrumb");
+        const home = document.querySelector(".brand").getAttribute("href");
+        nav.innerHTML = `<a href="${escapeHtml(home)}">Home</a><span aria-hidden="true">›</span>${escapeHtml(groupBtn.textContent.trim())}<span aria-hidden="true">›</span><span aria-current="page">${escapeHtml(current.querySelector(".nav-panel__name").textContent)}</span>`;
+        hero.insertBefore(nav, hero.firstChild);
+      }
+    }
+    const tools = document.createElement("div");
+    tools.className = "page-tools";
+    // On this page: every main section heading with an id
+    const heads = Array.from(main.querySelectorAll("section > h2[id], .panel > h2[id]")).filter((h) => !h.closest(".hero") && h.offsetParent !== null);
+    if (heads.length >= 3) {
+      const otp = document.createElement("nav");
+      otp.className = "on-this-page";
+      otp.setAttribute("aria-label", "On this page");
+      otp.innerHTML = `<span class="on-this-page__label" aria-hidden="true">On this page</span>` +
+        heads.slice(0, 8).map((h) => `<a href="#${escapeHtml(h.id)}">${escapeHtml(h.textContent.replace(/\s+/g, " ").trim())}</a>`).join("");
+      tools.appendChild(otp);
+    }
+    // Country switcher on country pages (Europe and the rest of the world)
+    const group = current && current.closest(".nav-panel");
+    if (group && (group.id === "navgroup-europe" || group.id === "navgroup-world")) {
+      const links = Array.from(group.querySelectorAll("a"));
+      const wrap = document.createElement("div");
+      wrap.className = "country-switch";
+      const id = "country-switch-select";
+      wrap.innerHTML = `<label for="${id}">Switch country</label><select id="${id}">` +
+        links.map((a) => `<option value="${escapeHtml(a.getAttribute("href"))}"${a === current ? " selected" : ""}>${escapeHtml(a.querySelector(".nav-panel__name").textContent)}</option>`).join("") +
+        `</select><button type="button" class="btn">Go</button>`;
+      wrap.querySelector("button").addEventListener("click", () => { window.location.href = wrap.querySelector("select").value; });
+      const cmp = document.querySelector('.nav-link a[href$="comparisons.html"]');
+      if (cmp) {
+        const a = document.createElement("a");
+        a.href = cmp.getAttribute("href");
+        a.textContent = "Compare with Great Britain";
+        wrap.appendChild(a);
+      }
+      tools.appendChild(wrap);
+    }
+    if (tools.children.length) hero.parentNode.insertBefore(tools, hero.nextSibling);
+  }
+
   /* ---------- Init ---------- */
   document.addEventListener("DOMContentLoaded", () => {
-    initTheme();
+    initPrefs();
     initNav();
+    initPageTools();
     initTabs();
     initReveal();
     initCopyButtons();

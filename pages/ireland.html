@@ -8,8 +8,9 @@
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261003c">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css?v=20261029a">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029a">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -29,118 +30,195 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 
-<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
-
+<!-- shell:start (written by tools/apply_shell.py - edit the menu there, not here) -->
 <div class="site-head">
 <header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="../index.html">
-      <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="color:var(--accent)">
-        <path d="M24 7 38.7 15.5 38.7 32.5 24 41 9.3 32.5 9.3 15.5Z" fill="none" stroke="currentColor" stroke-width="3"/>
-        <path d="M25 13 16 25h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/>
-        <circle class="brand__mark-pulse" cx="38.5" cy="9.5" r="7" fill="var(--accent)"/>
-        <path d="M35.3 9.5h6.4M38.5 6.3v6.4" stroke="var(--accent-contrast)" stroke-width="2.2" stroke-linecap="round"/>
+  <div class="wrap site-header__bar">
+    <a class="brand ug-logo" href="../index.html" aria-label="UK Grid: Live+, home">
+      <svg class="brand__mark" width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+        <g transform="rotate(-45 24 24)"><circle class="ug-ring" cx="24" cy="24" r="18" stroke="#ffd54a" stroke-width="5" stroke-linecap="round"/></g>
+        <path class="ug-bolt" d="M26.5 11 15 27h8.5l-2.5 10.5L33 21h-8.5l2-10Z" fill="#ffffff"/>
+        <circle class="ug-ping" cx="38" cy="10" r="4.5" fill="#4fd18b"/>
+        <circle cx="38" cy="10" r="4.5" fill="#4fd18b"/>
       </svg>
-      <span class="brand__name">UK&nbsp;Grid: <em>Live+</em></span>
-      <span class="brand__tagline">Ireland: the all-island electricity system, live and over time</span>
+      <span class="brand__name" aria-hidden="true"><span class="brand__uk">UK Grid</span><span class="brand__tag ug-tag">Live+</span></span>
     </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list" data-nav-list>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-gb-btn" aria-expanded="false" aria-controls="navgroup-gb" data-nav-group>
+            Great Britain
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--gb" id="navgroup-gb">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-gb-0">Live now</p>
+              <ul aria-labelledby="navhead-gb-0">
+                <li><a href="../index.html"><span class="nav-panel__name">Overview</span><span class="nav-panel__desc">Live figures and the mix right now</span></a></li>
+                <li><a href="electricity-prices.html"><span class="nav-panel__name">Prices</span><span class="nav-panel__desc">Wholesale prices today</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-gb-1">By source</p>
+              <ul aria-labelledby="navhead-gb-1">
+                <li><a href="renewables.html"><span class="nav-panel__name">Renewables</span><span class="nav-panel__desc">Wind, solar and hydro</span></a></li>
+                <li><a href="fossil-fuels.html"><span class="nav-panel__name">Fossil fuels</span><span class="nav-panel__desc">Gas, coal and oil</span></a></li>
+                <li><a href="nuclear-biomass.html"><span class="nav-panel__name">Nuclear &amp; biomass</span><span class="nav-panel__desc">Output from each plant type</span></a></li>
+                <li><a href="storage.html"><span class="nav-panel__name">Storage</span><span class="nav-panel__desc">Batteries and pumped hydro</span></a></li>
+                <li><a href="interconnectors.html"><span class="nav-panel__name">Interconnectors</span><span class="nav-panel__desc">Imports and exports by country</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-gb-2">Over time</p>
+              <ul aria-labelledby="navhead-gb-2">
+                <li><a href="history.html"><span class="nav-panel__name">History</span><span class="nav-panel__desc">From the past day to the past decade</span></a></li>
+                <li><a href="price-history.html"><span class="nav-panel__name">Historic prices</span><span class="nav-panel__desc">Wholesale prices over the years</span></a></li>
+                <li><a href="renewables-plans.html"><span class="nav-panel__name">2030 plans</span><span class="nav-panel__desc">Clean Power 2030 targets and progress</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-europe-btn" aria-expanded="false" aria-controls="navgroup-europe" data-nav-group data-active="true">
+            Europe
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--europe" id="navgroup-europe">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-europe-0">Linked to Great Britain</p>
+              <ul aria-labelledby="navhead-europe-0">
+                <li><a href="ireland.html" aria-current="page"><span class="nav-panel__name">Ireland</span></a></li>
+                <li><a href="france.html"><span class="nav-panel__name">France</span></a></li>
+                <li><a href="nl.html"><span class="nav-panel__name">Netherlands</span></a></li>
+                <li><a href="belgium.html"><span class="nav-panel__name">Belgium</span></a></li>
+                <li><a href="norway.html"><span class="nav-panel__name">Norway</span></a></li>
+                <li><a href="denmark.html"><span class="nav-panel__name">Denmark</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-europe-1">Rest of Europe</p>
+              <ul aria-labelledby="navhead-europe-1">
+                <li><a href="germany.html"><span class="nav-panel__name">Germany</span></a></li>
+                <li><a href="spain.html"><span class="nav-panel__name">Spain</span></a></li>
+                <li><a href="italy.html"><span class="nav-panel__name">Italy</span></a></li>
+                <li><a href="sweden.html"><span class="nav-panel__name">Sweden</span></a></li>
+                <li><a href="portugal.html"><span class="nav-panel__name">Portugal</span></a></li>
+                <li><a href="poland.html"><span class="nav-panel__name">Poland</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-europe-2">Europe-wide</p>
+              <ul aria-labelledby="navhead-europe-2">
+                <li><a href="eu.html"><span class="nav-panel__name">Europe overview</span><span class="nav-panel__desc">Every country on one page</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-world-btn" aria-expanded="false" aria-controls="navgroup-world" data-nav-group>
+            Rest of the world
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--world" id="navgroup-world">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-world-0">Americas</p>
+              <ul aria-labelledby="navhead-world-0">
+                <li><a href="usa.html"><span class="nav-panel__name">USA</span></a></li>
+                <li><a href="canada.html"><span class="nav-panel__name">Canada</span></a></li>
+                <li><a href="south-america.html"><span class="nav-panel__name">South America</span></a></li>
+                <li><a href="americas-interconnects.html"><span class="nav-panel__name">Americas interconnectors</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-world-1">Asia-Pacific</p>
+              <ul aria-labelledby="navhead-world-1">
+                <li><a href="australia.html"><span class="nav-panel__name">Australia</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-solar-btn" aria-expanded="false" aria-controls="navgroup-solar" data-nav-group>
+            Plug-in solar
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--solar" id="navgroup-solar">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-solar-0">Get started</p>
+              <ul aria-labelledby="navhead-solar-0">
+                <li><a href="plugin-solar.html"><span class="nav-panel__name">What is plug-in solar</span></a></li>
+                <li><a href="plugin-solar-considerations.html"><span class="nav-panel__name">Considerations</span></a></li>
+                <li><a href="plugin-solar-calculator.html"><span class="nav-panel__name">Energy calculator</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-solar-1">Fitting it</p>
+              <ul aria-labelledby="navhead-solar-1">
+                <li><a href="plugin-solar-safety.html"><span class="nav-panel__name">Safety</span></a></li>
+                <li><a href="plugin-solar-mounting.html"><span class="nav-panel__name">Mounting</span></a></li>
+                <li><a href="plugin-solar-battery.html"><span class="nav-panel__name">Battery power</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-solar-2">The rules</p>
+              <ul aria-labelledby="navhead-solar-2">
+                <li><a href="plugin-solar-registration.html"><span class="nav-panel__name">Registration</span></a></li>
+                <li><a href="plugin-solar-certification.html"><span class="nav-panel__name">Certification</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-link"><a href="comparisons.html">Compare</a></li>
+        <li class="nav-link"><a href="data-sources.html">Sources</a></li>
+        <li class="nav-link"><a href="about.html">About</a></li>
+      </ul>
+    </nav>
     <div class="header-controls">
-      <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/></svg>
-        <span data-theme-label>Auto mode</span>
+      <button type="button" class="display-btn" data-display-toggle aria-expanded="false" aria-controls="display-panel">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Display</span>
+      </button>
+      <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
+        <span class="nav-toggle__icon" aria-hidden="true"></span>
+        <span data-nav-toggle-label>Menu</span>
       </button>
     </div>
   </div>
 </header>
-
-<nav class="site-nav" aria-label="Main">
-  <div class="wrap">
-    <ul id="site-nav-list" data-nav-list>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-ps-btn" aria-expanded="false" aria-controls="navgroup-ps" data-nav-group>
-          Plug-in Solar
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-ps">
-          <li><a href="plugin-solar.html">What is plug-in solar</a></li>
-          <li><a href="plugin-solar-safety.html">Safety</a></li>
-          <li><a href="plugin-solar-battery.html">Battery power</a></li>
-          <li><a href="plugin-solar-considerations.html">Considerations</a></li>
-          <li><a href="plugin-solar-mounting.html">Mounting</a></li>
-          <li><a href="plugin-solar-registration.html">Registration</a></li>
-          <li><a href="plugin-solar-calculator.html">Energy calculator</a></li>
-          <li><a href="plugin-solar-certification.html">Certification</a></li>
-        </ul>
-      </li>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-uk-btn" aria-expanded="false" aria-controls="navgroup-uk" data-nav-group>
-          Great Britain
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-uk">
-          <li><a href="../index.html">GB: Overview</a></li>
-          <li><a href="fossil-fuels.html">GB: Fossil fuels</a></li>
-          <li><a href="renewables.html">GB: Renewables</a></li>
-          <li><a href="nuclear-biomass.html">GB: Nuclear &amp; biomass</a></li>
-          <li><a href="interconnectors.html">GB: Interconnectors</a></li>
-          <li><a href="storage.html">GB: Storage</a></li>
-          <li><a href="history.html">GB: History</a></li>
-          <li><a href="electricity-prices.html">GB: Prices</a></li>
-          <li><a href="price-history.html">GB: Historic prices</a></li>
-          <li><a href="renewables-plans.html">2030 GB plans</a></li>
-        </ul>
-      </li>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-europe-btn" aria-expanded="false" aria-controls="navgroup-europe" data-nav-group data-active="true">
-          Europe
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-europe">
-          <li><a href="ireland.html" aria-current="page">Ireland</a></li>
-          <li><a href="france.html">France</a></li>
-          <li><a href="nl.html">Netherlands</a></li>
-          <li><a href="belgium.html">Belgium</a></li>
-          <li><a href="norway.html">Norway (NO2)</a></li>
-          <li><a href="denmark.html">Denmark (DK1)</a></li>
-          <li><a href="germany.html">Germany</a></li>
-          <li><a href="spain.html">Spain</a></li>
-          <li><a href="italy.html">Italy</a></li>
-          <li><a href="sweden.html">Sweden (SE3)</a></li>
-          <li><a href="portugal.html">Portugal</a></li>
-          <li><a href="poland.html">Poland</a></li>
-        </ul>
-      </li>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-americas-btn" aria-expanded="false" aria-controls="navgroup-americas" data-nav-group>
-          Americas
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-americas">
-          <li><a href="usa.html">USA</a></li>
-          <li><a href="canada.html">Canada</a></li>
-          <li><a href="south-america.html">South America</a></li>
-          <li><a href="americas-interconnects.html">Interconnections</a></li>
-        </ul>
-      </li>
-      <li><a href="australia.html">Australia</a></li>
-      <li><a href="comparisons.html">Comparisons</a></li>
-      <li><a href="data-sources.html">Sources</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul>
-    <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
-      <span class="nav-toggle__icon" aria-hidden="true"></span>
-      <span class="visually-hidden" data-nav-toggle-label>Menu</span>
-    </button>
-  </div>
-</nav>
+<aside class="preview-banner" aria-label="Site announcement"><span class="preview-banner__tag">New</span> <a href="plugin-solar.html">Read the plug-in solar guide</a></aside>
+<div id="display-panel" class="display-panel" role="dialog" aria-modal="false" aria-labelledby="display-panel-heading" hidden>
+  <h2 id="display-panel-heading">Display and accessibility</h2>
+  <fieldset><legend>Theme</legend>
+    <div class="seg">
+      <label><input type="radio" name="pref-theme" value="system"><span>Auto</span></label>
+      <label><input type="radio" name="pref-theme" value="light"><span>Light</span></label>
+      <label><input type="radio" name="pref-theme" value="dark"><span>Dark</span></label>
+    </div>
+  </fieldset>
+  <fieldset><legend>Text size</legend>
+    <div class="seg">
+      <label><input type="radio" name="pref-size" value="100"><span>100%</span></label>
+      <label><input type="radio" name="pref-size" value="125"><span>125%</span></label>
+      <label><input type="radio" name="pref-size" value="150"><span>150%</span></label>
+      <label><input type="radio" name="pref-size" value="175"><span>175%</span></label>
+    </div>
+  </fieldset>
+  <label class="pref-switch"><span>Low-vision font<small>Atkinson Hyperlegible Next, designed for low vision</small></span><input type="checkbox" data-pref="readable"></label>
+  <label class="pref-switch"><span>High contrast</span><input type="checkbox" data-pref="hc"></label>
+  <label class="pref-switch"><span>Reduce motion<small>Stops the logo and loading animations</small></span><input type="checkbox" data-pref="calm"></label>
+  <label class="pref-switch"><span>Underline links</span><input type="checkbox" data-pref="underline"></label>
+  <label class="pref-switch"><span>Wider text spacing</span><input type="checkbox" data-pref="spacing"></label>
+  <div class="display-panel__foot"><button type="button" class="btn" data-pref-reset>Reset</button><button type="button" class="btn btn--primary" data-pref-done>Done</button></div>
 </div>
+</div>
+<!-- shell:end -->
 
 <main id="main">
   <div class="wrap">
 
     <section class="hero">
       <h1>Ireland: the live status of the all-island electricity system</h1>
-      <p>The island of Ireland runs a single, synchronous grid spanning both jurisdictions - the Republic of Ireland and Northern Ireland - balanced together as the Single Electricity Market (SEM) by EirGrid and SONI. It's one of the windiest grids in Europe and has to manage that without the cushioning of a large synchronous neighbour.</p>
+      <p>The island of Ireland runs a single, synchronous grid spanning both jurisdictions - the Republic of Ireland and Northern Ireland - balanced together as the Single Electricity Market (SEM) by EirGrid and SONI. It is one of the windiest grids in Europe and has to manage that without the cushioning of a large synchronous neighbour.</p>
     </section>
 
     <dl class="status-grid" aria-label="Current Ireland grid status">
@@ -152,7 +230,7 @@
       <div class="stat"><dt>Generation</dt><dd class="is-loading-value"><span id="stat-generation">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-generation-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap is-loading"><canvas id="spark-generation" aria-hidden="true"></canvas></div></dd></div>
       <div class="stat"><dt>GB interconnect</dt><dd class="is-loading-value"><span id="stat-transfers">–</span><small>GW</small></dd><dd class="stat__extra"><div class="stat-band-slot"><span id="stat-transfers-band" class="stat-band" hidden></span></div><div class="stat__spark chart-wrap is-loading"><canvas id="spark-transfers" aria-hidden="true"></canvas></div></dd></div>
     </dl>
-    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Each figure shows its trend over the last 3 hours. SEM price and the generation-mix breakdown below stay on illustrative figures for now - see <a href="#ie-sources">data sources</a>.</p>
+    <p class="chart-caption" style="margin-top:-.5rem;" id="stat-caption">Each figure’s trend line covers the last 3 hours. SEM price and the generation-mix breakdown below stay on illustrative figures for now - see <a href="#ie-sources">data sources</a>.</p>
 
     <section class="panel" aria-labelledby="mix-heading">
       <h2 id="mix-heading">Generation mix right now</h2>
@@ -237,7 +315,7 @@
       <h2 id="about-heading">About the all-island system</h2>
       <p>Ireland and Northern Ireland share a single synchronous electricity system, kept in step at 50Hz across the border since before partition. Since 2018 the two jurisdictions have traded through the Integrated Single Electricity Market (I-SEM), aligned with EU-wide market coupling.</p>
       <p>Because the island is a relatively small, isolated synchronous area with no large neighbouring grid to lean on, EirGrid manages a constraint unique among Europe's major systems: System Non-Synchronous Penetration (SNSP), the instantaneous share of demand that can be met by wind, solar and interconnectors (all "non-synchronous" sources) without risking system stability. That limit has been raised in stages from 50% a decade ago to the current 75% (reached in March 2022, as the "DS3" programme's goal), and EirGrid is now working to gradually raise it further to a 95% target, adding synchronous condensers and faster reserves along the way to keep the system stable at high wind penetration.</p>
-      <p>Ireland closed its ESB peat-fired power stations in 2020, with the last peat-fired generation (Edenderry) ending in 2023 - well ahead of most of Europe's coal phase-out, and Moneypoint - once the country's largest fossil fuel plant - has been retained only for emergency winter backup while it's redeveloped as a green energy hub.</p>
+      <p>Ireland closed its ESB peat-fired power stations in 2020, with the last peat-fired generation (Edenderry) ending in 2023 - well ahead of most of Europe's coal phase-out, and Moneypoint - once the country's largest fossil fuel plant - has been retained only for emergency winter backup while it is redeveloped as a green energy hub.</p>
     </section>
 
     <section class="panel" aria-labelledby="records-heading">
@@ -245,7 +323,7 @@
       <div class="panel-grid panel-grid--2">
         <div>
           <ul class="records-list" id="records-list">
-            <li><span>Highest wind generation (Republic of Ireland)</span><strong>3,898MW - 14 February 2026, 5:50pm</strong></li>
+            <li><span>Highest wind generation (Republic of Ireland)</span><strong>3,898MW - 14 February 2026, 5.50pm</strong></li>
             <li><span>Highest grid-scale solar output</span><strong>1,222MW - 25 May 2026 (first above 1GW on 20 April 2026)</strong></li>
             <li><span>Republic of Ireland peak demand record</span><strong>6,024MW - 8 January 2025 (also a record 119.3GWh that day)</strong></li>
             <li><span>Battery discharge record</span><strong>396MW - 15 December 2025</strong></li>
@@ -273,14 +351,14 @@
 
     <section class="panel" id="ie-sources" aria-labelledby="ie-sources-heading">
       <h2 id="ie-sources-heading">Data sources for Ireland</h2>
-      <p>The Elexon Insights Solution, NESO Data Portal and Carbon Intensity API that power the Great Britain pages only cover the GB transmission system, so they can't be reused here. This page instead draws on:</p>
+      <p>The Elexon Insights Solution, NESO Data Portal and Carbon Intensity API that power the Great Britain pages only cover the GB transmission system, so they cannot be reused here. This page instead draws on:</p>
       <ul>
         <li><strong><a href="https://www.smartgriddashboard.com/">EirGrid Group's Smart Grid Dashboard</a></strong> - live and wired up above for demand, total generation, wind generation, GB interconnection and carbon intensity across the island of Ireland.</li>
         <li><strong>SONI</strong> - EirGrid's Northern Ireland transmission system operator counterpart, covered within the same all-island figures.</li>
-        <li><strong><a href="https://www.sem-o.com/">SEMO</a></strong> (Single Electricity Market Operator) - now wired up live for the "SEM imbalance price" stat above: the real, ex-post settlement price at 5-minute granularity, via SEMO's own public, keyless Reports API (report BM-025, "Imbalance Price Report"). This is genuinely different from the day-ahead price below - it's what generators/suppliers are actually paid or charged for being out of balance with their day-ahead position, not the price agreed the day before. SEMO also publishes the day-ahead price itself, but this site gets that via ENTSO-E instead (see below), since it already needed that feed for the generation mix.</li>
-        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM day-ahead price stat, the generation-mix table/donut/bar (by fuel type, not by individual power station), the 24-hour mix chart and the History section's price panel above, via its Ireland (SEM) bidding zone. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one isn't set or ingestion hasn't run yet.</li>
+        <li><strong><a href="https://www.sem-o.com/">SEMO</a></strong> (Single Electricity Market Operator) - now wired up live for the "SEM imbalance price" stat above: the real, ex-post settlement price at 5-minute granularity, via SEMO's own public, keyless Reports API (report BM-025, "Imbalance Price Report"). This is genuinely different from the day-ahead price below - it is what generators/suppliers are actually paid or charged for being out of balance with their day-ahead position, not the price agreed the day before. SEMO also publishes the day-ahead price itself, but this site gets that via ENTSO-E instead (see below), since it already needed that feed for the generation mix.</li>
+        <li><strong><a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a></strong> - the pan-European grid data hub. Powers the SEM day-ahead price stat, the generation-mix table/donut/bar (by fuel type, not by individual power station), the 24-hour mix chart and the History section's price panel above, via its Ireland (SEM) bidding zone. Requires the site operator's own free API token - shows "not available"/"not enough recorded history yet" rather than a placeholder figure if one is not set or ingestion has not run yet.</li>
       </ul>
-      <p>ENTSO-E's generation-per-type figures don't break interconnector flows down individually (Moyle vs. EWIC vs. Greenlink) the way EirGrid's own dashboard would - the mix table below shows GB interconnection as one combined figure, from EirGrid's net interconnection reading rather than ENTSO-E. The 24-hour generation-mix stack further up and the History section's per-range charts are live too, from the same EirGrid/ENTSO-E/SEMO feeds - each shows "not enough recorded history yet" rather than a placeholder if this install hasn't collected enough history for a given range.</p>
+      <p>ENTSO-E's generation-per-type figures do not break interconnector flows down individually (Moyle vs. EWIC vs. Greenlink) the way EirGrid's own dashboard would - the mix table below shows GB interconnection as one combined figure, from EirGrid's net interconnection reading rather than ENTSO-E. The 24-hour generation-mix stack further up and the History section's per-range charts are live too, from the same EirGrid/ENTSO-E/SEMO feeds - each shows "not enough recorded history yet" rather than a placeholder if this install has not collected enough history for a given range.</p>
     </section>
 
   </div>
@@ -293,13 +371,13 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003c"></script>
-<script src="../assets/data.js?v=20261003c"></script>
+<script src="../assets/app.js?v=20261029a"></script>
+<script src="../assets/data.js?v=20261029a"></script>
 <script>
 (function () {
   // demand/generation/emissions/transfers come from EirGrid via
   // api/ireland_series.php; price has no EirGrid equivalent (see
-  // api/ireland_current.php's docblock) so it's fetched separately from
+  // api/ireland_current.php's docblock) so it is fetched separately from
   // ENTSO-E via api/country_series.php - same split the top-of-page stats
   // already use.
   const METRICS = {
@@ -309,7 +387,7 @@
     // Genuinely different from "price" above - see api/ireland_series.php's
     // docblock. "source" just needs to be anything other than "entsoe" to
     // route through fetchIrelandSeries()/api/ireland_series.php below -
-    // it's SEMO's own data, not EirGrid's, despite the tag name shared with
+    // it is SEMO's own data, not EirGrid's, despite the tag name shared with
     // the other non-ENTSO-E metrics here.
     semo_price: { label: "SEM imbalance price", unit: "€/MWh", color: "#0e8f7a", source: "semo", signed: "price" },
     emissions:  { label: "Emissions",  unit: "g/kWh", color: "#8a5a3c", source: "eirgrid" },
@@ -340,7 +418,7 @@
       if (series && series.values.length) {
         GridPreview.renderLineChart(canvas, series, { label: cfg.label, color: cfg.color, unit: series.unit || cfg.unit, signed: cfg.signed });
       } else {
-        GridPreview.showChartError(canvas, "Not enough recorded history yet for this range.");
+        GridPreview.showChartError(canvas, "We do not have this much history yet. Choose a shorter range.");
       }
     });
   }
@@ -395,7 +473,7 @@
     // together - the donut/mix table needs both at once (ENTSO-E's mix
     // plus EirGrid's own GB-interconnection reading folded in as an extra
     // wedge, see the comment on extraLine below), so unlike index.html's
-    // single-source page this can't cleanly use GridPreview.
+    // single-source page this cannot cleanly use GridPreview.
     // withCachedFallback's one-source-in, one-source-out shape - it reads/
     // writes each source's cache entry directly via cacheGet/cacheSet
     // instead. Called once immediately with whatever's cached (either
@@ -404,7 +482,7 @@
     function renderIeSnapshot(current, entsoe, isCached, entsoeIsCached, icSource) {
       // icSource: which EirGrid snapshot supplies the GB-interconnect line -
       // normally `current`, but the cached one if EirGrid just failed, so a
-      // failed EirGrid refresh doesn't drop that row from the mix.
+      // failed EirGrid refresh does not drop that row from the mix.
       const ic = icSource !== undefined ? icSource : current;
       const priceEl = document.getElementById("stat-price");
       if (priceEl) priceEl.textContent = entsoe && entsoe.price_eur_mwh != null ? entsoe.price_eur_mwh.toFixed(2) : "-";
@@ -415,7 +493,7 @@
         tbodyId: "mix-tbody", donutId: "mix-donut", legendId: "mix-donut-legend", barId: "mix-bar",
         donutCaptionId: "mix-donut-caption", statusCaptionId: "mix-status-caption",
         statusCaptionHtml: (isCached || entsoeIsCached)
-          ? "Showing the last successfully loaded generation mix" + (entsoeIsCached ? " - ENTSO-E couldn't be reached just now." : " while this page fetches the latest data.")
+          ? "Showing the last successfully loaded generation mix" + (entsoeIsCached ? " - ENTSO-E could not be reached just now." : " while this page fetches the latest data.")
           : 'Live from the <a href="https://transparency.entsoe.eu/">ENTSO-E Transparency Platform</a> - see <a href="#ie-sources">data sources</a>.',
         sourceLabel: "ENTSO-E Transparency Platform (Ireland/SEM bidding zone)",
         mixTs: entsoe && entsoe.mix_ts,
@@ -423,7 +501,7 @@
         // source to this ENTSO-E breakdown - say so, rather than leave two
         // different totals on the page unexplained.
         captionNote: "The headline Generation figure above comes from EirGrid's own dashboard rather than ENTSO-E, so the two totals can differ slightly.",
-        // ENTSO-E's generation-per-type data doesn't split interconnector
+        // ENTSO-E's generation-per-type data does not split interconnector
         // flow out by individual cable - EirGrid's own interconnection_mw
         // reading is folded in as one combined line instead (see the
         // ie-sources section's copy for why). Passed signed: positive is an
@@ -434,7 +512,7 @@
           // A literal hex, not var(--interconnector) - this colour also
           // feeds the donut chart's canvas gradient below (see
           // renderPsrMixSection in app.js), and canvas fillStyle/gradient
-          // stops don't resolve CSS custom properties the way an inline
+          // stops do not resolve CSS custom properties the way an inline
           // element style does, so a var() reference here would throw
           // partway through drawing the donut every time GB interconnection
           // data is present. #d98e04 is this site's --interconnector value.
@@ -453,7 +531,7 @@
       setStat("stat-transfers", current.interconnection_mw != null ? (current.interconnection_mw / 1000).toFixed(2) : "-");
       // SEMO's imbalance price rides on the same "current" (EirGrid)
       // response as the fields above - see api/ireland_current.php's
-      // docblock for why it's independently null rather than gated on
+      // docblock for why it is independently null rather than gated on
       // EirGrid's own freshness. One narrow gap: if EirGrid has never
       // ingested a single row at all (current itself is null), this whole
       // function returns early above before reaching here, so a
@@ -477,7 +555,7 @@
           : "Live demand, generation, emissions and GB interconnection from EirGrid's Smart Grid Dashboard" +
             (current.stale ? ". This may be a few updates behind; check the site's cron jobs." : ".") +
             (entsoe && !entsoeIsCached ? " SEM price and the generation-mix breakdown below are live from ENTSO-E too."
-              : entsoe ? " ENTSO-E couldn't be reached just now, so SEM price and the generation-mix breakdown below are the last successfully loaded figures."
+              : entsoe ? " ENTSO-E could not be reached just now, so SEM price and the generation-mix breakdown below are the last successfully loaded figures."
               : " SEM price and the generation-mix breakdown below show no data available for now - see data sources below.");
       }
     }
@@ -485,7 +563,7 @@
     const cachedCurrent = GridPreview.cacheGet("ireland-current");
     const cachedEntsoe = GridPreview.cacheGet("ireland-entsoe");
     // On a periodic refresh (GridPreview.autoRefresh) the page is already
-    // showing these figures - don't repaint them as "cached".
+    // showing these figures - do not repaint them as "cached".
     if ((cachedCurrent || cachedEntsoe) && !GridPreview._refreshing) renderIeSnapshot(cachedCurrent, cachedEntsoe, true);
 
     // EirGrid (demand/generation/wind/interconnection/emissions) and
@@ -552,14 +630,14 @@
           const canvas = document.getElementById("spark-" + key);
           if (canvas) GridPreview.showChartError(canvas, null);
         });
-        if (caption) caption.textContent = "Live data is currently unavailable." + (entsoe ? " SEM price and the generation-mix breakdown below are still live from ENTSO-E." : " SEM price and the generation-mix breakdown below show no data available too.") + " See data sources below.";
+        if (caption) caption.textContent = "The live figures did not load." + (entsoe ? " SEM price and the generation-mix breakdown below are still live from ENTSO-E." : " SEM price and the generation-mix breakdown below show no data available too.") + " See data sources below.";
       }
       return;
     }
 
     // EirGrid and ENTSO-E are two independent sources - EirGrid's fetch just
     // succeeded above, but its (or ENTSO-E's) most recent ingest attempt
-    // could still be erroring even while stale-but-present data is what's
+    // could still be erroring even while stale-but-present data is what is
     // actually being shown. Surface that distinctly rather than silently
     // saying nothing, same reasoning as index.html's GB status strip.
     const issueBanner = await GridPreview.buildApiIssueBanner({
@@ -612,7 +690,7 @@
     const mix = await window.GridData.fetchCountryMixSeries("IE", "day");
     canvas.closest(".chart-wrap").classList.remove("is-loading");
     if (!mix) {
-      GridPreview.showChartError(canvas, "Not enough recorded history yet for the last 24 hours.");
+      GridPreview.showChartError(canvas, "We do not have 24 hours of history yet.");
       return;
     }
     GridPreview.renderStackedAreaChart(canvas, mix.times, mix.labels, [
