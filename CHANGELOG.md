@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Ireland feed moved to EirGrid's new dashboard API; mix chart tweaks)
+
+- **Ireland live data fixed.** EirGrid has replaced its Smart Grid Dashboard, and the old `DashboardService.svc/data` feed now returns HTTP 503 to every request, so the Ireland ingest wrote 0 rows. `ukgrid_ingest_eirgrid()` now reads the new dashboard's chart API (`https://www.smartgriddashboard.com/api/chart/?region=ALL&chartType=default&dateRange=day&dateFrom=...&dateTo=...&areas=...`), checked live on 29 October 2026. It sends whole-day dates and keeps only the right field for each area (`SYSTEM_DEMAND`, `GEN_EXP`, `WIND_ACTUAL`, `INTER_NET`, `CO2_INTENSITY`). Before, the interconnection area's per-cable rows could overwrite the net figure. An old `DashboardService.svc` value for `eirgrid_base` in `includes/config.php` is ignored, so no config change is needed. `ukgrid_http_get_json()` takes optional extra headers.
+- **Mix donut:** the centre total is smaller and scales with the ring, so it no longer touches the inner ring. The inner ring sits closer to the outer ring (r 84 to 90) and now uses the same colours as the bottom bar: each group's tint, edged in its colour.
+- **Donut legend:** the coloured line above Renewable, Non-renewable, Storage and Net imports shows again. A more specific rule had been removing it.
+- **Download chart snapshot (PNG)** on every generation mix section. It saves one card with the donut, its legend and both bars, in the current theme.
+- **Announcement banner** folds to a thin yellow line under the menu once the page scrolls, and opens again at the top of the page or when its link has focus. It does not animate under Reduce motion.
+
 ## 2026-10-29 (Design C fixes: header fit, figure cards, Reduce motion)
 
 - **Header no longer breaks onto two lines.** With the real Archivo font, the full menu plus Display did not fit at some widths (around 1300px) and Display dropped to a second row. The header now measures itself: if the menu does not fit on one line, Display shows as an icon; if it still does not fit (a narrower window, or 125% text and above), it switches to the Menu button and the one-section-at-a-time menu, shown as a panel at the right on wide screens. Rechecked on resize, text-size changes and when the font loads.

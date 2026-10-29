@@ -781,18 +781,22 @@ function ukgrid_eirgrid_time_to_mysql(string $t): ?string
 /**
  * EirGrid Smart Grid Dashboard - no API key required. Covers the all-island
  * (Republic of Ireland + Northern Ireland) system: demand, total generation,
- * wind generation, and net interconnection with GB.
+ * wind generation, net interconnection and carbon intensity.
  *
- * Written defensively, like ukgrid_ingest_neso() above: multiple independent
- * community tools (and EirGrid's own dashboard) confirm this endpoint and
- * its query parameters are real, keyless and publicly documented under
- * EirGrid's Open Data Licence, but this project's build environment
- * couldn't get a live response from smartgriddashboard.com to verify the
- * exact JSON field names/wrapper - only that requests.get()-style plain
- * HTTP calls work for other developers. If ingestion logs an ERROR here,
- * check the message for which "area" failed and what the raw response
- * looked like, and adjust ukgrid_find_assoc_field()'s patterns above if
- * EirGrid's field names differ from what's assumed.
+ * October 2026: EirGrid replaced the dashboard. The old feed at
+ * /DashboardService.svc/data now answers every request with an IIS
+ * "HTTP Error 503. The service is unavailable" page, so this reads the new
+ * dashboard's own chart API instead:
+ *
+ *   https://www.smartgriddashboard.com/api/chart/?region=ALL&chartType=default
+ *     &dateRange=day&dateFrom=29-Oct-2026&dateTo=29-Oct-2026&areas=demandactual
+ *
+ * Checked live on 29 October 2026. The response is {"Rows":[...]} and each
+ * row is {"Value":5511,"Region":"ALL","EffectiveTime":"29-Oct-2026 14:45:00",
+ * "FieldName":"SYSTEM_DEMAND"} at 15-minute intervals, with Value null for
+ * periods not yet published. Dates are whole days, not times. Some areas
+ * return more than one field (interconnection returns each cable plus the
+ * net total), so rows are filtered by FieldName below.
  *
  * Data licence: EirGrid Group's Open Data Licence requires the attribution
  * "Supported by EirGrid Group Data" wherever this data is shown (already
@@ -800,33 +804,28 @@ function ukgrid_eirgrid_time_to_mysql(string $t): ?string
  */
 function ukgrid_ingest_eirgrid(PDO $pdo, array $config, int $timeoutSeconds = 20): array
 {
-    $base = rtrim($config['sources']['eirgrid_base'] ?? 'https://www.smartgriddashboard.com/DashboardService.svc', '/');
+    $base = trim((string) ($config['sources']['eirgrid_base'] ?? ''));
+    if ($base === '' || stripos($base, 'DashboardService.svc') !== false) {
+        $base = 'https://www.smartgriddashboard.com/api/chart/';
+    }
+    $base = rtrim($base, '/') . '/';
 
+    // Whole days only. Asking from the day 4 hours ago keeps a 4-hour
+    // overlap after midnight, which covers any missed runs.
     $now = new DateTime('now', new DateTimeZone('Europe/Dublin'));
-    // Round down to the last 15-minute settlement-period boundary. Confirmed
-    // live (via tools/full-refresh.php) that this API is picky about this:
-    // an off-grid datefrom/dateto like "19:12" doesn't get snapped to the
-    // nearest real period - it comes back with EffectiveTime stamps of
-    // 15:12, 15:27, 15:42, 15:57... (i.e. every 15 minutes from the exact
-    // off-grid minute given) and EVERY one of those has Value: null, since
-    // none of them are real settlement periods. Every one of the 5 areas
-    // below failed with "no usable data points" for exactly this reason
-    // until this rounding was added - a plain new DateTime('now') only
-    // lands on :00/:15/:30/:45 by chance.
-    $minute = (int) $now->format('i');
-    $now->setTime((int) $now->format('H'), $minute - ($minute % 15), 0);
-    $from = (clone $now)->modify('-4 hours'); // overlap covers any missed runs
-    $dateFrom = $from->format('d-M-Y H:i');
-    $dateTo = $now->format('d-M-Y H:i');
+    $from = (clone $now)->modify('-4 hours');
+    $dateFrom = $from->format('d-M-Y');
+    $dateTo = $now->format('d-M-Y');
 
-    // area => [table, category-or-null (null means the readings_ie_demand table)]
+    // area => [table, category-or-null, FieldName to keep]
     $areas = [
-        'demandactual' => ['readings_ie_demand', null],
-        'generationactual' => ['readings_ie_generation', 'TOTAL'],
-        'windactual' => ['readings_ie_generation', 'WIND'],
-        'interconnection' => ['readings_ie_generation', 'INTERCONNECTION'],
-        'co2intensity' => ['readings_ie_co2', null],
+        'demandactual' => ['readings_ie_demand', null, 'SYSTEM_DEMAND'],
+        'generationactual' => ['readings_ie_generation', 'TOTAL', 'GEN_EXP'],
+        'windactual' => ['readings_ie_generation', 'WIND', 'WIND_ACTUAL'],
+        'interconnection' => ['readings_ie_generation', 'INTERCONNECTION', 'INTER_NET'],
+        'co2intensity' => ['readings_ie_co2', null, 'CO2_INTENSITY'],
     ];
+    $headers = ['Eirgrid-Content-Request: Nextjs', 'Referer: https://www.smartgriddashboard.com/'];
 
     $demandStmt = $pdo->prepare('INSERT INTO readings_ie_demand (ts, mw) VALUES (:ts, :mw) ON DUPLICATE KEY UPDATE mw = VALUES(mw)');
     $genStmt = $pdo->prepare('INSERT INTO readings_ie_generation (ts, category, mw) VALUES (:ts, :category, :mw) ON DUPLICATE KEY UPDATE mw = VALUES(mw)');
@@ -838,32 +837,20 @@ function ukgrid_ingest_eirgrid(PDO $pdo, array $config, int $timeoutSeconds = 20
     $completedNormally = false;
     ukgrid_register_partial_progress_safety_net('EIRGRID', 'the 5-area loop (demand/generation/wind/interconnection/co2)', $completedNormally, $rowsWritten, $errors);
 
-    foreach ($areas as $area => [$table, $category]) {
-        // A gap between each of the 5 sequential requests, on the theory
-        // this was server-side rate limiting - bumped from an original
-        // 300ms to 600ms, but a live run via tools/full-refresh.php (see
-        // includes/http.php's ukgrid_http_get_json() failure messages,
-        // surfaced there even in log-capture mode - ukgrid_file_log() in
-        // includes/db.php) showed 600ms still wasn't enough, AND that which
-        // area(s) fail varies between runs rather than always being the
-        // same ones - that's a pattern of genuine intermittent flakiness on
-        // EirGrid's own dashboard backend (flat HTTP 503 "Service
-        // Unavailable" pages, not a JSON error EirGrid itself generated),
-        // not something spacing requests further apart alone reliably
-        // fixes. Kept the 600ms gap AND added one short-backoff retry per
-        // area below, since a 503 here comes back almost instantly (not a
-        // real timeout) and a second attempt a moment later clears most of
-        // them in practice.
+    foreach ($areas as $area => [$table, $category, $wantField]) {
+        // A short gap between the 5 requests, plus one retry per area: the
+        // old feed gave occasional instant 503s and a second try a moment
+        // later cleared most of them.
         if (!$isFirstArea) {
-            usleep(600000);
+            usleep(400000);
         }
         $isFirstArea = false;
 
-        $url = $base . '/data?area=' . urlencode($area) . '&region=ALL&datefrom=' . urlencode($dateFrom) . '&dateto=' . urlencode($dateTo);
-        $data = ukgrid_http_get_json($url, $timeoutSeconds);
+        $url = $base . '?region=ALL&chartType=default&dateRange=day&dateFrom=' . urlencode($dateFrom) . '&dateTo=' . urlencode($dateTo) . '&areas=' . urlencode($area);
+        $data = ukgrid_http_get_json($url, $timeoutSeconds, $headers);
         if ($data === null) {
-            usleep(900000); // one retry after a short pause - see the comment above
-            $data = ukgrid_http_get_json($url, $timeoutSeconds);
+            usleep(900000);
+            $data = ukgrid_http_get_json($url, $timeoutSeconds, $headers);
         }
         if ($data === null) {
             $errors[] = "{$area}: request failed or returned invalid JSON, even after one retry.";
@@ -889,6 +876,9 @@ function ukgrid_ingest_eirgrid(PDO $pdo, array $config, int $timeoutSeconds = 20
             $fieldName = ukgrid_find_assoc_field($point, ['fieldname']);
             if ($fieldName !== null && !in_array((string) $fieldName, $fieldNamesSeen, true)) {
                 $fieldNamesSeen[] = (string) $fieldName;
+            }
+            if ($fieldName !== null && strcasecmp((string) $fieldName, $wantField) !== 0) {
+                continue; // another field in the same area, e.g. one cable rather than the net total
             }
             $rawTime = ukgrid_find_assoc_field($point, ['effectivetime', 'time']);
             $rawValue = ukgrid_find_assoc_field($point, ['value']);

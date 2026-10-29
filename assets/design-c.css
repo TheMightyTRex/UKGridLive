@@ -287,6 +287,13 @@ html.pref-calm .ug-ping { opacity: 0; }
   display: flex; justify-content: center; align-items: center; gap: .6rem; flex-wrap: wrap;
   background: var(--brand); color: var(--brand-ink); padding: .5rem 1rem; font-size: .95rem; font-weight: 600; text-align: center; border: 0;
 }
+/* Folds away to a thin yellow line under the menu once the page scrolls
+   (html.is-scrolled, set in initBannerFold). Opens again while focused. */
+.preview-banner { overflow: hidden; max-height: 8rem; transition: max-height .35s ease, padding .35s ease; }
+.preview-banner > * { transition: opacity .2s ease; }
+html.is-scrolled .preview-banner:not(:focus-within) { max-height: 4px; padding-top: 0; padding-bottom: 0; }
+html.is-scrolled .preview-banner:not(:focus-within) > * { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .preview-banner, .preview-banner > * { transition: none; } }
 .preview-banner a { color: var(--brand-ink); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
 .preview-banner__tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--brand-ink); color: var(--brand); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
 
@@ -431,13 +438,13 @@ html[data-theme="dark"] .home-card--records, html.pref-hc .home-card--records { 
 .mixchart__ring { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1; }
 .mixchart__ring svg { width: 100%; height: 100%; display: block; }
 .mixchart__ring circle { cursor: pointer; transition: opacity .15s ease; }
-.mixchart__centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; pointer-events: none; text-align: center; }
-.mixchart__centre strong { font-weight: 900; font-stretch: 112%; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
-.mixchart__centre span { font-size: .85rem; color: var(--text-muted); }
+.mixchart__centre { position: absolute; inset: 0; container-type: size; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; pointer-events: none; text-align: center; }
+.mixchart__centre strong { font-weight: 900; font-stretch: 100%; font-size: clamp(.95rem, 7cqi, 1.3rem); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.mixchart__centre span { font-size: clamp(.72rem, 4cqi, .85rem); line-height: 1.2; max-width: 40cqi; color: var(--text-muted); }
 .mixchart__legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 22px; }
 .mixchart__group { display: flex; flex-direction: column; gap: 2px; }
 .mixchart__legend button { font: inherit; color: inherit; background: none; border: 0; text-align: left; cursor: pointer; transition: opacity .15s ease; border-radius: 4px; }
-.mixchart__gbtn { display: flex; flex-direction: column; padding: 10px 0 6px; border-top: 6px solid var(--g); }
+.mixchart__legend .mixchart__gbtn { display: flex; flex-direction: column; width: 100%; padding: 10px 0 6px; border-top: 6px solid var(--g); border-radius: 0; }
 .mixchart__gbtn strong { font-size: 1.05rem; color: var(--gi); }
 .mixchart__ibtn { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 0; }
 .mixchart__sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }

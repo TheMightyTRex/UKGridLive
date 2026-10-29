@@ -2180,12 +2180,14 @@
       const table = tbody && tbody.closest("table");
       const section = mixHost.closest("section") || mixHost.parentNode;
       let tools = section && section.querySelector(".download-row");
-      if (!tools && table && !table._showTable) {
-        tools = document.createElement("p");
+      if (!tools) {
+        tools = mixHost._tools || document.createElement("p");
         tools.className = "download-row";
-        mixHost.parentNode.insertBefore(tools, mixHost.nextSibling);
+        mixHost._tools = tools;
+        if (!tools.parentNode) mixHost.parentNode.insertBefore(tools, mixHost.nextSibling);
       }
       attachShowTable(table, tools);
+      attachMixSnapshot(mixHost, tools);
     }
     if (opts.statusCaptionId && opts.statusCaptionHtml) {
       const el = document.getElementById(opts.statusCaptionId);
@@ -3543,6 +3545,218 @@
     return list.slice(0, -1).join(", ") + " and " + list[list.length - 1];
   }
 
+  /** "Download snapshot (PNG)" for a mix chart: the donut and the bars
+      together on one card, drawn from the same figures as the chart, in
+      the colours of the current theme. */
+  function downloadMixSnapshot(host, d) {
+    const cs = getComputedStyle(host);
+    const v = (name, fb) => (cs.getPropertyValue(name) || "").trim() || fb;
+    const col = (ref) => { const m = /var\((--[\w-]+)\)/.exec(ref || ""); return m ? v(m[1], "#888888") : ref; };
+    const pal = { bg: v("--surface", "") || v("--bg", "#ffffff"), panel: v("--panel", "#f4f5f7"), text: v("--text", "#14181f"), muted: v("--text-muted", "#3d4350"), border: v("--border", "#dde1e7"), ink: v("--ink", "#14181f") };
+    const bodyFont = getComputedStyle(document.body).fontFamily || "sans-serif";
+    const F = (w, px) => `${w} ${px}px ${bodyFont}`;
+    const W = 1000, pad = 36, scale = 2;
+    const m = document.createElement("canvas").getContext("2d");
+    function wrapLines(text, font, max) {
+      m.font = font;
+      const words = String(text).split(" "), lines = [];
+      let line = "";
+      words.forEach((w) => { const t = line ? line + " " + w : w; if (line && m.measureText(t).width > max) { lines.push(line); line = w; } else line = t; });
+      if (line) lines.push(line);
+      return lines;
+    }
+    const now = new Date();
+    const title = d.title || "Generation mix";
+    const sub = "ukgridlive.info - as of " + fmtTime12(now) + ", " + now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    const headLines = wrapLines(d.headline, F(600, 17), W - pad * 2);
+
+    // Legend beside the donut: groups in two columns, row by row.
+    const legX = pad + 360, legW = W - pad - legX, colW = (legW - 24) / 2;
+    const groupH = (g) => 6 + 8 + 20 + 20 + g.members.length * 24 + 12;
+    const legRows = [];
+    for (let i = 0; i < d.groups.length; i += 2) legRows.push(d.groups.slice(i, i + 2));
+    const legH = legRows.reduce((s, r) => s + Math.max(...r.map(groupH)), 0);
+
+    // Bar labels: the same tiering as the on-screen bars, worked right to left.
+    const barW = W - pad * 2, TIER = 46;
+    let acc = 0;
+    const placed = d.items.map((it) => {
+      const x = d.totalMw > 0 ? acc / d.totalMw * barW : 0;
+      acc += it.mw;
+      m.font = F(700, 14); const w1 = m.measureText(it.label).width;
+      const val = `${d.gw(it.mw)}GW, ${d.pct(it.mw)}%`;
+      m.font = F(500, 13); const w2 = m.measureText(val).width;
+      return { it, x, val, w: Math.max(w1, w2) + 16 };
+    });
+    const tiers = [];
+    let maxTier = 0;
+    for (let j = placed.length - 1; j >= 0; j--) {
+      const p = placed[j];
+      p.left = p.x + p.w > barW ? Math.max(0, barW - p.w) : p.x;
+      let t = 0;
+      for (let i = j + 1; i < placed.length; i++) if (placed[i].x < p.left + p.w) t = Math.max(t, placed[i].tier + 1);
+      while ((tiers[t] || []).some((b) => p.left < b[1] && p.left + p.w > b[0])) t++;
+      (tiers[t] = tiers[t] || []).push([p.left, p.left + p.w]);
+      p.tier = t; maxTier = Math.max(maxTier, t);
+    }
+    const topH = (maxTier + 1) * TIER;
+    acc = 0;
+    const gPlaced = [];
+    d.groups.forEach((g) => {
+      const x = d.totalMw > 0 ? acc / d.totalMw * barW : 0;
+      acc += g.mw;
+      m.font = F(700, 14); const w1 = m.measureText(g.label).width;
+      const val = `${d.gw(g.mw)}GW, ${d.pct(g.mw)}%`;
+      m.font = F(500, 13); const w2 = m.measureText(val).width;
+      const w = Math.max(w1, w2) + 16;
+      const left = x + w > barW ? Math.max(0, barW - w) : x;
+      let t = 0;
+      while (gPlaced.some((q) => q.tier === t && left < q.left + q.w && left + w > q.left)) t++;
+      gPlaced.push({ g, x, left, w, val, tier: t });
+    });
+    const bottomH = (Math.max(0, ...gPlaced.map((q) => q.tier)) + 1) * TIER;
+
+    const headTop = pad + 26 + 26;
+    const ruleY = headTop + headLines.length * 24 + 10;
+    const donutTop = ruleY + 24;
+    const midH = Math.max(320, legH);
+    const barsTop = donutTop + midH + 32;
+    const stripY = barsTop + topH, SRC_H = 40, GRP_H = 28;
+    const bottomY = stripY + SRC_H + 4 + GRP_H;
+    const H = bottomY + bottomH + 20 + 24 + pad;
+
+    const out = document.createElement("canvas");
+    out.width = W * scale; out.height = H * scale;
+    const c = out.getContext("2d");
+    c.scale(scale, scale);
+    c.fillStyle = pal.bg; c.fillRect(0, 0, W, H);
+    c.textBaseline = "alphabetic";
+    c.fillStyle = pal.text; c.font = F(800, 26); c.fillText(fitTitleLine(c, title, W - pad * 2), pad, pad + 22);
+    c.fillStyle = pal.muted; c.font = F(500, 14); c.fillText(sub, pad, pad + 46);
+    c.fillStyle = pal.text; c.font = F(600, 17);
+    headLines.forEach((l, i) => c.fillText(l, pad, headTop + 20 + i * 24));
+    c.strokeStyle = pal.border; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(pad, ruleY + 0.5); c.lineTo(W - pad, ruleY + 0.5); c.stroke();
+
+    // Donut: same geometry as the on-screen SVG (viewBox 320).
+    const cx = pad + 160, cy = donutTop + midH / 2;
+    function ring(list, r, width, colorOf) {
+      let start = -Math.PI / 2;
+      const gapA = list.length > 1 ? 2 / r : 0;
+      list.forEach((x) => {
+        const a = d.totalMw > 0 ? x.mw / d.totalMw * Math.PI * 2 : 0;
+        const end = start + Math.max(a - gapA, 0.6 / r);
+        c.beginPath(); c.arc(cx, cy, r, start, end); c.strokeStyle = colorOf(x); c.lineWidth = width; c.stroke();
+        start += a;
+      });
+    }
+    c.lineCap = "butt";
+    ring(d.items, 128, 44, (it) => it.color);
+    ring(d.groups, 90, 26, (g) => col(CMP_GROUPS[g.key].tint));
+    ring(d.groups, 101, 4, (g) => col(CMP_GROUPS[g.key].ring));
+    c.textAlign = "center";
+    c.fillStyle = pal.text; c.font = F(900, 26); c.fillText(d.gw(d.totalMw) + "GW", cx, cy + 4);
+    c.fillStyle = pal.muted; c.font = F(500, 14); c.fillText(d.centreLabel, cx, cy + 26);
+    c.textAlign = "left";
+
+    // Legend
+    let ly = donutTop + (midH - legH) / 2;
+    legRows.forEach((row) => {
+      row.forEach((g, k) => {
+        const x = legX + k * (colW + 24);
+        let y = ly;
+        c.fillStyle = col(CMP_GROUPS[g.key].ring); c.fillRect(x, y, colW, 6);
+        y += 6 + 8 + 16;
+        c.fillStyle = pal.text; c.font = F(800, 16); c.fillText(g.label, x, y);
+        y += 20;
+        c.fillStyle = pal.muted; c.font = F(500, 14); c.fillText(`${d.gw(g.mw)}GW, ${d.pct(g.mw)}%`, x, y);
+        y += 6;
+        g.members.forEach((i) => {
+          const it = d.items[i];
+          y += 24;
+          c.fillStyle = it.color; c.fillRect(x, y - 12, 12, 12);
+          c.fillStyle = pal.text; c.font = F(600, 14);
+          const lab = fitTitleLine(c, it.label, colW - 70);
+          c.fillText(lab, x + 20, y);
+          c.fillStyle = pal.muted; c.font = F(500, 14); c.textAlign = "right"; c.fillText(d.pct(it.mw) + "%", x + colW, y); c.textAlign = "left";
+        });
+      });
+      ly += Math.max(...row.map(groupH));
+    });
+
+    // Bars
+    acc = 0;
+    d.items.forEach((it) => {
+      const x = pad + (d.totalMw > 0 ? acc / d.totalMw * barW : 0), w = d.totalMw > 0 ? it.mw / d.totalMw * barW : 0;
+      acc += it.mw;
+      c.fillStyle = it.color; c.fillRect(x, stripY, Math.max(w, 1), SRC_H);
+    });
+    acc = 0;
+    d.groups.forEach((g, i) => {
+      const x = pad + (d.totalMw > 0 ? acc / d.totalMw * barW : 0), w = d.totalMw > 0 ? g.mw / d.totalMw * barW : 0;
+      acc += g.mw;
+      const y = stripY + SRC_H + 4;
+      c.fillStyle = col(CMP_GROUPS[g.key].tint); c.fillRect(x, y, Math.max(w, 1), GRP_H);
+      c.fillStyle = col(CMP_GROUPS[g.key].ring); c.fillRect(x, y, Math.max(w, 1), 4);
+      if (i > 0) { c.fillStyle = pal.bg; c.fillRect(x, y, 3, GRP_H); }
+    });
+    c.strokeStyle = pal.ink; c.lineWidth = 1;
+    placed.forEach((p) => {
+      const y = barsTop + topH - (p.tier + 1) * TIER;
+      const lx = pad + p.left;
+      c.beginPath();
+      if (p.left !== p.x) { c.moveTo(pad + p.x + 0.5, y + 40); c.lineTo(pad + p.x + 0.5, stripY); }
+      else { c.moveTo(lx + 0.5, y); c.lineTo(lx + 0.5, stripY); }
+      c.stroke();
+      c.fillStyle = pal.text; c.font = F(700, 14); c.fillText(p.it.label, lx + 6, y + 14);
+      c.fillStyle = pal.muted; c.font = F(500, 13); c.fillText(p.val, lx + 6, y + 32);
+    });
+    gPlaced.forEach((q) => {
+      const y = bottomY + q.tier * TIER;
+      const lx = pad + q.left;
+      c.strokeStyle = col(CMP_GROUPS[q.g.key].ring);
+      c.beginPath(); c.moveTo(pad + q.x + 0.5, bottomY); c.lineTo(pad + q.x + 0.5, y + 38); c.stroke();
+      c.fillStyle = col(CMP_GROUPS[q.g.key].ink); c.font = F(800, 14); c.fillText(q.g.label, lx + 6, y + 18);
+      c.fillStyle = pal.muted; c.font = F(500, 13); c.fillText(q.val, lx + 6, y + 36);
+    });
+
+    c.fillStyle = pal.muted; c.font = F(500, 12);
+    c.fillText("Outer ring and top bar: each source. Inner ring and bottom bar: its group. Source: https://ukgridlive.info/", pad, H - pad + 8);
+
+    out.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ukgridlive-${slugify(title)}-${todayStamp()}.png`;
+      a.style.position = "fixed"; a.style.opacity = "0";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/png");
+  }
+
+  function attachMixSnapshot(host, toolsEl) {
+    if (!host || !toolsEl || host._snapBtn) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.innerHTML = '<span data-copy-label aria-live="polite">Download chart snapshot (PNG)</span>';
+    btn.addEventListener("click", () => {
+      if (!host._mixSnap) return;
+      const label = btn.querySelector("[data-copy-label]");
+      const go = () => {
+        try { host._mixSnap(); label.textContent = "Snapshot downloaded"; }
+        catch (e) { label.textContent = "Snapshot failed. Try again."; }
+        clearTimeout(btn._t);
+        btn._t = setTimeout(() => { label.textContent = "Download chart snapshot (PNG)"; }, 2000);
+      };
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+    });
+    const tableBtn = toolsEl.querySelector(".mixchart__table-btn");
+    toolsEl.insertBefore(btn, tableBtn || null);
+    host._snapBtn = btn;
+  }
+
   function renderMixChart(host, ordered, totalMw, o) {
     const gw = o.gw, pct = o.pct;
     const items = [];
@@ -3566,7 +3780,7 @@
     const centreDefault = [gw(totalMw) + "GW", o.centerSub || "total supply"];
 
     // Donut rings
-    const R1 = 128, R2 = 84, C1 = 2 * Math.PI * R1, C2 = 2 * Math.PI * R2;
+    const R1 = 128, R2 = 90, RE = 101, C1 = 2 * Math.PI * R1, C2 = 2 * Math.PI * R2, CE = 2 * Math.PI * RE;
     const gap = items.length > 1 ? 2 : 0;
     let cum = 0;
     const outer = items.map((it, i) => {
@@ -3579,7 +3793,10 @@
     const inner = groups.map((g) => {
       const f = totalMw > 0 ? g.mw / totalMw : 0;
       const dash = Math.max(f * C2 - (groups.length > 1 ? 2 : 0), 0.6);
-      const s = `<circle cx="160" cy="160" r="${R2}" style="stroke:${CMP_GROUPS[g.key].ring}" stroke-width="26" stroke-dasharray="${dash.toFixed(2)} ${C2.toFixed(2)}" stroke-dashoffset="${(-cum * C2).toFixed(2)}" data-key="g:${g.key}"></circle>`;
+      // Same look as the bottom bar: the group's tint, edged in its colour.
+      const dashE = Math.max(f * CE - (groups.length > 1 ? 2 : 0), 0.6);
+      const s = `<circle cx="160" cy="160" r="${R2}" style="stroke:${CMP_GROUPS[g.key].tint}" stroke-width="26" stroke-dasharray="${dash.toFixed(2)} ${C2.toFixed(2)}" stroke-dashoffset="${(-cum * C2).toFixed(2)}" data-key="g:${g.key}"></circle>` +
+        `<circle cx="160" cy="160" r="${RE}" style="stroke:${CMP_GROUPS[g.key].ring}" stroke-width="4" stroke-dasharray="${dashE.toFixed(2)} ${CE.toFixed(2)}" stroke-dashoffset="${(-cum * CE).toFixed(2)}" data-key="g:${g.key}"></circle>`;
       cum += f; return s;
     }).join("");
     const srcAria = "Outer ring, supply by source: " + items.map((it) => `${it.label} ${pct(it.mw)}%`).join(", ") + ". Inner ring, by group: " + groups.map((g) => `${g.label.toLowerCase()} ${pct(g.mw)}%`).join(", ") + ".";
@@ -3647,6 +3864,9 @@
       centre.querySelector("span").textContent = cl;
     }
     function setHi(k) { if (k !== hi) { hi = k; paint(); } }
+    const sec = host.closest("section");
+    const secTitle = sec && sec.querySelector("h2") ? sec.querySelector("h2").textContent.trim() : "";
+    host._mixSnap = () => downloadMixSnapshot(host, { items, groups, totalMw, gw, pct, headline, centreLabel: centreDefault[1], title: secTitle || "Generation mix" });
     // Listeners are bound once per container; each re-render swaps in its own handlers.
     host._mix = {
       over: (e) => { const el = e.target.closest("[data-key]"); if (el && host.contains(el)) setHi(el.dataset.key); },
@@ -3866,9 +4086,24 @@
     if (tools.children.length) hero.parentNode.insertBefore(tools, hero.nextSibling);
   }
 
+  /** Folds the announcement banner to a thin line once the page scrolls.
+      Two thresholds, so the height change itself cannot flip it back. */
+  function initBannerFold() {
+    if (!document.querySelector(".site-head .preview-banner")) return;
+    let on = false;
+    const check = () => {
+      const y = window.scrollY || document.documentElement.scrollTop;
+      if (!on && y > 80) { on = true; root.classList.add("is-scrolled"); }
+      else if (on && y < 8) { on = false; root.classList.remove("is-scrolled"); }
+    };
+    window.addEventListener("scroll", check, { passive: true });
+    check();
+  }
+
   /* ---------- Init ---------- */
   document.addEventListener("DOMContentLoaded", () => {
     initPrefs();
+    initBannerFold();
     initNav();
     initPageTools();
     initTabs();
