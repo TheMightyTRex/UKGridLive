@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Ireland: mix combines EirGrid and ENTSO-E)
+
+- Ireland's generation mix right now uses EirGrid's total generation, wind, solar and GB interconnection (every 15 minutes), plus ENTSO-E's other types for Ireland: hydro, peat, pumped storage and any others it publishes. Wind and solar come only from EirGrid. What is left of EirGrid's total is "Gas and other (calculated)" (or "Other (calculated)" if ENTSO-E ever publishes gas). ENTSO-E figures more than 6 hours older than EirGrid's are left out, and the caption says so. The caption gives both sources' times and notes that ENTSO-E still lists Edenderry under peat.
+- The 24-hour stack keeps EirGrid's figures only, now labelled "Gas and other (calculated)".
+
 ## 2026-10-29 (Phone header stays on one line)
 
 - On phones (560px and narrower) the logo, Display and Menu now always sit on one line, with a 10px gap above the yellow line. Before, with the phone's own large-text setting on, the buttons wrapped onto a second row, sat right on the yellow line and pushed the logo out of view in the sticky header. The header sizes here are in px so text size cannot break the layout. Buttons are smaller: 38px tall (36px under 380px wide), and Display is a square icon.
