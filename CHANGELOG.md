@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Country pages refresh their own ENTSO-E data)
+
+- Live, Ireland's mix showed only wind, gas and other, and GB interconnect. Solar was 0 at night, so it was left out. Hydro and peat were left out because Ireland's ENTSO-E readings were 16 hours old (05:30 UTC), beyond the 6-hour limit. Without cron, the shared on-demand refresh fetches one ENTSO-E country per run in rotation, so a country could go most of a day between fetches.
+- `api/country_current.php` now fetches its own country first when that country's newest reading is more than 90 minutes old and it has not been tried in the last 20 minutes. It is lock-guarded, uses 6-second timeouts and is logged to refresh.log. This applies to Ireland and every ENTSO-E country page. Setting up `cron/fetch_entsoe.php` is still the better fix.
+
 ## 2026-10-29 (Plug-in solar check; electricity prices page moved to official sources)
 
 - **Plug-in solar (8 pages): checked against the official sources on 29 October 2026. No rule changes since 3 October.** The DESNZ Interim Product Specification is still version 2.0 (July 2026). The GOV.UK page was last updated on 3 September 2026, adding Welsh translations only. SI 2026/848 and SI 2026/896 have no amendments. Nothing new was found from Ofgem on export payments, from NIE Networks or the NI Department for the Economy on Northern Ireland, or from the Welsh Government on planning. "Rules last checked" moved to 29 October 2026. Not re-checked this time: the ENA Type Test Register, Electricity North West's notification page, and gov.scot (it could not be searched).

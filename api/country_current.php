@@ -51,6 +51,35 @@ $fetchKinds = $countries[$countryCode]['fetch'] ?? [];
 $pdo = ukgrid_db();
 $stalenessMinutes = (int) ($config['entsoe_staleness_minutes'] ?? 240);
 
+// This page's own country first. Without a cron job, the shared on-demand
+// refresh fetches one ENTSO-E country at a time in rotation, so a country
+// page could show readings many hours old (Ireland's were 16 hours old on
+// 29 October 2026). If this country's newest reading is more than 90
+// minutes old and it has not been tried in the last 20 minutes, fetch just
+// this country now (lock-guarded, short timeouts) before reading.
+if (!empty($config['refresh']['on_demand'])) {
+    try {
+        $ownLatest = ukgrid_entsoe_country_latest_ts($pdo, $countryCode);
+        $attempts = ukgrid_entsoe_attempts_read();
+        $lastTry = (int) ($attempts[$countryCode] ?? 0);
+        if ($ownLatest < time() - 90 * 60 && $lastTry < time() - 20 * 60) {
+            $lock = $pdo->prepare('SELECT GET_LOCK(?, 0)');
+            $lockName = 'ukgrid_refresh_entsoe_' . $countryCode;
+            $lock->execute([$lockName]);
+            if ((int) $lock->fetchColumn() === 1) {
+                try {
+                    ukgrid_file_log('ENTSOE: ' . $countryCode . ' page loaded with readings over 90 minutes old - fetching this country now');
+                    ukgrid_ingest_entsoe($pdo, $config, 6, 0, 1, $countryCode);
+                } finally {
+                    $pdo->prepare('SELECT RELEASE_LOCK(?)')->execute([$lockName]);
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        ukgrid_file_log('ENTSOE: own-country refresh for ' . $countryCode . ' failed - ' . $e->getMessage());
+    }
+}
+
 // Each of demand/generation/price can have a slightly different latest
 // timestamp (price updates once a day, demand/generation every 1-3 hours) -
 // take the most recent across whichever this country actually fetches, then
