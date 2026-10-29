@@ -136,7 +136,14 @@ html:not(.pref-underline) main a:not(:hover), html:not(.pref-underline) .site-fo
 .type-card, .home-card, .on-this-page a, .ps-subnav a, .ps-placement-card, .ps-nation-card a.card { text-decoration: none !important; }
 html.pref-spacing body { letter-spacing: 0.12em; word-spacing: 0.16em; line-height: 1.8; }
 html.pref-spacing p { margin-bottom: 1.6em; }
-html.pref-calm *, html.pref-calm *::before, html.pref-calm *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+/* Reduce motion: every animation jumps straight to its finished, still state,
+   so nothing that normally fades or draws in is left hidden. */
+html.pref-calm *, html.pref-calm *::before, html.pref-calm *::after {
+  animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important; transition-delay: 0s !important; scroll-behavior: auto !important;
+}
+html.pref-calm .panel, html.pref-calm .source-card, html.pref-calm .stat, html.pref-calm .type-card, html.pref-calm .hero h1, html.pref-calm .hero p { opacity: 1 !important; transform: none !important; }
+html.pref-calm .chart-wrap.is-loading::before, html.pref-calm .chart-wrap.is-loading::after { animation: none !important; }
 
 /* ---------- Base ---------- */
 body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
@@ -534,4 +541,57 @@ main h1, main h2 { hyphens: manual; }
   .brand__name { font-size: 15px; gap: 5px; }
   .brand__tag { font-size: 12px; height: 20px; padding: 0 5px; }
   .nav-toggle { padding: 0 .55rem; font-size: .9rem; }
+}
+
+
+/* ---------- Menu that does not fit ----------
+   app.js measures the header. If the full menu and the Display button do not
+   fit on one line (big text, a narrow window, a wide font), it first shows
+   Display as an icon (html.nav-tight), then switches to the Menu button
+   (html.nav-compact), the same layout phones use. */
+.site-header .wrap.site-header__bar { flex-wrap: nowrap; }
+@media (max-width: 560px) { .site-header .wrap.site-header__bar { flex-wrap: wrap; } }
+html.nav-tight .display-btn { padding: 0 .7rem; }
+html.nav-tight .display-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html.nav-compact .site-header .wrap.site-header__bar { flex-wrap: nowrap; }
+html.nav-compact .nav-toggle { display: inline-flex; }
+html.nav-compact .site-nav { flex: 0; }
+html.nav-compact .site-nav ul#site-nav-list {
+    display: none; position: absolute; left: 0; right: 0; top: 100%;
+    flex-direction: column; gap: 0; padding: .25rem 1.25rem 1.25rem;
+    background: var(--bg-elevated); color: var(--text); border-top: 4px solid var(--brand); box-shadow: var(--shadow-pop);
+    max-height: calc(100vh - 72px); overflow-y: auto;
+  }
+html.nav-compact .site-nav ul#site-nav-list.is-open { display: flex; }
+html.nav-compact .site-nav ul#site-nav-list > li { border-bottom: 1px solid var(--border); }
+html.nav-compact .site-nav ul#site-nav-list.is-open { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
+html.nav-compact .site-nav ul#site-nav-list > li.nav-group { flex: 0 0 100%; }
+html.nav-compact .site-nav ul#site-nav-list > li.nav-link { flex: 1 1 0; border: 0; margin-top: .75rem; }
+html.nav-compact .site-nav ul#site-nav-list > li.nav-link + li.nav-link { margin-left: 6px; }
+html.nav-compact .site-nav ul#site-nav-list > li.nav-link > a { justify-content: center; min-height: 44px; border: 2px solid var(--btn-border); border-radius: var(--radius-sm); font-size: 1rem; }
+html.nav-compact .site-nav ul#site-nav-list > li > a, html.nav-compact .nav-group__toggle {
+    width: 100%; justify-content: space-between; min-height: 50px; padding: 0 .25rem; color: var(--text); font-size: 1.08rem; border-radius: 0;
+  }
+html.nav-compact .site-nav ul#site-nav-list > li > a:hover, html.nav-compact .nav-group__toggle:hover { background: transparent; color: var(--accent); }
+html.nav-compact .nav-group__toggle[data-active="true"] { background: transparent; color: var(--accent); }
+html.nav-compact .nav-group__toggle[aria-expanded="true"] { background: transparent; color: var(--accent); }
+html.nav-compact .site-nav ul#site-nav-list > li > a[aria-current="page"] { background: transparent; color: var(--accent); }
+html.nav-compact .nav-panel { position: static; box-shadow: none; border: 0; padding: 0 0 1rem; gap: .75rem; grid-template-columns: 1fr; }
+html.nav-compact .nav-panel.is-open { display: grid; }
+html.nav-compact .nav-panel ul, html.nav-compact .nav-panel--europe ul, html.nav-compact .nav-panel--world ul, html.nav-compact .nav-panel--solar ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+html.nav-compact .nav-panel--europe .nav-panel__col:last-child ul, html.nav-compact .nav-panel--world .nav-panel__col:last-child ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+html.nav-compact .nav-panel__heading { margin: .25rem 0 .35rem; }
+html.nav-compact .site-nav .nav-panel a { margin: 0; min-height: 42px; justify-content: center; padding: .4rem .75rem; background: var(--bg-inset); }
+html.nav-compact .nav-panel { padding-bottom: .75rem; }
+html.nav-compact .nav-panel__heading { font-size: .75rem; }
+html.nav-compact .nav-panel__desc { display: none; }
+html.nav-compact .site-nav { flex: 0 0 0; width: 0; min-width: 0; }
+
+/* Figure values scale with their card, and the unit drops to its own line if it must */
+.stat { container-type: inline-size; }
+.stat dd { font-size: clamp(1.35rem, 14.5cqi, 2.2rem); white-space: normal; overflow-wrap: normal; }
+.stat dd > span { white-space: nowrap; }
+.stat dd small { white-space: nowrap; display: inline-block; }
+@media (min-width: 1180px) {
+  html.nav-compact .site-nav ul#site-nav-list { left: auto; right: max(1.5rem, calc((100vw - 1280px) / 2 + 1.5rem)); width: min(480px, calc(100vw - 2rem)); border-radius: 0 0 12px 12px; }
 }

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Design C fixes: header fit, figure cards, Reduce motion)
+
+- **Header no longer breaks onto two lines.** With the real Archivo font, the full menu plus Display did not fit at some widths (around 1300px) and Display dropped to a second row. The header now measures itself: if the menu does not fit on one line, Display shows as an icon; if it still does not fit (a narrower window, or 125% text and above), it switches to the Menu button and the one-section-at-a-time menu, shown as a panel at the right on wide screens. Rechecked on resize, text-size changes and when the font loads.
+- **Figure values fit their cards.** Values like £223.75/MWh overflowed. Each value now scales with its card's width, and the unit drops to its own line if it has to.
+- **Reduce motion shows everything, still.** It used to switch animations off entirely, which left anything that normally fades in (every section panel, including the mix donut) invisible. Animations now jump straight to their finished state instead, so the page looks the same, with no movement.
+
 ## 2026-10-29 (Redesign: design C across the whole site)
 
 The site has a new look and layout on every page, built from the redesign proposal (design C, "poster"). All live data, charts and tools work as before.
