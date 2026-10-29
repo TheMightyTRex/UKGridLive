@@ -602,3 +602,13 @@ html.nav-compact .site-nav { flex: 0 0 0; width: 0; min-width: 0; }
 @media (min-width: 1180px) {
   html.nav-compact .site-nav ul#site-nav-list { left: auto; right: max(1.5rem, calc((100vw - 1280px) / 2 + 1.5rem)); width: min(480px, calc(100vw - 2rem)); border-radius: 0 0 12px 12px; }
 }
+
+/* Country pages: "Data as of" is a pill on the Switch country line, so the
+   figure grid has one card fewer. */
+.page-tools .page-pill { margin: 0; align-self: center; }
+.page-tools:has(.page-pill) .on-this-page { flex: 1 0 100%; }
+.status-grid > .page-pill, .wrap > .page-pill { margin: 0 0 1rem; }
+@media (min-width: 960px) {
+  .status-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .status-grid--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}

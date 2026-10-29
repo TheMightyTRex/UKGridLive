@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Country pages: "Data as of" pill on the Switch country line)
+
+- On the 16 country pages (Ireland, the ENTSO-E countries, Europe overview, USA, Canada and Australia), "Data as of" is no longer a figure card. It is a pill like the homepage's, on the left of the Switch country line and centred on it. On phones it sits just above the switcher. "On this page" now takes its own line above.
+- The figure grids lose that card, so they use 3 columns (`status-grid--3`) or 5 columns (`status-grid--5`) on wide screens instead of leaving an empty slot. Ireland keeps 6.
+
 ## 2026-10-29 (Ireland feed moved to EirGrid's new dashboard API; mix chart tweaks)
 
 - **Ireland live data fixed.** EirGrid has replaced its Smart Grid Dashboard, and the old `DashboardService.svc/data` feed now returns HTTP 503 to every request, so the Ireland ingest wrote 0 rows. `ukgrid_ingest_eirgrid()` now reads the new dashboard's chart API (`https://www.smartgriddashboard.com/api/chart/?region=ALL&chartType=default&dateRange=day&dateFrom=...&dateTo=...&areas=...`), checked live on 29 October 2026. It sends whole-day dates and keeps only the right field for each area (`SYSTEM_DEMAND`, `GEN_EXP`, `WIND_ACTUAL`, `INTER_NET`, `CO2_INTENSITY`). Before, the interconnection area's per-cable rows could overwrite the net figure. An old `DashboardService.svc` value for `eirgrid_base` in `includes/config.php` is ignored, so no config change is needed. `ukgrid_http_get_json()` takes optional extra headers.
