@@ -137,11 +137,31 @@
       }
     });
 
+    // Fit the header: full menu if it fits on one line, else Display as an
+    // icon, else the Menu button (the phone layout). Rechecked on resize,
+    // text-size changes and once the web font has loaded.
+    const bar = document.querySelector(".site-header__bar");
+    function fitNav() {
+      if (!bar) return;
+      const wasCompact = root.classList.contains("nav-compact");
+      root.classList.remove("nav-tight", "nav-compact");
+      if (window.innerWidth < 1180) return;
+      const overflows = () => bar.scrollWidth > bar.clientWidth + 1;
+      if (overflows()) root.classList.add("nav-tight");
+      if (overflows()) root.classList.add("nav-compact");
+      if (wasCompact !== root.classList.contains("nav-compact")) closeMobileNav();
+    }
+    window.GridPreview.fitNav = fitNav;
+    fitNav();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+    document.addEventListener("grid-prefs", () => setTimeout(fitNav, 0));
+
     let navResizeTimer;
     let wasWide = window.innerWidth >= 1180;
     window.addEventListener("resize", () => {
       clearTimeout(navResizeTimer);
       navResizeTimer = setTimeout(() => {
+        fitNav();
         const wide = window.innerWidth >= 1180;
         if (wide !== wasWide) closeMobileNav();
         wasWide = wide;
