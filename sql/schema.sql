@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS readings_ie_demand (
 CREATE TABLE IF NOT EXISTS readings_ie_generation (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   ts DATETIME NOT NULL COMMENT 'UTC',
-  category VARCHAR(20) NOT NULL COMMENT 'TOTAL, WIND, or INTERCONNECTION',
+  category VARCHAR(20) NOT NULL COMMENT 'TOTAL, WIND, SOLAR or INTERCONNECTION',
   mw DECIMAL(9,2) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -123,6 +123,20 @@ CREATE TABLE IF NOT EXISTS readings_ie_co2 (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_ts (ts),
+  KEY idx_ts (ts)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- EirGrid's 24-hour fuel mix (Smart Grid Dashboard "fuelmix"): MWh by
+-- fuel (COAL, GAS, NET_IMPORT, OTHER_FOSSIL, RENEW) for the 24 hours to ts.
+-- ukgrid_ingest_eirgrid() also creates this table if it is missing.
+CREATE TABLE IF NOT EXISTS readings_ie_fuelmix (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ts DATETIME NOT NULL COMMENT 'UTC - end of the 24 hours',
+  fuel VARCHAR(20) NOT NULL,
+  mwh DECIMAL(11,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_ts_fuel (ts, fuel),
   KEY idx_ts (ts)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

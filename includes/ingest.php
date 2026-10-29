@@ -794,9 +794,12 @@ function ukgrid_eirgrid_time_to_mysql(string $t): ?string
  * Checked live on 29 October 2026. The response is {"Rows":[...]} and each
  * row is {"Value":5511,"Region":"ALL","EffectiveTime":"29-Oct-2026 14:45:00",
  * "FieldName":"SYSTEM_DEMAND"} at 15-minute intervals, with Value null for
- * periods not yet published. Dates are whole days, not times. Some areas
- * return more than one field (interconnection returns each cable plus the
- * net total), so rows are filtered by FieldName below.
+ * periods not yet published. Dates are whole days, not times. Rows are
+ * sorted by FieldName below, so combined requests work.
+ *
+ * Solar (SOLAR_ACTUAL) and the 24-hour fuel mix were added on 29 October
+ * 2026: ENTSO-E only publishes Ireland's wind, hydro and peat in near real
+ * time (no gas), so the Ireland page's mix is now built from EirGrid.
  *
  * Data licence: EirGrid Group's Open Data Licence requires the attribution
  * "Supported by EirGrid Group Data" wherever this data is shown (already
@@ -817,110 +820,154 @@ function ukgrid_ingest_eirgrid(PDO $pdo, array $config, int $timeoutSeconds = 20
     $dateFrom = $from->format('d-M-Y');
     $dateTo = $now->format('d-M-Y');
 
-    // area => [table, category-or-null, FieldName to keep]
+    // area => [FieldName to keep, where it goes]. Some areas return more
+    // than one field (interconnection returns each cable plus the net
+    // total), so only the named field is kept.
     $areas = [
-        'demandactual' => ['readings_ie_demand', null, 'SYSTEM_DEMAND'],
-        'generationactual' => ['readings_ie_generation', 'TOTAL', 'GEN_EXP'],
-        'windactual' => ['readings_ie_generation', 'WIND', 'WIND_ACTUAL'],
-        'interconnection' => ['readings_ie_generation', 'INTERCONNECTION', 'INTER_NET'],
-        'co2intensity' => ['readings_ie_co2', null, 'CO2_INTENSITY'],
+        'demandactual' => ['SYSTEM_DEMAND', 'demand'],
+        'generationactual' => ['GEN_EXP', 'gen:TOTAL'],
+        'windactual' => ['WIND_ACTUAL', 'gen:WIND'],
+        'solaractual' => ['SOLAR_ACTUAL', 'gen:SOLAR'],
+        'interconnection' => ['INTER_NET', 'gen:INTERCONNECTION'],
+        'co2intensity' => ['CO2_INTENSITY', 'co2'],
+    ];
+    // The dashboard's own 24-hour fuel mix: one MWh total per fuel for the
+    // 24 hours to EffectiveTime, whatever dates are asked for (checked live
+    // 29 October 2026: coal 0, gas 44,417, net import 4,422, other fossil
+    // 3,126, renewables 64,740 MWh at 15:00).
+    $fuelFields = ['FUEL_COAL' => 'COAL', 'FUEL_GAS' => 'GAS', 'FUEL_NET_IMPORT' => 'NET_IMPORT', 'FUEL_OTHER_FOSSIL' => 'OTHER_FOSSIL', 'FUEL_RENEW' => 'RENEW'];
+
+    // Fewer, combined requests (the API takes up to 4 areas at once), so a
+    // run makes 3 calls instead of 7. Any area missing from a combined
+    // answer is then asked for on its own.
+    $batches = [
+        ['demandactual', 'generationactual', 'windactual', 'solaractual'],
+        ['interconnection', 'co2intensity'],
+        ['fuelmix'],
     ];
     $headers = ['Eirgrid-Content-Request: Nextjs', 'Referer: https://www.smartgriddashboard.com/'];
 
     $demandStmt = $pdo->prepare('INSERT INTO readings_ie_demand (ts, mw) VALUES (:ts, :mw) ON DUPLICATE KEY UPDATE mw = VALUES(mw)');
     $genStmt = $pdo->prepare('INSERT INTO readings_ie_generation (ts, category, mw) VALUES (:ts, :category, :mw) ON DUPLICATE KEY UPDATE mw = VALUES(mw)');
     $co2Stmt = $pdo->prepare('INSERT INTO readings_ie_co2 (ts, gco2_per_kwh) VALUES (:ts, :v) ON DUPLICATE KEY UPDATE gco2_per_kwh = VALUES(gco2_per_kwh)');
+    $fuelStmt = null;
+    try {
+        // New in October 2026. Created here too, so an existing install
+        // does not need to run sql/schema.sql again.
+        $pdo->exec('CREATE TABLE IF NOT EXISTS readings_ie_fuelmix (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            ts DATETIME NOT NULL COMMENT \'UTC - end of the 24 hours\',
+            fuel VARCHAR(20) NOT NULL,
+            mwh DECIMAL(11,2) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uq_ts_fuel (ts, fuel),
+            KEY idx_ts (ts)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+        $fuelStmt = $pdo->prepare('INSERT INTO readings_ie_fuelmix (ts, fuel, mwh) VALUES (:ts, :fuel, :mwh) ON DUPLICATE KEY UPDATE mwh = VALUES(mwh)');
+    } catch (Throwable $e) {
+        $fuelStmt = null;
+    }
 
     $rowsWritten = 0;
     $errors = [];
-    $isFirstArea = true;
     $completedNormally = false;
-    ukgrid_register_partial_progress_safety_net('EIRGRID', 'the 5-area loop (demand/generation/wind/interconnection/co2)', $completedNormally, $rowsWritten, $errors);
+    ukgrid_register_partial_progress_safety_net('EIRGRID', 'the EirGrid requests (demand/generation/wind/solar/interconnection/co2/fuel mix)', $completedNormally, $rowsWritten, $errors);
 
-    foreach ($areas as $area => [$table, $category, $wantField]) {
-        // A short gap between the 5 requests, plus one retry per area: the
-        // old feed gave occasional instant 503s and a second try a moment
-        // later cleared most of them.
-        if (!$isFirstArea) {
-            usleep(400000);
-        }
-        $isFirstArea = false;
-
-        $url = $base . '?region=ALL&chartType=default&dateRange=day&dateFrom=' . urlencode($dateFrom) . '&dateTo=' . urlencode($dateTo) . '&areas=' . urlencode($area);
+    $fetch = function (array $areaList) use ($base, $dateFrom, $dateTo, $timeoutSeconds, $headers): ?array {
+        $url = $base . '?region=ALL&chartType=default&dateRange=day&dateFrom=' . urlencode($dateFrom) . '&dateTo=' . urlencode($dateTo) . '&areas=' . implode(',', array_map('urlencode', $areaList));
         $data = ukgrid_http_get_json($url, $timeoutSeconds, $headers);
         if ($data === null) {
-            usleep(900000);
+            usleep(1500000); // one retry after a pause
             $data = ukgrid_http_get_json($url, $timeoutSeconds, $headers);
         }
         if ($data === null) {
-            $errors[] = "{$area}: request failed or returned invalid JSON, even after one retry.";
-            continue;
+            return null;
         }
-        $series = ukgrid_eirgrid_extract_series($data);
-        if ($series === null) {
-            $errors[] = "{$area}: couldn't find a data series in the response. Top-level keys seen: " . implode(', ', array_keys((array) $data));
-            continue;
-        }
+        return ukgrid_eirgrid_extract_series($data) ?? [];
+    };
 
-        $areaRows = 0;
-        $sampleItem = null; // captured for diagnostics if nothing usable is found below
-        $nullValueCount = 0; // items where every other field looked right but Value itself was null/blank
-        $fieldNamesSeen = []; // distinct FieldName values seen, e.g. "SYSTEM_DEMAND" - see comment below
+    // FieldName => list of [ts, value] across every response
+    $byField = [];
+    $collect = function (array $series) use (&$byField) {
         foreach ($series as $point) {
             if (!is_array($point)) {
                 continue;
             }
-            if ($sampleItem === null) {
-                $sampleItem = $point;
-            }
-            $fieldName = ukgrid_find_assoc_field($point, ['fieldname']);
-            if ($fieldName !== null && !in_array((string) $fieldName, $fieldNamesSeen, true)) {
-                $fieldNamesSeen[] = (string) $fieldName;
-            }
-            if ($fieldName !== null && strcasecmp((string) $fieldName, $wantField) !== 0) {
-                continue; // another field in the same area, e.g. one cable rather than the net total
-            }
+            $field = strtoupper((string) (ukgrid_find_assoc_field($point, ['fieldname']) ?? ''));
             $rawTime = ukgrid_find_assoc_field($point, ['effectivetime', 'time']);
             $rawValue = ukgrid_find_assoc_field($point, ['value']);
-            if ($rawTime !== null && ($rawValue === null || $rawValue === '' || !is_numeric($rawValue))) {
-                $nullValueCount++;
-            }
-            if ($rawTime === null || $rawValue === null || $rawValue === '' || !is_numeric($rawValue)) {
+            if ($field === '' || $rawTime === null || $rawValue === null || $rawValue === '' || !is_numeric($rawValue)) {
                 continue;
             }
             $tsSql = ukgrid_eirgrid_time_to_mysql((string) $rawTime);
-            if ($tsSql === null) {
+            if ($tsSql !== null) {
+                $byField[$field][$tsSql] = (float) $rawValue;
+            }
+        }
+    };
+
+    $first = true;
+    foreach ($batches as $batch) {
+        if (!$first) {
+            usleep(700000);
+        }
+        $first = false;
+        $series = $fetch($batch);
+        if ($series !== null) {
+            $collect($series);
+        }
+        // Ask again, one area at a time, for anything this batch did not return
+        foreach ($batch as $area) {
+            $have = $area === 'fuelmix' ? isset($byField['FUEL_GAS']) : isset($byField[$areas[$area][0]]);
+            if ($have || count($batch) === 1 && $series !== null) {
                 continue;
             }
-
-            if ($table === 'readings_ie_demand') {
-                $demandStmt->execute(['ts' => $tsSql, 'mw' => (float) $rawValue]);
-            } elseif ($table === 'readings_ie_generation') {
-                $genStmt->execute(['ts' => $tsSql, 'category' => $category, 'mw' => (float) $rawValue]);
-            } else {
-                $co2Stmt->execute(['ts' => $tsSql, 'v' => (float) $rawValue]);
+            usleep(700000);
+            $one = $fetch([$area]);
+            if ($one === null) {
+                $errors[] = "{$area}: request failed or returned invalid JSON, even after one retry.";
+                continue;
             }
-            $areaRows++;
+            $collect($one);
         }
-
-        if ($areaRows === 0) {
-            // The actual keys/values of a real item, not just a count - this
-            // is what tells us EirGrid's real field names next time this
-            // logs, instead of having to guess again. See
-            // ukgrid_find_assoc_field()'s doc comment above. Also reports
-            // how many items had a real timestamp but a null/blank Value
-            // (EirGrid genuinely not having published a figure yet for that
-            // period, vs. FieldName(s) actually present - if there's more
-            // than one distinct FieldName mixed into one area's response,
-            // that's a sign this needs to filter by FieldName rather than
-            // reading every item's Value regardless of which field it is).
-            $sample = $sampleItem !== null
-                ? 'sample item: ' . mb_substr((string) json_encode($sampleItem), 0, 500)
-                : 'series was empty';
-            $errors[] = "{$area}: response parsed but no usable data points were found (checked " . count($series) . " item(s), {$nullValueCount} had a null/blank value). FieldName(s) seen: " . (empty($fieldNamesSeen) ? 'none' : implode(', ', $fieldNamesSeen)) . ". {$sample}";
-        }
-        $rowsWritten += $areaRows;
     }
+
+    foreach ($areas as $area => [$field, $dest]) {
+        $points = $byField[$field] ?? [];
+        if (!$points) {
+            if (!preg_grep('/^' . $area . ':/', $errors)) {
+                $errors[] = "{$area}: no {$field} values with a figure in the response.";
+            }
+            continue;
+        }
+        foreach ($points as $tsSql => $v) {
+            if ($dest === 'demand') {
+                $demandStmt->execute(['ts' => $tsSql, 'mw' => $v]);
+            } elseif ($dest === 'co2') {
+                $co2Stmt->execute(['ts' => $tsSql, 'v' => $v]);
+            } else {
+                $genStmt->execute(['ts' => $tsSql, 'category' => substr($dest, 4), 'mw' => $v]);
+            }
+            $rowsWritten++;
+        }
+    }
+
+    $fuelRows = 0;
+    foreach ($fuelFields as $field => $fuel) {
+        foreach ($byField[$field] ?? [] as $tsSql => $v) {
+            if ($fuelStmt) {
+                $fuelStmt->execute(['ts' => $tsSql, 'fuel' => $fuel, 'mwh' => $v]);
+                $fuelRows++;
+            }
+        }
+    }
+    if (!$fuelStmt) {
+        $errors[] = 'fuelmix: could not create or write the readings_ie_fuelmix table - run sql/schema.sql.';
+    } elseif ($fuelRows === 0 && !preg_grep('/^fuelmix:/', $errors)) {
+        $errors[] = 'fuelmix: no fuel figures in the response.';
+    }
+    $rowsWritten += $fuelRows;
 
     $status = $rowsWritten > 0 ? 'OK' : 'ERROR';
     $completedNormally = true; // tells the shutdown safety net above this run's already been logged - don't log it twice

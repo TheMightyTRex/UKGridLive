@@ -2,7 +2,7 @@
 /**
  * GET api/ireland_series.php?metric=demand&range=day
  *
- * metric: demand | generation | wind | transfers | emissions | semo_price
+ * metric: demand | generation | wind | solar | transfers | emissions | semo_price
  * range:  same set as api/series.php (3hour | day | week | month | season |
  *         year | 5year | 10year | all) - see ukgrid_range_config() in
  *         api/_bootstrap.php.
@@ -31,7 +31,7 @@ if (!isset($ranges[$range])) {
     ukgrid_json_error('bad_range', 'range must be one of: ' . implode(', ', array_keys($ranges)));
 }
 
-$allowedMetrics = ['demand', 'generation', 'wind', 'transfers', 'emissions', 'semo_price'];
+$allowedMetrics = ['demand', 'generation', 'wind', 'solar', 'transfers', 'emissions', 'semo_price'];
 if (!in_array($metric, $allowedMetrics, true)) {
     ukgrid_json_error('bad_metric', 'metric must be one of: ' . implode(', ', $allowedMetrics));
 }
@@ -93,6 +93,16 @@ switch ($metric) {
         $rows = ukgrid_ie_bucketed($pdo,
             'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(ts)/:bucket1)*:bucket2) AS bucket_ts, AVG(mw)/1000 AS v
              FROM readings_ie_generation WHERE category = "WIND" AND ts BETWEEN :from AND :to
+             GROUP BY bucket_ts ORDER BY bucket_ts ASC',
+            $params
+        );
+        $unit = 'GW';
+        break;
+
+    case 'solar':
+        $rows = ukgrid_ie_bucketed($pdo,
+            'SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(ts)/:bucket1)*:bucket2) AS bucket_ts, GREATEST(AVG(mw), 0)/1000 AS v
+             FROM readings_ie_generation WHERE category = "SOLAR" AND ts BETWEEN :from AND :to
              GROUP BY bucket_ts ORDER BY bucket_ts ASC',
             $params
         );

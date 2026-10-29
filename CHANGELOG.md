@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Ireland: generation mix from EirGrid, plus EirGrid's 24-hour fuel mix)
+
+- **Ireland's mix was wrong.** It came from ENTSO-E, which only publishes Ireland's wind, hydro and peat in near real time, with no gas. So it added up to about 2.7GW when EirGrid showed about 5.8GW, and wind came out at 93%. The mix right now and the 24-hour mix chart now come from EirGrid's Smart Grid Dashboard: wind, solar, net GB interconnection, and "gas and other sources", calculated as EirGrid's total generation minus wind and solar. Captions say it is calculated and that hydro and biomass sit in it.
+- **New: Fuel mix over the last 24 hours**, under the mix chart. It shows EirGrid's own fuel mix (renewables, gas, net imports, other fossil fuels, coal) as a share of the 24-hour total.
+- **EirGrid ingest:** adds `solaractual` (category `SOLAR`) and `fuelmix` (new table `readings_ie_fuelmix`, which the ingest creates itself if it is missing; it is also in `sql/schema.sql`). It makes 3 combined requests instead of 5 single ones, and asks again one at a time for any area a combined answer leaves out. The live log had shown 4 of 5 single requests failing in one run.
+- **API:** `api/ireland_current.php` adds `solar_mw`, `mix` (all read at one timestamp) and `fuel_24h`. `api/ireland_series.php` adds `metric=solar`.
+- **Ireland banner:** "having trouble" for ENTSO-E now only shows when ENTSO-E's last run included Ireland. Before, a failed Italy fetch made the Ireland page say its own figures might be out of date. ENTSO-E is now only used for the SEM day-ahead price on this page.
+- Bar chart labels can now be up to 160px wide, so "Gas and other sources" is no longer cut off.
+
 ## 2026-10-29 (Country pages: "Data as of" pill on the Switch country line)
 
 - On the 16 country pages (Ireland, the ENTSO-E countries, Europe overview, USA, Canada and Australia), "Data as of" is no longer a figure card. It is a pill like the homepage's, on the left of the Switch country line and centred on it. On phones it sits just above the switcher. "On this page" now takes its own line above.
