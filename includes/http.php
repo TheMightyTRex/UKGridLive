@@ -21,7 +21,7 @@ function ukgrid_redact_url(string $url): string
  * fatal error, since these are third-party APIs that occasionally have
  * blips or (for the on-demand path) a deliberately short timeout.
  */
-function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
+function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20, array $extraHeaders = []): ?array
 {
     $safeUrl = ukgrid_redact_url($url);
     $ch = curl_init($url);
@@ -34,7 +34,7 @@ function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20): ?array
         // (IESO's year-to-date GenOutputbyFuelHourly file is 6MB+ by the
         // autumn) download far faster compressed.
         CURLOPT_ENCODING => '',
-        CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        CURLOPT_HTTPHEADER => array_merge(['Accept: application/json'], $extraHeaders),
         CURLOPT_USERAGENT => 'UK-Grid-Live-Plus/1.0 (+https://github.com/KateMorley/grid; contact via site data-sources page)',
     ]);
     $body = curl_exec($ch);
