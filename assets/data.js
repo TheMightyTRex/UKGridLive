@@ -35,8 +35,8 @@
   // Cached per page load - api/status.php has more than one caller (the
   // footer's data-pipeline pill in initIngestStatusPill(), plus the
   // per-page "one of this page's sources is having trouble" banners on
-  // index.html/pages/ireland.html), and there's no reason for each to fire
-  // its own HTTP request for what's the same read within the same page
+  // index.html/pages/ireland.html), and there is no reason for each to fire
+  // its own HTTP request for what is the same read within the same page
   // load. Not invalidated/refreshed - a page reload is what refreshes it,
   // same as every other fetch* function here.
   let statusPromise = null;
@@ -44,7 +44,7 @@
   /** Data-pipeline health: per-source (ELEXON/CARBON_INTENSITY/NESO/EIRGRID/
       EIA/ENTSOE) last-ingest-attempt status, straight from api/status.php.
       Returns null if the endpoint itself is unreachable - callers should
-      treat that as "can't tell" rather than "something's broken", same as
+      treat that as "cannot tell" rather than "something's broken", same as
       every other fetch* function's null-on-failure convention. */
   function fetchStatus(apiBase) {
     if (!statusPromise) {
@@ -74,7 +74,7 @@
       7-day window immediately before the current one ("last week"),
       periodOffset=-2 the one before that ("2 weeks ago"). Used by
       pages/comparisons.html's Time periods tab "Compare against" options
-      that aren't season-based. */
+      that are not season-based. */
   async function fetchSeries(metric, range, apiBase, seasonOffset, periodOffset) {
     try {
       let url = (apiBase || DEFAULT_API_BASE) + "series.php?metric=" + encodeURIComponent(metric) + "&range=" + encodeURIComponent(range);
@@ -128,8 +128,8 @@
       "Wind speed & cloud cover" card - one representative GB point, see
       readings_weather in sql/schema.sql. Refreshes with zero cron access
       like every other source (includes/refresh.php). Returns null only if
-      it genuinely hasn't been ingested yet on this install (e.g. its very
-      first refresh hasn't happened, or on_demand is off and no cron job
+      it genuinely has not been ingested yet on this install (e.g. its very
+      first refresh has not happened, or on_demand is off and no cron job
       is set up either). */
   async function fetchWeatherSeries(range, apiBase) {
     try {
@@ -155,7 +155,7 @@
       TYPES - thermal/voltage/inertia - not generation technologies; there
       is no wind-specific figure here). Refreshes with zero cron access
       like every other source. Returns null if genuinely unavailable (its
-      first refresh hasn't happened yet on this install). */
+      first refresh has not happened yet on this install). */
   async function fetchConstraintsSummary(apiBase) {
     try {
       const data = await fetchJSON((apiBase || DEFAULT_API_BASE) + "constraints_summary.php");
@@ -174,7 +174,7 @@
       days or weeks behind it. NOT the same thing as the separate,
       hand-typed "Records" panel elsewhere on the page. Refreshes with zero
       cron access like every other source. Returns null if genuinely
-      unavailable (its first computation hasn't happened yet on this
+      unavailable (its first computation has not happened yet on this
       install). */
   async function fetchNotableMoments(apiBase) {
     try {
@@ -186,7 +186,7 @@
     }
   }
 
-  /** Latest all-island Ireland snapshot: demand/generation/wind/interconnection/emissions (EirGrid), plus semo_imbalance_price_eur_mwh/semo_ts (SEMO, independently null if that half isn't live - see api/ireland_current.php's docblock). Returns null if unavailable. */
+  /** Latest all-island Ireland snapshot: demand/generation/wind/interconnection/emissions (EirGrid), plus semo_imbalance_price_eur_mwh/semo_ts (SEMO, independently null if that half is not live - see api/ireland_current.php's docblock). Returns null if unavailable. */
   async function fetchIrelandCurrent(apiBase) {
     try {
       const data = await fetchJSON((apiBase || DEFAULT_API_BASE) + "ireland_current.php");
@@ -250,7 +250,7 @@
       shape as fetchMixSeries's GB equivalent, for pages/usa.html's 24-hour
       stacked-area chart. "other" here means nuclear plus EIA's own
       leftover OTH/UNK categories - see api/usa_series.php's metric=mix
-      comment for why the US split doesn't line up one-for-one with GB's
+      comment for why the US split does not line up one-for-one with GB's
       renewable/non_renewable/storage groups. */
   async function fetchUsaMixSeries(range, apiBase) {
     try {

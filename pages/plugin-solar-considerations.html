@@ -8,8 +8,9 @@
 <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=20261003c">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css?v=20261029a">
+<link rel="stylesheet" href="../assets/design-c.css?v=20261029a">
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -29,111 +30,188 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 
-<aside class="preview-banner" aria-label="Site announcement">NEW: Find out about UK Plug-in solar. <a href="plugin-solar.html">Read the guide →</a></aside>
-
+<!-- shell:start (written by tools/apply_shell.py - edit the menu there, not here) -->
 <div class="site-head">
 <header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="../index.html">
-      <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" style="color:var(--accent)">
-        <path d="M24 7 38.7 15.5 38.7 32.5 24 41 9.3 32.5 9.3 15.5Z" fill="none" stroke="currentColor" stroke-width="3"/>
-        <path d="M25 13 16 25h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/>
-        <circle class="brand__mark-pulse" cx="38.5" cy="9.5" r="7" fill="var(--accent)"/>
-        <path d="M35.3 9.5h6.4M38.5 6.3v6.4" stroke="var(--accent-contrast)" stroke-width="2.2" stroke-linecap="round"/>
+  <div class="wrap site-header__bar">
+    <a class="brand ug-logo" href="../index.html" aria-label="UK Grid: Live+, home">
+      <svg class="brand__mark" width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+        <g transform="rotate(-45 24 24)"><circle class="ug-ring" cx="24" cy="24" r="18" stroke="#ffd54a" stroke-width="5" stroke-linecap="round"/></g>
+        <path class="ug-bolt" d="M26.5 11 15 27h8.5l-2.5 10.5L33 21h-8.5l2-10Z" fill="#ffffff"/>
+        <circle class="ug-ping" cx="38" cy="10" r="4.5" fill="#4fd18b"/>
+        <circle cx="38" cy="10" r="4.5" fill="#4fd18b"/>
       </svg>
-      <span class="brand__name">UK&nbsp;Grid: <em>Live+</em></span>
-      <span class="brand__tagline">Great Britain's electricity grid, live and over time</span>
+      <span class="brand__name" aria-hidden="true"><span class="brand__uk">UK Grid</span><span class="brand__tag ug-tag">Live+</span></span>
     </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list" data-nav-list>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-gb-btn" aria-expanded="false" aria-controls="navgroup-gb" data-nav-group>
+            Great Britain
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--gb" id="navgroup-gb">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-gb-0">Live now</p>
+              <ul aria-labelledby="navhead-gb-0">
+                <li><a href="../index.html"><span class="nav-panel__name">Overview</span><span class="nav-panel__desc">Live figures and the mix right now</span></a></li>
+                <li><a href="electricity-prices.html"><span class="nav-panel__name">Prices</span><span class="nav-panel__desc">Wholesale prices today</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-gb-1">By source</p>
+              <ul aria-labelledby="navhead-gb-1">
+                <li><a href="renewables.html"><span class="nav-panel__name">Renewables</span><span class="nav-panel__desc">Wind, solar and hydro</span></a></li>
+                <li><a href="fossil-fuels.html"><span class="nav-panel__name">Fossil fuels</span><span class="nav-panel__desc">Gas, coal and oil</span></a></li>
+                <li><a href="nuclear-biomass.html"><span class="nav-panel__name">Nuclear &amp; biomass</span><span class="nav-panel__desc">Output from each plant type</span></a></li>
+                <li><a href="storage.html"><span class="nav-panel__name">Storage</span><span class="nav-panel__desc">Batteries and pumped hydro</span></a></li>
+                <li><a href="interconnectors.html"><span class="nav-panel__name">Interconnectors</span><span class="nav-panel__desc">Imports and exports by country</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-gb-2">Over time</p>
+              <ul aria-labelledby="navhead-gb-2">
+                <li><a href="history.html"><span class="nav-panel__name">History</span><span class="nav-panel__desc">From the past day to the past decade</span></a></li>
+                <li><a href="price-history.html"><span class="nav-panel__name">Historic prices</span><span class="nav-panel__desc">Wholesale prices over the years</span></a></li>
+                <li><a href="renewables-plans.html"><span class="nav-panel__name">2030 plans</span><span class="nav-panel__desc">Clean Power 2030 targets and progress</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-europe-btn" aria-expanded="false" aria-controls="navgroup-europe" data-nav-group>
+            Europe
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--europe" id="navgroup-europe">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-europe-0">Linked to Great Britain</p>
+              <ul aria-labelledby="navhead-europe-0">
+                <li><a href="ireland.html"><span class="nav-panel__name">Ireland</span></a></li>
+                <li><a href="france.html"><span class="nav-panel__name">France</span></a></li>
+                <li><a href="nl.html"><span class="nav-panel__name">Netherlands</span></a></li>
+                <li><a href="belgium.html"><span class="nav-panel__name">Belgium</span></a></li>
+                <li><a href="norway.html"><span class="nav-panel__name">Norway</span></a></li>
+                <li><a href="denmark.html"><span class="nav-panel__name">Denmark</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-europe-1">Rest of Europe</p>
+              <ul aria-labelledby="navhead-europe-1">
+                <li><a href="germany.html"><span class="nav-panel__name">Germany</span></a></li>
+                <li><a href="spain.html"><span class="nav-panel__name">Spain</span></a></li>
+                <li><a href="italy.html"><span class="nav-panel__name">Italy</span></a></li>
+                <li><a href="sweden.html"><span class="nav-panel__name">Sweden</span></a></li>
+                <li><a href="portugal.html"><span class="nav-panel__name">Portugal</span></a></li>
+                <li><a href="poland.html"><span class="nav-panel__name">Poland</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-europe-2">Europe-wide</p>
+              <ul aria-labelledby="navhead-europe-2">
+                <li><a href="eu.html"><span class="nav-panel__name">Europe overview</span><span class="nav-panel__desc">Every country on one page</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-world-btn" aria-expanded="false" aria-controls="navgroup-world" data-nav-group>
+            Rest of the world
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--world" id="navgroup-world">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-world-0">Americas</p>
+              <ul aria-labelledby="navhead-world-0">
+                <li><a href="usa.html"><span class="nav-panel__name">USA</span></a></li>
+                <li><a href="canada.html"><span class="nav-panel__name">Canada</span></a></li>
+                <li><a href="south-america.html"><span class="nav-panel__name">South America</span></a></li>
+                <li><a href="americas-interconnects.html"><span class="nav-panel__name">Americas interconnectors</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-world-1">Asia-Pacific</p>
+              <ul aria-labelledby="navhead-world-1">
+                <li><a href="australia.html"><span class="nav-panel__name">Australia</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" id="navgroup-solar-btn" aria-expanded="false" aria-controls="navgroup-solar" data-nav-group data-active="true">
+            Plug-in solar
+            <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-group__menu nav-panel nav-panel--solar" id="navgroup-solar">
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-solar-0">Get started</p>
+              <ul aria-labelledby="navhead-solar-0">
+                <li><a href="plugin-solar.html"><span class="nav-panel__name">What is plug-in solar</span></a></li>
+                <li><a href="plugin-solar-considerations.html" aria-current="page"><span class="nav-panel__name">Considerations</span></a></li>
+                <li><a href="plugin-solar-calculator.html"><span class="nav-panel__name">Energy calculator</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-solar-1">Fitting it</p>
+              <ul aria-labelledby="navhead-solar-1">
+                <li><a href="plugin-solar-safety.html"><span class="nav-panel__name">Safety</span></a></li>
+                <li><a href="plugin-solar-mounting.html"><span class="nav-panel__name">Mounting</span></a></li>
+                <li><a href="plugin-solar-battery.html"><span class="nav-panel__name">Battery power</span></a></li>
+              </ul>
+            </div>
+            <div class="nav-panel__col">
+              <p class="nav-panel__heading" id="navhead-solar-2">The rules</p>
+              <ul aria-labelledby="navhead-solar-2">
+                <li><a href="plugin-solar-registration.html"><span class="nav-panel__name">Registration</span></a></li>
+                <li><a href="plugin-solar-certification.html"><span class="nav-panel__name">Certification</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </li>
+        <li class="nav-link"><a href="comparisons.html">Compare</a></li>
+        <li class="nav-link"><a href="data-sources.html">Sources</a></li>
+        <li class="nav-link"><a href="about.html">About</a></li>
+      </ul>
+    </nav>
     <div class="header-controls">
-      <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/></svg>
-        <span data-theme-label>Auto mode</span>
+      <button type="button" class="display-btn" data-display-toggle aria-expanded="false" aria-controls="display-panel">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Display</span>
+      </button>
+      <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
+        <span class="nav-toggle__icon" aria-hidden="true"></span>
+        <span data-nav-toggle-label>Menu</span>
       </button>
     </div>
   </div>
 </header>
-
-<nav class="site-nav" aria-label="Main">
-  <div class="wrap">
-    <ul id="site-nav-list" data-nav-list>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-ps-btn" aria-expanded="false" aria-controls="navgroup-ps" data-nav-group data-active="true">
-          Plug-in Solar
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-ps">
-          <li><a href="plugin-solar.html">What is plug-in solar</a></li>
-          <li><a href="plugin-solar-safety.html">Safety</a></li>
-          <li><a href="plugin-solar-battery.html">Battery power</a></li>
-          <li><a href="plugin-solar-considerations.html" aria-current="page">Considerations</a></li>
-          <li><a href="plugin-solar-mounting.html">Mounting</a></li>
-          <li><a href="plugin-solar-registration.html">Registration</a></li>
-          <li><a href="plugin-solar-calculator.html">Energy calculator</a></li>
-          <li><a href="plugin-solar-certification.html">Certification</a></li>
-        </ul>
-      </li>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-uk-btn" aria-expanded="false" aria-controls="navgroup-uk" data-nav-group>
-          Great Britain
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-uk">
-          <li><a href="../index.html">GB: Overview</a></li>
-          <li><a href="fossil-fuels.html">GB: Fossil fuels</a></li>
-          <li><a href="renewables.html">GB: Renewables</a></li>
-          <li><a href="nuclear-biomass.html">GB: Nuclear &amp; biomass</a></li>
-          <li><a href="interconnectors.html">GB: Interconnectors</a></li>
-          <li><a href="storage.html">GB: Storage</a></li>
-          <li><a href="history.html">GB: History</a></li>
-          <li><a href="electricity-prices.html">GB: Prices</a></li>
-          <li><a href="price-history.html">GB: Historic prices</a></li>
-          <li><a href="renewables-plans.html">2030 GB plans</a></li>
-        </ul>
-      </li>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-europe-btn" aria-expanded="false" aria-controls="navgroup-europe" data-nav-group>
-          Europe
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-europe">
-          <li><a href="ireland.html">Ireland</a></li>
-          <li><a href="france.html">France</a></li>
-          <li><a href="nl.html">Netherlands</a></li>
-          <li><a href="belgium.html">Belgium</a></li>
-          <li><a href="norway.html">Norway (NO2)</a></li>
-          <li><a href="denmark.html">Denmark (DK1)</a></li>
-          <li><a href="germany.html">Germany</a></li>
-          <li><a href="spain.html">Spain</a></li>
-          <li><a href="italy.html">Italy</a></li>
-          <li><a href="sweden.html">Sweden (SE3)</a></li>
-          <li><a href="portugal.html">Portugal</a></li>
-          <li><a href="poland.html">Poland</a></li>
-        </ul>
-      </li>
-      <li class="nav-group">
-        <button type="button" class="nav-group__toggle" id="navgroup-americas-btn" aria-expanded="false" aria-controls="navgroup-americas" data-nav-group>
-          Americas
-          <svg class="nav-group__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <ul class="nav-group__menu" id="navgroup-americas">
-          <li><a href="usa.html">USA</a></li>
-          <li><a href="canada.html">Canada</a></li>
-          <li><a href="south-america.html">South America</a></li>
-          <li><a href="americas-interconnects.html">Interconnections</a></li>
-        </ul>
-      </li>
-      <li><a href="australia.html">Australia</a></li>
-      <li><a href="comparisons.html">Comparisons</a></li>
-      <li><a href="data-sources.html">Sources</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul>
-    <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav-list">
-      <span class="nav-toggle__icon" aria-hidden="true"></span>
-      <span class="visually-hidden" data-nav-toggle-label>Menu</span>
-    </button>
-  </div>
-</nav>
+<aside class="preview-banner" aria-label="Site announcement"><span class="preview-banner__tag">New</span> <a href="plugin-solar.html">Read the plug-in solar guide</a></aside>
+<div id="display-panel" class="display-panel" role="dialog" aria-modal="false" aria-labelledby="display-panel-heading" hidden>
+  <h2 id="display-panel-heading">Display and accessibility</h2>
+  <fieldset><legend>Theme</legend>
+    <div class="seg">
+      <label><input type="radio" name="pref-theme" value="system"><span>Auto</span></label>
+      <label><input type="radio" name="pref-theme" value="light"><span>Light</span></label>
+      <label><input type="radio" name="pref-theme" value="dark"><span>Dark</span></label>
+    </div>
+  </fieldset>
+  <fieldset><legend>Text size</legend>
+    <div class="seg">
+      <label><input type="radio" name="pref-size" value="100"><span>100%</span></label>
+      <label><input type="radio" name="pref-size" value="125"><span>125%</span></label>
+      <label><input type="radio" name="pref-size" value="150"><span>150%</span></label>
+      <label><input type="radio" name="pref-size" value="175"><span>175%</span></label>
+    </div>
+  </fieldset>
+  <label class="pref-switch"><span>Low-vision font<small>Atkinson Hyperlegible Next, designed for low vision</small></span><input type="checkbox" data-pref="readable"></label>
+  <label class="pref-switch"><span>High contrast</span><input type="checkbox" data-pref="hc"></label>
+  <label class="pref-switch"><span>Reduce motion<small>Stops the logo and loading animations</small></span><input type="checkbox" data-pref="calm"></label>
+  <label class="pref-switch"><span>Underline links</span><input type="checkbox" data-pref="underline"></label>
+  <label class="pref-switch"><span>Wider text spacing</span><input type="checkbox" data-pref="spacing"></label>
+  <div class="display-panel__foot"><button type="button" class="btn" data-pref-reset>Reset</button><button type="button" class="btn btn--primary" data-pref-done>Done</button></div>
 </div>
+</div>
+<!-- shell:end -->
 
 <main id="main">
   <div class="wrap">
@@ -158,41 +236,41 @@
 
     <div class="ps-warning" role="note">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      <p><strong>A plug-in solar kit MUST connect directly into a wall socket.</strong> Do not use extension leads, multi-way adaptors, travel adaptors or RCD adaptors - see <a href="#ext-heading">Extension leads</a> below for why.</p>
+      <p><strong>A plug-in solar kit must connect directly into a wall socket.</strong> Do not use extension leads, multi-way adaptors, travel adaptors or RCD adaptors - see <a href="#ext-heading">Extension leads</a> below for why.</p>
     </div>
 
     <div class="ps-warning" role="note">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      <p><strong>Don't plug in more than one kit.</strong> The product specification allows one device per circuit, for wiring safety, but the network rules (G98, amended in August 2026) allow only one per household - so a second kit anywhere in your home isn't permitted, whichever circuit it's on. On the circuit you do use, avoid heavy loads running at the same time (see below).</p>
+      <p><strong>Do not plug in more than one kit.</strong> The product specification allows one device per circuit, for wiring safety, but the network rules (G98, amended in August 2026) allow only one per household - so a second kit anywhere in your home is not permitted, whichever circuit it is on. On the circuit you do use, avoid heavy loads running at the same time (see below).</p>
     </div>
 
     <section class="panel" aria-labelledby="cu-heading">
       <h2 id="cu-heading">Type of consumer unit</h2>
-      <p>Your consumer unit (fuse box) matters more than most people realise. There are, broadly, three generations you'll find in UK homes:</p>
+      <p>Your consumer unit (fuse box) matters more than most people realise. There are, broadly, three generations you will find in UK homes:</p>
       <ul class="ps-fact-list" id="cu-list">
         <li><span>Old rewireable fuse board</span><strong>Fuse wire in a ceramic holder, no RCD protection at all - the type most likely to prompt "get an electrician to check first" advice before fitting any new electrical load, plug-in solar included</strong></li>
-        <li><span>Older MCB board, no RCD or a single whole-board RCD</span><strong>Modern circuit breakers, but if there's only one RCD covering the whole board, a fault anywhere trips everything - inconvenient, and a sign the board predates 18th Edition wiring regulations</strong></li>
-        <li><span>Modern dual-RCD or RCBO board</span><strong>Each circuit (or small group of circuits) has its own RCBO - a combined residual-current + overcurrent device - so a fault on one socket circuit won't take out your lighting or your fridge circuit too. This is what an 18th Edition-compliant installation looks like today.</strong></li>
+        <li><span>Older MCB board, no RCD or a single whole-board RCD</span><strong>Modern circuit breakers, but if there is only one RCD covering the whole board, a fault anywhere trips everything - inconvenient, and a sign the board predates 18th Edition wiring regulations</strong></li>
+        <li><span>Modern dual-RCD or RCBO board</span><strong>Each circuit (or small group of circuits) has its own RCBO - a combined residual-current + overcurrent device - so a fault on one socket circuit will not take out your lighting or your fridge circuit too. This is what an 18th Edition-compliant installation looks like today.</strong></li>
       </ul>
-      <p>The Interim Product Specification requires kit instructions to tell you to check that your installation has modern residual current protection (an RCBO), and to test it periodically by pressing its test button while the kit is generating. If your board is the first or second type above, or you don't know which type you have, get a qualified electrician to check it before you fit a kit. The instructions must also explain how to identify which sockets share a circuit, and when to get professional advice.</p>
+      <p>The Interim Product Specification requires kit instructions to tell you to check that your installation has modern residual current protection (an RCBO), and to test it periodically by pressing its test button while the kit is generating. If your board is the first or second type above, or you do not know which type you have, get a qualified electrician to check it before you fit a kit. The instructions must also explain how to identify which sockets share a circuit, and when to get professional advice.</p>
     </section>
 
     <section class="panel" aria-labelledby="ext-heading">
       <h2 id="ext-heading">Extension leads</h2>
-      <p>The Interim Product Specification is explicit: a plug-in solar kit connects <strong>directly</strong> into a wall socket via its own manufacturer-supplied plug. Extension leads, multi-way adaptors, travel adaptors, RCD adaptors and plug convertors are all prohibited for this connection - not a recommendation, a rule, and the plug itself must carry the warning. An extension lead adds extra plug/socket junctions (extra points that can loosen, overheat or arc), and most aren't rated or tested for a semi-permanent outdoor-to-indoor run.</p>
+      <p>The Interim Product Specification is explicit: a plug-in solar kit connects <strong>directly</strong> into a wall socket via its own manufacturer-supplied plug. Extension leads, multi-way adaptors, travel adaptors, RCD adaptors and plug convertors are all prohibited for this connection - not a recommendation, a rule, and the plug itself must carry the warning. An extension lead adds extra plug/socket junctions (extra points that can loosen, overheat or arc), and most are not rated or tested for a semi-permanent outdoor-to-indoor run.</p>
       <p>If you need to use extension leads elsewhere in the room for other appliances, make sure any lead is fully unwound (a coiled lead under load can overheat), rated for at least 13A, and not itself daisy-chained into another extension lead.</p>
     </section>
 
     <section class="panel" aria-labelledby="aircon-heading">
       <h2 id="aircon-heading">Air conditioning and other high loads at the same time</h2>
-      <p>Running a portable air conditioner, a tumble dryer, an immersion heater or an electric heater on the same ring as your plug-in solar socket doesn't create a new electrical hazard by itself - your ring/socket circuit's own protection (its RCBO and the ring's 32A rating) is what's protecting against overload from those appliances, exactly as it would without any solar kit plugged in at all. What it does do is make the solar kit practically irrelevant at that moment: an 800W kit's output is small next to a 2-3kW air conditioner or heater, so on the accounting side you'll simply be importing almost all of what that appliance needs regardless of whether the sun's out.</p>
-      <p>The one genuine interaction worth knowing: never treat "there's spare capacity on the ring" as a reason to add a <em>second</em> plug-in solar kit - a second kit isn't permitted anywhere in your home (see the warning above).</p>
+      <p>Running a portable air conditioner, a tumble dryer, an immersion heater or an electric heater on the same ring as your plug-in solar socket does not create a new electrical hazard by itself - your ring/socket circuit's own protection (its RCBO and the ring's 32A rating) is what is protecting against overload from those appliances, exactly as it would without any solar kit plugged in at all. What it does do is make the solar kit practically irrelevant at that moment: an 800W kit's output is small next to a 2-3kW air conditioner or heater, so on the accounting side you will be importing almost all of what that appliance needs regardless of whether the sun's out.</p>
+      <p>The one genuine interaction worth knowing: never treat "there is spare capacity on the ring" as a reason to add a <em>second</em> plug-in solar kit - a second kit is not permitted anywhere in your home (see the warning above).</p>
     </section>
 
     <section class="panel" aria-labelledby="ring-heading">
       <h2 id="ring-heading">Ring final circuits, and the risk of sharing one</h2>
       <p>Most UK homes wire their socket outlets as a "ring final circuit" - a single cable that loops out from the consumer unit, around the room(s), and back again, with both ends landing on the same 32A MCB/RCBO. This ring topology is exactly what lets a 2.5mm² cable safely serve a whole floor's worth of sockets: the assumption behind the 32A rating is that normal domestic use is spread out, not that every socket draws hard at once.</p>
-      <p>Plugging in a single ~800W solar kit on a ring doesn't change that assumption meaningfully - it's a small injection, well within the ring's normal headroom. The situations actually worth avoiding (a second kit isn't allowed at all - see the warning above) are: a solar kit sharing a ring with something that's already close to the ring's limit on its own (a space heater plus a kettle plus a tumble dryer, for instance); or an older property where the ring has had unauthorised extra sockets ("spurs") added over the years without checking the total load - which is a pre-existing risk plug-in solar doesn't cause, but is worth having checked regardless if you're not sure of your home's wiring history.</p>
+      <p>Plugging in a single ~800W solar kit on a ring does not change that assumption meaningfully - it is a small injection, well within the ring's normal headroom. The situations actually worth avoiding (a second kit is not allowed at all - see the warning above) are: a solar kit sharing a ring with something that is already close to the ring's limit on its own (a space heater plus a kettle plus a tumble dryer, for instance); or an older property where the ring has had unauthorised extra sockets ("spurs") added over the years without checking the total load - which is a pre-existing risk plug-in solar does not cause, but is worth having checked regardless if you are not sure of your home's wiring history.</p>
     </section>
 
     <section class="panel" aria-labelledby="aircon-ring-heading">
@@ -222,29 +300,29 @@
           <text x="385" y="203" text-anchor="middle" font-size="9" fill="currentColor">TV</text>
         </svg>
       </div>
-      <p class="chart-caption">Simplified illustration of a ring final circuit: one cable leaves the consumer unit, loops past a series of sockets, and returns to the <strong>same</strong> 32A MCB/RCBO - it isn't a set of independent branches. The solar kit and the air conditioner shown here share one ring; a socket in a different part of the house, or one wired as a "spur", might not.</p>
+      <p class="chart-caption">Simplified illustration of a ring final circuit: one cable leaves the consumer unit, loops past a series of sockets, and returns to the <strong>same</strong> 32A MCB/RCBO - it is not a set of independent branches. The solar kit and the air conditioner shown here share one ring; a socket in a different part of the house, or one wired as a "spur", might not.</p>
       <ul class="ps-fact-list" id="aircon-ring-list">
         <li><span>The solar kit itself</span><strong>Must connect directly into its own wall socket using the manufacturer's plug. Never put it on an extension lead, multi-way adaptor or travel adaptor - see <a href="#ext-heading">Extension leads</a> above.</strong></li>
-        <li><span>A portable air conditioner on the same ring</span><strong>Electrically fine on its own terms - the ring's 32A protection covers it exactly as it would without any solar kit present - but it will draw far more than the kit ever feeds in, so don't expect the kit to meaningfully offset its running cost. Don't run it alongside a kettle, tumble dryer and heater all on the same ring at once, solar kit or not.</strong></li>
+        <li><span>A portable air conditioner on the same ring</span><strong>Electrically fine on its own terms - the ring's 32A protection covers it exactly as it would without any solar kit present - but it will draw far more than the kit ever feeds in, so do not expect the kit to meaningfully offset its running cost. Do not run it alongside a kettle, tumble dryer and heater all on the same ring at once, solar kit or not.</strong></li>
       </ul>
       <h3>How to check which sockets are on the same ring</h3>
       <ol class="ps-steps">
-        <li><strong>Check your consumer unit's labelling first.</strong> Many boards label circuits by room or area ("Downstairs sockets", "Kitchen ring") - a useful starting point, but not a guarantee it's accurate or up to date.</li>
+        <li><strong>Check your consumer unit's labelling first.</strong> Many boards label circuits by room or area ("Downstairs sockets", "Kitchen ring") - a useful starting point, but not a guarantee it is accurate or up to date.</li>
         <li><strong>Switch off one MCB/RCBO at a time.</strong> With a lamp or similar plugged in and switched on at each socket you want to test, turn off one breaker and see which sockets lose power - everything that goes off together is on that circuit.</li>
         <li><strong>Use a plug-in socket tester or circuit finder.</strong> An inexpensive tester plugs into a socket while a receiver unit at the consumer unit beeps or lights up on the matching circuit - quicker than the switch-off method when there are a lot of sockets to check.</li>
-        <li><strong>Don't assume by room or wall.</strong> Rings often loop between rooms (a landing socket can share a ring with a bedroom, or a kitchen with a hallway), and older properties may have unrecorded "spurs" added over the years - physical proximity isn't a reliable guide.</li>
+        <li><strong>Do not assume by room or wall.</strong> Rings often loop between rooms (a landing socket can share a ring with a bedroom, or a kitchen with a hallway), and older properties may have unrecorded "spurs" added over the years - physical proximity is not a reliable guide.</li>
         <li><strong>When in doubt, ask an electrician.</strong> A qualified, registered electrician can test and map your circuits properly and tell you with certainty what shares a ring with what.</li>
       </ol>
       <div class="ps-warning" role="note">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <p><strong>This isn't electrical advice for your home.</strong> The diagram and steps above are a general illustration of how ring final circuits work, not a substitute for inspecting your own wiring. If you're not confident identifying your circuits, or your consumer unit or wiring is old or unclear, get a qualified, registered electrician to check before fitting a plug-in solar kit or running high-draw appliances alongside one.</p>
+        <p><strong>This is not electrical advice for your home.</strong> The diagram and steps above are a general illustration of how ring final circuits work, not a substitute for inspecting your own wiring. If you are not confident identifying your circuits, or your consumer unit or wiring is old or unclear, get a qualified, registered electrician to check before fitting a plug-in solar kit or running high-draw appliances alongside one.</p>
       </div>
     </section>
 
     <section class="panel" aria-labelledby="cut-heading">
       <h2 id="cut-heading">What happens in a power cut</h2>
-      <p>A common misconception: your plug-in solar panel will <strong>not</strong> keep any of your home running during a power cut, even on a sunny day. Every compliant kit has mandatory "anti-islanding" protection - the inverter constantly checks for the presence of grid mains, and its loss-of-mains protection (required under G98) shuts it off if the supply disappears. The specification also requires it to disconnect within 100 milliseconds of losing the mains, with the plug pins below 34V within 100ms. This is a deliberate, non-optional safety feature: it exists so that a network engineer working on what they believe is a dead line during a fault or planned outage isn't put at risk by your panel quietly "islanding" and re-energising it.</p>
-      <p>If you want genuine backup power during an outage, that's a different product category entirely - an off-grid/battery system with a proper transfer switch, professionally installed and certified for that purpose - not something a plug-in solar kit provides, and plug-in batteries aren't permitted (see <a href="plugin-solar-battery.html">Battery power</a>).</p>
+      <p>A common misconception: your plug-in solar panel will <strong>not</strong> keep any of your home running during a power cut, even on a sunny day. Every compliant kit has mandatory "anti-islanding" protection - the inverter constantly checks for the presence of grid mains, and its loss-of-mains protection (required under G98) shuts it off if the supply disappears. The specification also requires it to disconnect within 100 milliseconds of losing the mains, with the plug pins below 34V within 100ms. This is a deliberate, non-optional safety feature: it exists so that a network engineer working on what they believe is a dead line during a fault or planned outage is not put at risk by your panel quietly "islanding" and re-energising it.</p>
+      <p>If you want genuine backup power during an outage, that is a different product category entirely - an off-grid/battery system with a proper transfer switch, professionally installed and certified for that purpose - not something a plug-in solar kit provides, and plug-in batteries are not permitted (see <a href="plugin-solar-battery.html">Battery power</a>).</p>
     </section>
 
     <section class="panel" aria-labelledby="oversize-heading">
@@ -254,7 +332,7 @@
       <div class="ps-placement-grid">
         <div class="ps-placement-card">
           <strong>800W of panels</strong>
-          <span>Only reaches ~800W output for a short window around midday on a clear day - most daylight hours it's producing well under capacity.</span>
+          <span>Only reaches ~800W output for a short window around midday on a clear day - most daylight hours it is producing well under capacity.</span>
         </div>
         <div class="ps-placement-card">
           <strong>1,600W of panels</strong>
@@ -262,10 +340,10 @@
         </div>
         <div class="ps-placement-card">
           <strong>2,000W of panels (the maximum)</strong>
-          <span>Holds the 800W ceiling for the longest stretch of the day, clipping the most excess DC capacity on the very brightest hours - excess that's wasted, not dangerous.</span>
+          <span>Holds the 800W ceiling for the longest stretch of the day, clipping the most excess DC capacity on the very brightest hours - excess that is wasted, not dangerous.</span>
         </div>
       </div>
-      <p>The trade-off: on a genuinely clear day, extra capacity above 800W is "clipped" (the inverter simply can't pass it through), so it's wasted at the very peak - but that lost peak is smaller than the gain made on the shoulders of the day and on duller days. As a worked example using this site's own model (see the <a href="plugin-solar-calculator.html">Energy calculator</a>): in London in April, an 800W array produces roughly 3.0 kWh on an average day, while a 2,000W array - about two and a half times the panel capacity - produces roughly 4.6 kWh, not 7.5 kWh, precisely because of clipping, but it's still a genuine ~50% uplift for a modest extra outlay on panels alone (no change to the inverter or registration, though above 960W the specification advises a professional check of your wiring first). Try changing the panel-capacity slider on the calculator to see this for your own location and month.</p>
+      <p>The trade-off: on a genuinely clear day, extra capacity above 800W is "clipped" (the inverter cannot pass it through), so it is wasted at the very peak - but that lost peak is smaller than the gain made on the shoulders of the day and on duller days. As a worked example using this site's own model (see the <a href="plugin-solar-calculator.html">Energy calculator</a>): in London in April, an 800W array produces roughly 3.0 kWh on an average day, while a 2,000W array - about two and a half times the panel capacity - produces roughly 4.6 kWh, not 7.5 kWh, precisely because of clipping, but it is still a genuine ~50% uplift for a modest extra outlay on panels alone (no change to the inverter or registration, though above 960W the specification advises a professional check of your wiring first). Try changing the panel-capacity slider on the calculator to see this for your own location and month.</p>
     </section>
 
     <section class="panel" aria-labelledby="placement-heading">
@@ -309,16 +387,16 @@
           <span class="ps-eff">~65%</span>
         </div>
       </div>
-      <p>The two "behind glass" figures are this site's estimates, not lab measurements. They combine the orientation figure with an assumed glass loss of roughly 30-35%, from the middle of the range glass manufacturers' own data gives. Measured square-on (to the EN 410 standard), clear 4mm single glazing lets through about 89% of the sun's energy (<a href="https://saint-gobain-glass.co.uk/document/planiclear">Saint-Gobain PLANICLEAR</a>) - roughly an 11% loss. A modern low-E ("low-emissivity") double-glazed unit lets through 73% of visible light but only 48% of total solar energy (<a href="https://www.saint-gobain-glass.co.uk/wp-content/uploads/2026/02/FV-SGG-Planitherm-NEO-bro-SGG987_01_26.pdf">Saint-Gobain PLANITHERM NEO</a>, 4-16-4mm argon-filled), because its coating reflects much of the near-infrared, part of which silicon solar cells use. Since a solar cell uses visible and some near-infrared light, the real loss behind glass like that falls between those two figures - roughly 27-52%. If your windows have been replaced to meet current Building Regulations energy standards (a maximum U-value of 1.4 W/m²K in England, under <a href="https://assets.publishing.service.gov.uk/media/662a2e3e55e1582b6ca7e592/Approved_Document_L__Conservation_of_fuel_and_power__Volume_1_Dwellings__2021_edition_incorporating_2023_amendments.pdf">Approved Document L</a>), they're likely to be low-E, so expect the worse end of the range. Sun hitting glass at a steep angle (low winter sun on a vertical window) loses more than these square-on figures. Indoor/behind-glass placement also isn't really what a registered 800W plug-in kit is designed for - it's included here for completeness (e.g. for a small portable panel trickle-charging a device on a windowsill), not as a recommended way to run a full kit. See the <a href="plugin-solar-calculator.html">Energy calculator</a>, which includes both window options alongside the four outdoor orientations.</p>
+      <p>The two "behind glass" figures are this site's estimates, not lab measurements. They combine the orientation figure with an assumed glass loss of roughly 30-35%, from the middle of the range glass manufacturers' own data gives. Measured square-on (to the EN 410 standard), clear 4mm single glazing lets through about 89% of the sun's energy (<a href="https://saint-gobain-glass.co.uk/document/planiclear">Saint-Gobain PLANICLEAR</a>) - roughly an 11% loss. A modern low-E ("low-emissivity") double-glazed unit lets through 73% of visible light but only 48% of total solar energy (<a href="https://www.saint-gobain-glass.co.uk/wp-content/uploads/2026/02/FV-SGG-Planitherm-NEO-bro-SGG987_01_26.pdf">Saint-Gobain PLANITHERM NEO</a>, 4-16-4mm argon-filled), because its coating reflects much of the near-infrared, part of which silicon solar cells use. Since a solar cell uses visible and some near-infrared light, the real loss behind glass like that falls between those two figures - roughly 27-52%. If your windows have been replaced to meet current Building Regulations energy standards (a maximum U-value of 1.4 W/m²K in England, under <a href="https://assets.publishing.service.gov.uk/media/662a2e3e55e1582b6ca7e592/Approved_Document_L__Conservation_of_fuel_and_power__Volume_1_Dwellings__2021_edition_incorporating_2023_amendments.pdf">Approved Document L</a>), they are likely to be low-E, so expect the worse end of the range. Sun hitting glass at a steep angle (low winter sun on a vertical window) loses more than these square-on figures. Indoor/behind-glass placement also is not really what a registered 800W plug-in kit is designed for - it is included here for completeness (e.g. for a small portable panel trickle-charging a device on a windowsill), not as a recommended way to run a full kit. See the <a href="plugin-solar-calculator.html">Energy calculator</a>, which includes both window options alongside the four outdoor orientations.</p>
     </section>
 
     <section class="panel" aria-labelledby="other-heading">
       <h2 id="other-heading">Other things worth knowing</h2>
       <ul class="ps-fact-list" id="other-list">
         <li><span>Wind and weather loading</span><strong>A panel is a sizeable sail in strong wind - use a bracket rated for the location's exposure, not just for the panel's weight</strong></li>
-        <li><span>Cleaning and maintenance</span><strong>Dust, pollen, bird droppings and fallen leaves measurably reduce output - a periodic wipe-down with water restores most of it, but don't create a fall risk reaching an awkward spot to do it</strong></li>
+        <li><span>Cleaning and maintenance</span><strong>Dust, pollen, bird droppings and fallen leaves measurably reduce output - a periodic wipe-down with water restores most of it, but do not create a fall risk reaching an awkward spot to do it</strong></li>
         <li><span>Tell your home insurer</span><strong>Especially for anything mounted externally - some policies want to know about permanently fixed external equipment</strong></li>
-        <li><span>A faint hum is normal</span><strong>Microinverters can produce a very quiet high-frequency hum - rarely noticeable, but worth knowing it's not a fault</strong></li>
+        <li><span>A faint hum is normal</span><strong>Microinverters can produce a very quiet high-frequency hum - rarely noticeable, but worth knowing it is not a fault</strong></li>
         <li><span>Moving house or ending a tenancy</span><strong>A plug-in kit is designed to be portable - you can generally take it with you; notify your network operator of the removal so their records stay accurate (see <a href="plugin-solar-registration.html">Registration</a>)</strong></li>
       </ul>
     </section>
@@ -362,6 +440,6 @@
   </div>
 </footer>
 
-<script src="../assets/app.js?v=20261003c"></script>
+<script src="../assets/app.js?v=20261029a"></script>
 </body>
 </html>

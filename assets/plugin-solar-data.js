@@ -19,7 +19,7 @@
  * e.g. quoting identical figures for Newcastle/Sunderland/Hartlepool) -
  * this is disclosed to the user in the calculator's own copy, not hidden.
  *
- * Northern Ireland is NOT covered by this dataset (it's a Great Britain-
+ * Northern Ireland is NOT covered by this dataset (it is a Great Britain-
  * only source). Belfast is included below as an explicit, clearly-labelled
  * stand-in using the closest-latitude GB location (Newcastle upon Tyne,
  * 54.97 N vs Belfast's 54.6 N) - this is disclosed on-page, not silently
@@ -111,14 +111,14 @@
   ];
 
   // Newer three-part placement picker used by the calculator: which way the
-  // panel faces, whether it's tilted or vertical, and how it's physically
+  // panel faces, whether it is tilted or vertical, and how it is physically
   // fixed. Facing and orientation each carry a multiplier (combined by
   // multiplying the two together - see computePlacementFactor below);
   // mounting type is informational/illustrative only, since a ground frame,
   // a balcony rail, an outside wall-hang and a wall mount can each be set up
-  // tilted or vertical, so the mounting choice itself doesn't change the
+  // tilted or vertical, so the mounting choice itself does not change the
   // output estimate. East and west are given the same factor as this
-  // dataset doesn't have a sourced east/west asymmetry to draw on.
+  // dataset does not have a sourced east/west asymmetry to draw on.
   var FACINGS = [
     { id: "south", label: "South facing",                       factor: 1.00 },
     { id: "east",  label: "East facing",                        factor: 0.62 },
@@ -134,7 +134,7 @@
   // The two indoor entries are a special case: unlike the four outdoor
   // mounting types, they carry their own fixed "indoorFactor" and, when
   // selected, override the facing x orientation multiplication entirely
-  // (see the calculator's script). That's because these figures already
+  // (see the calculator's script). That is because these figures already
   // assume a south-facing window and bake in an estimated glass-
   // transmission loss on top of the orientation loss - the same two
   // figures (0.55/0.65) used in the older single-dropdown picker and
@@ -154,7 +154,7 @@
   // single-page calculator's Ofgem constant). Refresh each time the
   // relevant cap period/tariff changes - see each page's "last checked"
   // note. See pages/plugin-solar-calculator.html Sources section for why
-  // this isn't a live per-page-load fetch (Octopus's public API is real
+  // this is not a live per-page-load fetch (Octopus's public API is real
   // and keyless, but weekly server-side ingestion into this site's
   // database is future work - see the CHANGELOG for this release).
   var PRICES = {
@@ -206,7 +206,7 @@
   }
 
   // Combined placement multiplier for the facing+orientation picker -
-  // simply the two factors multiplied together (mounting type doesn't
+  // simply the two factors multiplied together (mounting type does not
   // change this - see the MOUNTINGS comment above).
   function computePlacementFactor(facingId, orientationId) {
     return getFacing(facingId).factor * getOrientation(orientationId).factor;
@@ -230,8 +230,8 @@
   // Illustrative day-to-day weather multipliers applied on top of a
   // season's average irradiance, to show how much a single day can swing
   // above/below the seasonal norm. These are NOT derived from a specific
-  // measured weather dataset - there's no citable UK source breaking
-  // solar irradiance down by named weather condition - so they're an
+  // measured weather dataset - there is no citable UK source breaking
+  // solar irradiance down by named weather condition - so they are an
   // illustrative estimate only, clearly labelled as such wherever shown,
   // consistent with this site's practice of disclosing assumptions rather
   // than presenting them as measured fact.
