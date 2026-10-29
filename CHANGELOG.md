@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Plug-in solar check; electricity prices page moved to official sources)
+
+- **Plug-in solar (8 pages): checked against the official sources on 29 October 2026. No rule changes since 3 October.** The DESNZ Interim Product Specification is still version 2.0 (July 2026). The GOV.UK page was last updated on 3 September 2026, adding Welsh translations only. SI 2026/848 and SI 2026/896 have no amendments. Nothing new was found from Ofgem on export payments, from NIE Networks or the NI Department for the Economy on Northern Ireland, or from the Welsh Government on planning. "Rules last checked" moved to 29 October 2026. Not re-checked this time: the ENA Type Test Register, Electricity North West's notification page, and gov.scot (it could not be searched).
+- **Electricity prices page, every chart now from an official source:**
+  - Merit order: was unsourced "typical" figures. Now DESNZ Electricity Generation Costs 2023, Table 10 (fuel, carbon and variable running costs, 2021 prices): solar £0, offshore wind £1, onshore wind £6, gas £105/MWh. Nuclear and biomass are left out because DESNZ does not publish them in that table.
+  - Bill breakdown: was an "approximate" July to September donut. Now Ofgem's own Annex 1 breakdown for 1 October to 31 December 2026, as a bar chart because Ofgem's rounded shares add to slightly over 100%. The wholesale share in the text is updated from about 45% to 47%.
+  - "Factcheck" section (Carbon Brief): replaced with "What has changed on bills since 2021", comparing Ofgem's October 2021 and October 2026 cap breakdowns. The "gas sets the price 98% of the time" chart is removed: no official source gives that figure.
+  - Institute for Government and Wikipedia removed from the sources list.
+- Chart values with a £ unit now read "£105/MWh" and "£690", not "105£/MWh".
+- Added `pvgis/get-pvgis.ps1` outside the site (in the user's GitHub folder) to download PVGIS irradiance for the calculator, because PVGIS cannot be reached from the build environment. sunhours.app stays on the plug-in solar pages until that data is in.
+
 ## 2026-10-29 (Chart check: no made-up data anywhere; menu tab joins its panel)
 
 - **Checked every chart on all 39 pages** three ways: with live data for every API, with every API returning an error, and with the network down. With data, every live chart draws. With no data, every live chart shows an empty state or a "not available" note. Nothing stays stuck on "Loading", and no page throws a JavaScript error. Only fixed, sourced charts (records, capacity and plan figures) draw without the API.

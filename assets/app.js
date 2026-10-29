@@ -459,7 +459,13 @@
 
   function formatAxisValue(v, unit) {
     const rounded = Math.abs(v) >= 100 ? Math.round(v) : Math.round(v * 10) / 10;
-    return `${rounded}${unit || ""}`;
+    return withUnit(rounded, unit);
+  }
+  // "£/MWh" and "£" read as "£105/MWh" and "£690", not "105£/MWh"
+  function withUnit(num, unit) {
+    unit = unit || "";
+    if (unit.charAt(0) === "£") return (num < 0 ? "-£" + String(num).slice(1) : "£" + num) + unit.slice(1);
+    return `${num}${unit}`;
   }
 
   // Full precision date + time for hover tooltips - deliberately independent
@@ -1663,7 +1669,7 @@
           ctx.textBaseline = "middle";
           ctx.fillText(labels[i], pad.l - 8, y + barH / 2);
           ctx.textAlign = "left";
-          ctx.fillText(opts.decimals != null ? `${Number(v).toFixed(opts.decimals)}${opts.unit || ""}` : formatAxisValue(v, opts.unit), pad.l + bw + 6, y + barH / 2);
+          ctx.fillText(opts.decimals != null ? withUnit(Number(v).toFixed(opts.decimals), opts.unit) : formatAxisValue(v, opts.unit), pad.l + bw + 6, y + barH / 2);
         });
       } else {
         const pad = { l: 40, r: 10, t: 16, b: 24 };
@@ -1762,7 +1768,7 @@
     // table beside it - GW to that many decimals, share to one decimal
     // place - so hovering a slice shows the very same two numbers as its
     // table row. Without it, the original axis-style rounding is kept.
-    const fmtValue = (v) => opts.decimals != null ? `${Number(v).toFixed(opts.decimals)}${opts.unit || ""}` : formatAxisValue(v, opts.unit);
+    const fmtValue = (v) => opts.decimals != null ? withUnit(Number(v).toFixed(opts.decimals), opts.unit) : formatAxisValue(v, opts.unit);
     const fmtShare = (frac) => opts.decimals != null ? `${(frac * 100).toFixed(opts.pctDecimals != null ? opts.pctDecimals : 1)}%` : `${Math.round(frac * 100)}%`;
 
     function draw() {
