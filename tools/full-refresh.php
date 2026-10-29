@@ -93,6 +93,7 @@ if (isset($_GET['ajax'])) {
         'IESO' => static fn () => ukgrid_ingest_ieso($pdo, $config, 8),
         'OPENELECTRICITY' => static fn () => ukgrid_ingest_openelectricity($pdo, $config, 12),
         'SEMO' => static fn () => ukgrid_ingest_semo($pdo, $config, 15),
+        'BATTERY' => static fn () => ukgrid_ingest_battery($pdo, $config, 15, 8, 12),
         // One country per call: skipFresherThanMinutes=0 so nothing is
         // ever skipped, maxCountriesPerRun=1 so this stays short. The page
         // calls this once per configured country, and staleness-based
@@ -157,7 +158,7 @@ foreach ($countries as $code => $countryCfg) {
 }
 $entsoeCallCount = count($entsoeSteps);
 
-$sourceOrder = array_merge(['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO'], $entsoeSteps ?: ['ENTSOE'], ['OPENELECTRICITY', 'SEMO', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS']);
+$sourceOrder = array_merge(['ELEXON', 'CARBON_INTENSITY', 'NESO', 'EIRGRID', 'EIA', 'IESO'], $entsoeSteps ?: ['ENTSOE'], ['OPENELECTRICITY', 'SEMO', 'BATTERY', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS']);
 
 // ---------------------------------------------------------------------
 // Config check - runs on every normal page load, entirely from what's
@@ -207,7 +208,7 @@ if (!empty($missingEntsoeCountries)) {
     $configWarnings[] = 'entsoe_countries in includes/config.php is missing: ' . implode(', ', $missingList) . ' - those pages will stay on illustrative/no data until added. See includes/config.php.example for the exact entries to copy in.';
 }
 
-$expectedOnDemandSources = ['ELEXON', 'CARBON_INTENSITY', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'SEMO', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS'];
+$expectedOnDemandSources = ['ELEXON', 'CARBON_INTENSITY', 'EIRGRID', 'EIA', 'IESO', 'ENTSOE', 'OPENELECTRICITY', 'SEMO', 'BATTERY', 'WEATHER', 'CONSTRAINTS', 'NOTABLE_MOMENTS'];
 $intervalsCfg = $config['refresh']['intervals_minutes'] ?? [];
 $timeoutsCfg = $config['refresh']['timeouts_seconds'] ?? [];
 $missingOnDemand = array_unique(array_merge(

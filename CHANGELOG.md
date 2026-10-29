@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-10-29 (Batteries: real figures from Elexon)
+
+- **New Batteries section on the Storage page** (and a one-line summary under the homepage mix). It adds up the battery units registered in the Balancing Mechanism:
+  - **Notified:** Elexon Physical Notifications (PN). What each battery told NESO it plans to do, per half hour, about an hour ahead. Charging is negative. Shown as right now, charging and discharging separately, and the last 24 hours.
+  - **Metered:** Elexon B1610 actual output per unit. Published about a week later (22 October was the newest on 29 October). Shows the latest 7 days published.
+  - Both are labelled for what they are: plans versus measurements, Balancing Mechanism batteries only, and not added to the mix.
+- **Why it is built this way** (checked 29 October 2026): Elexon's fuel-type data has no battery category, its fuel-type list has none, and B1610 labels every unit "Generation". NESO's historic mix puts "Batteries (NET discharge)" in OTHER and cuts negatives at zero.
+- **Which units count:** Elexon does not flag batteries, so `ukgrid_battery_is_unit()` picks them from the BM unit register. A unit counts if its name or lead party says battery, BESS or energy storage, or if it is a T_/E_ unit whose ID ends "B-n" and that can import at least half what it exports. Interconnectors, supplier units, pumped storage and conventional fuel types are excluded. The list is cached daily in `includes/battery_units.json`. `tools/battery-units.php` (password-protected) shows every unit counted and why. Correct it in config.php with `'battery_units' => ['include' => [...], 'exclude' => [...]]`.
+- New: `includes/battery.php`, `api/battery.php`, `cron/fetch_battery.php` (every 30 minutes recommended), table `readings_battery` (created automatically, also in `sql/schema.sql`), source `BATTERY` in the on-demand refresh (every 30 minutes, small batches; added even if config.php has its own intervals list) and in tools/full-refresh.php.
+- Tested against mocked Elexon responses only: this build environment cannot reach Elexon. Live check: open tools/battery-units.php, then the Storage page.
+
 ## 2026-10-29 (Country pages refresh their own ENTSO-E data)
 
 - Live, Ireland's mix showed only wind, gas and other, and GB interconnect. Solar was 0 at night, so it was left out. Hydro and peat were left out because Ireland's ENTSO-E readings were 16 hours old (05:30 UTC), beyond the 6-hour limit. Without cron, the shared on-demand refresh fetches one ENTSO-E country per run in rotation, so a country could go most of a day between fetches.

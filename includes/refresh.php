@@ -101,6 +101,11 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
         'NOTABLE_MOMENTS' => 12,
     ];
 
+    // Added 29 October 2026, so an existing config.php (whose own
+    // intervals list predates it) still picks it up.
+    if (!isset($intervals['BATTERY'])) $intervals['BATTERY'] = 30;
+    if (!isset($timeouts['BATTERY'])) $timeouts['BATTERY'] = 8;
+
     // Find how overdue each configured source is; skip anything not due yet.
     $overdueBy = [];
     $stmt = $pdo->prepare('SELECT MAX(ran_at) FROM ingest_log WHERE source = ?');
@@ -177,6 +182,10 @@ function ukgrid_maybe_refresh_inner(PDO $pdo, array $config): void
                 break;
             case 'CONSTRAINTS':
                 ukgrid_ingest_constraints($pdo, $config, $timeoutSeconds);
+                break;
+            case 'BATTERY':
+                // Small on-demand batch: 2 missing notified periods, 3 metered requests
+                ukgrid_ingest_battery($pdo, $config, $timeoutSeconds, 2, 3);
                 break;
             case 'NOTABLE_MOMENTS':
                 // Pure re-aggregation of data already in this database (see

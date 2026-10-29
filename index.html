@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261029h">
-<link rel="stylesheet" href="assets/design-c.css?v=20261029h">
+<link rel="stylesheet" href="assets/style.css?v=20261029i">
+<link rel="stylesheet" href="assets/design-c.css?v=20261029i">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <!-- Matomo -->
 <script>
@@ -286,6 +286,7 @@
           <tr><td colspan="3" style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">Loading live data…</td></tr>
         </tbody>
       </table>
+      <p class="chart-caption" id="battery-line" hidden></p>
 
     </section>
 
@@ -532,8 +533,8 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=20261029h"></script>
-<script src="assets/data.js?v=20261029h"></script>
+<script src="assets/app.js?v=20261029i"></script>
+<script src="assets/data.js?v=20261029i"></script>
 <script>
 (function () {
 
@@ -767,6 +768,16 @@
         }, 1800);
       }
     });
+  })();
+
+  // Batteries line under the mix: notified plans from Elexon, not part of the mix
+  (async function () {
+    const el = document.getElementById("battery-line");
+    const d = el && window.GridData.fetchBattery ? await window.GridData.fetchBattery() : null;
+    if (!el || !d || !d.now) return;
+    const n = d.now.net_mw;
+    el.innerHTML = `Batteries right now: ${n < 0 ? "charging" : "discharging"} ${(Math.abs(n) / 1000).toFixed(2)}GW, as notified to NESO by ${d.now.units} Balancing Mechanism battery units. These are plans, not measurements, and are not in the mix above. <a href="pages/storage.html#battery-heading">More on batteries</a>.`;
+    el.hidden = false;
   })();
 
   // Alerts: browser notifications when price/carbon-intensity cross a
