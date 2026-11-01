@@ -1,3 +1,7 @@
+> **Deprecated: moved to Grid Pulse, https://gridpulse.info and https://github.com/TheMightyTRex/GridPulse**
+>
+> This repository is no longer updated. ukgridlive.info forwards every address to the same page on gridpulse.info.
+
 # UK Grid: Live+
 
 A live dashboard for Great Britain's electricity grid - price, demand, emissions, generation mix and cross-border transfers, with dark mode and history from a day to a decade. It also carries live-wired pages for Ireland and the USA, plus illustrative comparison pages for several other European and American countries.
