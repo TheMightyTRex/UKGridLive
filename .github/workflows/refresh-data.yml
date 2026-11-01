@@ -1,0 +1,44 @@
+# Asks the live site to fetch whatever data is due (cron/run-due.php).
+# The hosting package has no cron, so GitHub's servers do the timing.
+# Runs alongside the Docker container in docker/ and the site's own
+# page-load refresh: all three use the same "is it due?" record and the
+# same locks, so they never fetch the same source twice at once.
+#
+# Set up once (GitHub > this repo > Settings > Secrets and variables >
+# Actions > New repository secret):
+#   UKGRID_SITE_URL     https://ukgridlive.info
+#   UKGRID_CRON_SECRET  the same value as 'cron_http_secret' in includes/config.php
+#
+# Schedule: every 30 minutes keeps a PRIVATE repo inside GitHub's free
+# 2,000 Actions minutes a month (each run is billed as at least 1 minute).
+# A PUBLIC repo has free minutes for this, so you can change it to
+# "*/5 * * * *". GitHub may start scheduled runs a few minutes late.
+name: Refresh site data
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ask the site to fetch whatever is due
+        env:
+          SITE_URL: ${{ secrets.UKGRID_SITE_URL }}
+          CRON_SECRET: ${{ secrets.UKGRID_CRON_SECRET }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "Add the UKGRID_SITE_URL and UKGRID_CRON_SECRET repository secrets first."
+            exit 1
+          fi
+          curl --silent --show-error --fail-with-body --max-time 120 \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            -H "User-Agent: ukgridlive-scheduler/github" \
+            "${SITE_URL%/}/cron/run-due.php?caller=github"
