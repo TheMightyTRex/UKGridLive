@@ -659,3 +659,13 @@ html.nav-compact .site-nav { flex: 0 0 0; width: 0; min-width: 0; }
   }
   html:not(.nav-compact) .nav-panel { z-index: 2; }
 }
+
+/* ---- Error pages (errors/*.html, also used for PHP errors by includes/error_page.php) ---- */
+.error-page__code { margin: 0 0 .25rem; font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+.error-page__path code { word-break: break-all; background: var(--bg-inset); border-radius: var(--radius-sm); padding: .1rem .35rem; }
+.error-page__detail { border-left: 4px solid var(--brand); background: var(--bg-inset); border-radius: var(--radius-sm); padding: .75rem 1rem; margin: 1rem 0; }
+.error-page__actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+.error-page__actions .btn { display: inline-flex; align-items: center; text-decoration: none; }
+.error-page__links { columns: 2 14rem; margin: 0; padding-left: 1.2rem; }
+.error-page__links li { margin: .3rem 0; }
+.error-page p { margin: 0 0 .6rem; }

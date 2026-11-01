@@ -40,6 +40,12 @@
  * already use, so re-running this can't create duplicate data.
  */
 
+require __DIR__ . '/../includes/error_page.php';
+// Show errors/500.html rather than a blank 500 if anything breaks. The
+// ?ajax=1 calls stay JSON, which is what this page's script reads.
+if (!isset($_GET['ajax'])) {
+    ukgrid_html_errors();
+}
 require __DIR__ . '/../includes/db.php';
 require __DIR__ . '/../includes/ingest.php';
 require __DIR__ . '/_auth.php';

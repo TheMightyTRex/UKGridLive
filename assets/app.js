@@ -3194,7 +3194,9 @@
      If there is no .site-footer on the page at all, this does nothing. */
   function initIngestStatusPill() {
     const footerWrap = document.querySelector(".site-footer .wrap");
-    if (!footerWrap) return;
+    // Error pages (errors/*.html) skip the data check: they can be shown at
+    // any address, and a "data feed" warning there would only add confusion.
+    if (!footerWrap || document.body.hasAttribute("data-no-status")) return;
 
     const holder = document.createElement("p");
     holder.className = "ingest-status";

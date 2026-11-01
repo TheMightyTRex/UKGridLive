@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## UKGridLive54 - 1 November 2026
+
+- **Custom error pages** in a new `errors/` folder: 404 (page not found, with the address asked for), 403, 500 and 503. They use the normal site header, menus and Display panel, plus a short "Where to next" list. Links and assets start at the site root (`/assets/...`, `/pages/...`), so they work whatever address they are shown at. `tools/apply_shell.py` now writes the header into these pages too.
+- **`.htaccess` in the site root** (new) points Apache at those pages with `ErrorDocument`. If the server already has a root `.htaccess`, copy its four lines in rather than replacing it.
+- **`includes/error_page.php`** (new): PHP fatal errors usually reach the browser as an empty 500 ("HTTP ERROR 500"), which Apache does not replace. `tools/full-refresh.php` and `tools/battery-units.php` now call `ukgrid_html_errors()` first, so a fatal error shows `errors/500.html` instead, and the details go to `includes/refresh.log`. A config.php typo or database problem on those pages shows the same page with the plain explanation from `includes/db.php` (which now goes through one `ukgrid_config_fail()` helper: JSON for the API, HTML for tools pages). The full refresh page's `?ajax=1` calls stay JSON.
+- `assets/app.js`: pages with `data-no-status` on `<body>` (the error pages) skip the data-pipeline check and its pop-up.
+- Cache-busting version bumped to 20261101a.
+
 ## UKGridLive53 - 1 November 2026
 
 - **`includes/db.php`**: a typo in `includes/config.php` no longer gives a bare 500 on every page. The pages, the API and `cron/run-due.php` now say which line of config.php is wrong and how a setting should look. Only the line number is shown; PHP's full message goes to the PHP error log, since it can quote part of the file.
