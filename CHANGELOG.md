@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-11-01 (Scheduler: clearer failures, secret also sent as a form field)
+
+- The first GitHub Actions run failed with curl exit code 22, which means the site answered with an error status. The log did not show which one. The workflow and the Docker script now print the HTTP status and the site's reply, plus a plain explanation: 403 means the secret is missing or does not match, 404 means run-due.php has not been uploaded or the address is wrong, and 5xx means a server error.
+- The secret is now also sent as a POSTed `secret` field, which `cron/_bootstrap.php` accepts, in case the host does not pass the `X-Cron-Secret` header through to PHP. The 403 message now says whether `cron_http_secret` is unset or just does not match.
+
 ## 2026-11-01 (Scheduled updates without cron: GitHub Actions and Docker)
 
 - **`cron/run-due.php`**: runs every source that is due, one after another, within a 45-second budget (`refresh.run_due_budget_seconds`). It uses the same "is it due?" record (`ingest_log`) and the same per-source MySQL locks as the page-load refresh. It also covers NESO, which page loads leave out, and uses bigger ENTSO-E and battery batches. It is protected by `cron_http_secret`, sent in an `X-Cron-Secret` header (`?secret=` still works).
