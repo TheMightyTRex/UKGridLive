@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## UKGridLive57 - 1 November 2026
+
+- The first run after uploading only `cron/` stopped with "Call to undefined function ukgrid_http_set_deadline()", because the server still had the older `includes/http.php`, yet GitHub showed it as passed (HTTP 200). `cron/run-due.php` now checks that `includes/refresh.php`, `includes/battery.php` and `includes/http.php` are the matching version before it prints anything, and answers 500 naming any that are older.
+- The GitHub workflow and the Docker script now only count a run as passed if the reply ends with "done in ...". A PHP error part-way through can't change the 200 status once output has started, so the workflow checks the reply instead.
+
 ## UKGridLive56 - 1 November 2026
 
 - **Scheduled runs no longer overrun the host's 60-second limit.** The 14:31 GitHub run fetched NESO, IESO, Elexon, Open Electricity, Carbon Intensity and batteries (all saved), then started ENTSO-E 43 seconds in. Two slow ENTSO-E countries took it past about 60 seconds, and the host ended the request with its own "500 Internal Server Error" page. Now:
