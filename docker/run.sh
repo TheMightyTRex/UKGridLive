@@ -18,7 +18,7 @@ while true; do
     "$URL") || code="000"
   cat /tmp/response.txt 2>/dev/null; echo
   case "$code" in
-    200) ;;
+    200) grep -q "^done in" /tmp/response.txt || echo "The run started but did not finish (see above). Upload the whole includes/ folder from the latest zip." ;;
     000) echo "HTTP $code: could not reach the site. Trying again next time." ;;
     403) echo "HTTP 403: the secret in .env does not match cron_http_secret in config.php (or it is not set there)." ;;
     404) echo "HTTP 404: cron/run-due.php is not on the server yet, or SITE_URL is wrong." ;;

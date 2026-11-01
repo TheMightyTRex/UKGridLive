@@ -45,6 +45,12 @@ jobs:
             "${SITE_URL%/}/cron/run-due.php?caller=github") || code="000"
           echo "HTTP status: $code"
           cat response.txt 2>/dev/null; echo
+          # A PHP error after the first line has gone out can't change the
+          # status any more, so a 200 is only a pass if the reply ends "done".
+          if [ "$code" = "200" ] && ! grep -q "^done in" response.txt; then
+            echo "The run started but did not finish (see the reply above). If it names a missing function, upload the whole includes/ folder from the latest zip."
+            exit 1
+          fi
           case "$code" in
             200) exit 0 ;;
             000) echo "Could not reach the site at all (address wrong, or the site is down)." ;;

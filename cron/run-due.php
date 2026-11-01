@@ -24,13 +24,22 @@
  */
 
 require __DIR__ . '/_bootstrap.php';
-ukgrid_out('run-due: starting');
 require_once __DIR__ . '/../includes/refresh.php';
-if (!function_exists('ukgrid_refresh_schedule') || !function_exists('ukgrid_ingest_battery')) {
+// cron/ is often uploaded on its own. Check the includes/ files it needs are
+// from the same version before printing anything, so the reply can still be
+// a 500 (once a line has gone out, the status can't change).
+$missing = [];
+foreach (['ukgrid_refresh_schedule' => 'includes/refresh.php', 'ukgrid_ingest_battery' => 'includes/battery.php', 'ukgrid_http_set_deadline' => 'includes/http.php'] as $fn => $file) {
+    if (!function_exists($fn)) {
+        $missing[$file] = true;
+    }
+}
+if ($missing) {
     http_response_code(500);
-    ukgrid_out('includes/refresh.php or includes/battery.php on the server is out of date: upload both from this version.');
+    ukgrid_out('These files on the server are older than cron/run-due.php: ' . implode(', ', array_keys($missing)) . '. Upload the whole includes/ folder from the same zip.');
     exit;
 }
+ukgrid_out('run-due: starting');
 
 @set_time_limit(120);
 $config = ukgrid_load_config();
