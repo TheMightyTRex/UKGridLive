@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## UKGridLive56 - 1 November 2026
+
+- **Scheduled runs no longer overrun the host's 60-second limit.** The 14:31 GitHub run fetched NESO, IESO, Elexon, Open Electricity, Carbon Intensity and batteries (all saved), then started ENTSO-E 43 seconds in. Two slow ENTSO-E countries took it past about 60 seconds, and the host ended the request with its own "500 Internal Server Error" page. Now:
+  - `cron/run-due.php` only starts a source if its rough worst case (requests x timeout) still fits in the budget (now 45 seconds, `refresh.run_due_budget_seconds`). Sources that don't fit are listed as "Left for next time" and run on the next call or a page load.
+  - ENTSO-E runs first, while the whole budget is left, with a 12-second timeout (`refresh.run_due_entsoe_timeout_seconds`) instead of a page load's 6 seconds, since many of its requests were timing out at 6. Schedulers now fetch one country per call, like page loads.
+  - `includes/http.php` has a hard stop for scheduled runs (`ukgrid_http_set_deadline()`): each request's timeout is cut to the time left, and no new request starts once under 2 seconds remain. Page loads are unaffected.
+
 ## UKGridLive55 - 1 November 2026
 
 - **Error pages for 400 (bad request) and 401 (login needed)** in `errors/`, in the same style as the others, each with a "Go back" button (hidden when there is no page to go back to). `.htaccess` now lists them with `ErrorDocument` too.

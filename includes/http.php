@@ -21,9 +21,45 @@ function ukgrid_redact_url(string $url): string
  * fatal error, since these are third-party APIs that occasionally have
  * blips or (for the on-demand path) a deliberately short timeout.
  */
+/**
+ * A hard stop for every outgoing request in this PHP run, set by
+ * cron/run-due.php (ukgrid_http_set_deadline()). The host ends a web
+ * request at about 60 seconds with a bare "500 Internal Server Error", and
+ * some sources make many requests in a row, so a per-request timeout alone
+ * can't keep a whole run inside that. With a deadline set, each request's
+ * timeout is cut to the time left, and once under 2 seconds remain no new
+ * request is started (it returns null, which every caller already treats
+ * as "try again next time"). Page loads never set one.
+ */
+function ukgrid_http_set_deadline(?float $unixTime): void
+{
+    $GLOBALS['ukgrid_http_deadline'] = $unixTime;
+}
+
+/** Returns the timeout to use, or 0 if the deadline leaves no time to start. */
+function ukgrid_http_cap_timeout(int $timeoutSeconds, string $safeUrl): int
+{
+    $deadline = $GLOBALS['ukgrid_http_deadline'] ?? null;
+    if ($deadline === null) {
+        return $timeoutSeconds;
+    }
+    $left = (int) floor($deadline - microtime(true));
+    if ($left < 2) {
+        if (function_exists('ukgrid_file_log')) {
+            ukgrid_file_log('Skipped (run time limit reached, will run next time): ' . $safeUrl);
+        }
+        return 0;
+    }
+    return min($timeoutSeconds, $left);
+}
+
 function ukgrid_http_get_json(string $url, int $timeoutSeconds = 20, array $extraHeaders = []): ?array
 {
     $safeUrl = ukgrid_redact_url($url);
+    $timeoutSeconds = ukgrid_http_cap_timeout($timeoutSeconds, $safeUrl);
+    if ($timeoutSeconds === 0) {
+        return null;
+    }
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -96,6 +132,10 @@ function ukgrid_iso_to_mysql(string $iso): ?string
 function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeoutSeconds = 20): ?array
 {
     $safeUrl = ukgrid_redact_url($url);
+    $timeoutSeconds = ukgrid_http_cap_timeout($timeoutSeconds, $safeUrl);
+    if ($timeoutSeconds === 0) {
+        return null;
+    }
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -161,6 +201,10 @@ function ukgrid_http_get_json_auth(string $url, string $bearerToken, int $timeou
 function ukgrid_http_get_raw(string $url, int $timeoutSeconds = 20, array $extraHeaders = []): ?string
 {
     $safeUrl = ukgrid_redact_url($url);
+    $timeoutSeconds = ukgrid_http_cap_timeout($timeoutSeconds, $safeUrl);
+    if ($timeoutSeconds === 0) {
+        return null;
+    }
     // A "Range: bytes=-N" request (see ukgrid_ingest_ieso()) asks for just
     // the last N bytes of a file - compression is left off for those, since
     // byte ranges of a compressed response can't be unpacked on their own.

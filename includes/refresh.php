@@ -193,6 +193,8 @@ function ukgrid_refresh_run_source(PDO $pdo, array $config, string $source, int 
             ukgrid_ingest_ieso($pdo, $config, $timeoutSeconds);
             break;
         case 'ENTSOE':
+            // One country per call for schedulers too: two countries at
+            // ENTSO-E's response times ran past the host's 60-second limit.
             // Skip any of the 12 configured countries that already have
             // data newer than this source's own interval, AND cap this
             // call to just the single most-overdue country - keeps
@@ -205,7 +207,7 @@ function ukgrid_refresh_run_source(PDO $pdo, array $config, string $source, int 
             // "later countries never get fetched" failure mode that
             // cron/fetch_entsoe.php's timeout fix addressed on the cron
             // side.
-            ukgrid_ingest_entsoe($pdo, $config, $timeoutSeconds, (int) ($config['refresh']['intervals_minutes']['ENTSOE'] ?? 20), $scheduled ? 2 : 1);
+            ukgrid_ingest_entsoe($pdo, $config, $timeoutSeconds, (int) ($config['refresh']['intervals_minutes']['ENTSOE'] ?? 20), 1);
             break;
         case 'OPENELECTRICITY':
             ukgrid_ingest_openelectricity($pdo, $config, $timeoutSeconds);
