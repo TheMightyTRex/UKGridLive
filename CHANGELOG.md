@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## UKGridLive55 - 1 November 2026
+
+- **Error pages for 400 (bad request) and 401 (login needed)** in `errors/`, in the same style as the others, each with a "Go back" button (hidden when there is no page to go back to). `.htaccess` now lists them with `ErrorDocument` too.
+
 ## UKGridLive54 - 1 November 2026
 
 - **Custom error pages** in a new `errors/` folder: 404 (page not found, with the address asked for), 403, 500 and 503. They use the normal site header, menus and Display panel, plus a short "Where to next" list. Links and assets start at the site root (`/assets/...`, `/pages/...`), so they work whatever address they are shown at. `tools/apply_shell.py` now writes the header into these pages too.

@@ -237,6 +237,11 @@
     if (el) { el.textContent = window.location.pathname; }
     var btn = document.querySelector("[data-error-retry]");
     if (btn) { btn.addEventListener("click", function () { window.location.reload(); }); }
+    var back = document.querySelector("[data-error-back]");
+    if (back) {
+      if (window.history.length > 1) { back.addEventListener("click", function () { window.history.back(); }); }
+      else { back.hidden = true; }
+    }
   })();
 </script>
 </body>
