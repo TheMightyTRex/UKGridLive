@@ -9,6 +9,8 @@
  *   'battery_units' => ['include' => ['E_EXAMPLE-1'], 'exclude' => ['T_NOTABATTERY-1']],
  */
 
+require __DIR__ . '/../includes/error_page.php';
+ukgrid_html_errors(); // errors/500.html rather than a blank 500 if anything breaks
 require __DIR__ . '/../includes/db.php';
 require __DIR__ . '/../includes/ingest.php';
 require __DIR__ . '/_auth.php';

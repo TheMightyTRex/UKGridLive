@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = "20261029i"
+VERSION = "20261101a"
 FONTS = '<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">'
 
 # Menu: (group id, label, [(column heading, [(page file, link text, short description)])])
@@ -96,10 +96,18 @@ LOGO = """<svg class="brand__mark" width="40" height="40" viewBox="0 0 48 48" fi
       </svg>"""
 
 
-def link_for(is_root, page):
+def link_for(base, page):
+    """base: "root" (index.html), "pages" (pages/*.html) or "abs" (errors/*.html).
+
+    The error pages are served by the web server at whatever address was
+    asked for (a missing /pages/x/y.html shows errors/404.html), so their
+    links have to start from the site root, not from where the file sits.
+    """
+    if base == "abs":
+        return "/index.html" if page == "index.html" else "/pages/" + page
     if page == "index.html":
-        return "index.html" if is_root else "../index.html"
-    return ("pages/" + page) if is_root else page
+        return "index.html" if base == "root" else "../index.html"
+    return ("pages/" + page) if base == "root" else page
 
 
 def section_of(page):
@@ -110,14 +118,14 @@ def section_of(page):
     return {"comparisons.html": "compare", "data-sources.html": "sources", "about.html": "about"}.get(page, "")
 
 
-def build(page, is_root):
+def build(page, base):
     sec = section_of(page)
     out = []
     out.append('<!-- shell:start (written by tools/apply_shell.py - edit the menu there, not here) -->')
     out.append('<div class="site-head">')
     out.append('<header class="site-header">')
     out.append('  <div class="wrap site-header__bar">')
-    out.append(f'    <a class="brand ug-logo" href="{link_for(is_root, "index.html")}" aria-label="UK Grid: Live+, home">')
+    out.append(f'    <a class="brand ug-logo" href="{link_for(base, "index.html")}" aria-label="UK Grid: Live+, home">')
     out.append('      ' + LOGO)
     out.append('      <span class="brand__name" aria-hidden="true"><span class="brand__uk">UK Grid</span><span class="brand__tag ug-tag">Live+</span></span>')
     out.append('    </a>')
@@ -139,14 +147,14 @@ def build(page, is_root):
             for p, text, desc in items:
                 cur = ' aria-current="page"' if p == page else ''
                 d = f'<span class="nav-panel__desc">{html.escape(desc)}</span>' if desc else ''
-                out.append(f'                <li><a href="{link_for(is_root, p)}"{cur}><span class="nav-panel__name">{html.escape(text)}</span>{d}</a></li>')
+                out.append(f'                <li><a href="{link_for(base, p)}"{cur}><span class="nav-panel__name">{html.escape(text)}</span>{d}</a></li>')
             out.append('              </ul>')
             out.append('            </div>')
         out.append('          </div>')
         out.append('        </li>')
     for p, text in LINKS:
         cur = ' aria-current="page"' if p == page else ''
-        out.append(f'        <li class="nav-link"><a href="{link_for(is_root, p)}"{cur}>{html.escape(text)}</a></li>')
+        out.append(f'        <li class="nav-link"><a href="{link_for(base, p)}"{cur}>{html.escape(text)}</a></li>')
     out.append('      </ul>')
     out.append('    </nav>')
     out.append('    <div class="header-controls">')
@@ -162,7 +170,7 @@ def build(page, is_root):
     out.append('  </div>')
     out.append('</header>')
     if page != "plugin-solar.html":
-        out.append(f'<aside class="preview-banner" aria-label="Site announcement"><span class="preview-banner__tag">New</span> <a href="{link_for(is_root, "plugin-solar.html")}">Read the plug-in solar guide</a></aside>')
+        out.append(f'<aside class="preview-banner" aria-label="Site announcement"><span class="preview-banner__tag">New</span> <a href="{link_for(base, "plugin-solar.html")}">Read the plug-in solar guide</a></aside>')
     out.append(DISPLAY_PANEL)
     out.append('</div>')
     out.append('<!-- shell:end -->')
@@ -199,12 +207,12 @@ SHELL_BLOCK = re.compile(r'<!-- shell:start.*?<!-- shell:end -->', re.S)
 
 
 def main():
-    pages = [ROOT / "index.html"] + sorted((ROOT / "pages").glob("*.html"))
+    pages = [ROOT / "index.html"] + sorted((ROOT / "pages").glob("*.html")) + sorted((ROOT / "errors").glob("*.html"))
     changed = 0
     for path in pages:
-        is_root = path.parent == ROOT
+        base = "root" if path.parent == ROOT else ("abs" if path.parent.name == "errors" else "pages")
         text = path.read_text(encoding="utf-8")
-        block = build(path.name, is_root)
+        block = build(path.name, base)
         if SHELL_BLOCK.search(text):
             new = SHELL_BLOCK.sub(lambda m: block, text, count=1)
         elif OLD_BLOCK.search(text):
