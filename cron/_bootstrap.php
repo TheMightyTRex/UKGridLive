@@ -30,7 +30,9 @@ $config = ukgrid_load_config();
 $isCli = (php_sapi_name() === 'cli');
 if (!$isCli) {
     $secret = $config['cron_http_secret'] ?? '';
-    $supplied = $_GET['secret'] ?? '';
+    // The X-Cron-Secret header is preferred (it stays out of server access
+    // logs); ?secret= still works for schedulers that can only call a URL.
+    $supplied = $_SERVER['HTTP_X_CRON_SECRET'] ?? ($_GET['secret'] ?? '');
     if ($secret === '' || !hash_equals($secret, (string) $supplied)) {
         http_response_code(403);
         header('Content-Type: text/plain');

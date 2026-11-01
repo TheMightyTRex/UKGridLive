@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## 2026-11-01 (Scheduled updates without cron: GitHub Actions and Docker)
+
+- **`cron/run-due.php`**: runs every source that is due, one after another, within a 45-second budget (`refresh.run_due_budget_seconds`). It uses the same "is it due?" record (`ingest_log`) and the same per-source MySQL locks as the page-load refresh. It also covers NESO, which page loads leave out, and uses bigger ENTSO-E and battery batches. It is protected by `cron_http_secret`, sent in an `X-Cron-Secret` header (`?secret=` still works).
+- **`.github/workflows/refresh-data.yml`**: GitHub calls run-due every 30 minutes. That keeps a private repo inside the free Actions minutes; a public repo can use every 5 minutes. It needs repository secrets `UKGRID_SITE_URL` and `UKGRID_CRON_SECRET`.
+- **`docker/`**: a tiny Alpine container that calls run-due every 5 minutes (`INTERVAL_SECONDS`), with a docker-compose file, `.env.example` and a README. `docker/.env` is git-ignored, and `docker/.htaccess` blocks web access if the folder is uploaded.
+- **How they stay in sync:** whoever runs a source first records it, so the others find it not due. The locks stop two runs of one source at once, and every write is keyed on the reading's timestamp. Page-load refresh stays on as the fallback.
+- `includes/refresh.php` refactored into `ukgrid_refresh_schedule()`, `ukgrid_refresh_overdue()` and `ukgrid_refresh_run_source()`, shared by page loads and run-due. Tested end to end against a local MariaDB with mocked APIs: the first call ran 13 sources, a second call straight after returned "Nothing due", and page-load refresh still runs an overdue source.
+
 ## 2026-10-29 (Batteries: real figures from Elexon)
 
 - **New Batteries section on the Storage page** (and a one-line summary under the homepage mix). It adds up the battery units registered in the Balancing Mechanism:
