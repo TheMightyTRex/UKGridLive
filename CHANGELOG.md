@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Dates are when the change was made, not necessarily when it was deployed. Where useful, entries reference the deployment zip version they came from (e.g. v57, v59).
 
+## UKGridLive53 - 1 November 2026
+
+- **`includes/db.php`**: a typo in `includes/config.php` no longer gives a bare 500 on every page. The pages, the API and `cron/run-due.php` now say which line of config.php is wrong and how a setting should look. Only the line number is shown; PHP's full message goes to the PHP error log, since it can quote part of the file.
+- **`cron/_bootstrap.php`**: once the secret is accepted, a PHP fatal error during a scheduled run is printed in the reply (file and line) and written to `includes/refresh.log`, so the GitHub Actions log shows the cause instead of an empty 500. Output is flushed line by line.
+- **`cron/run-due.php`**: prints "run-due: starting" first, and says plainly when `includes/refresh.php` or `includes/battery.php` on the server is an older version than `cron/`.
+
 ## 2026-11-01 (Scheduler: clearer failures, secret also sent as a form field)
 
 - The first GitHub Actions run failed with curl exit code 22, which means the site answered with an error status. The log did not show which one. The workflow and the Docker script now print the HTTP status and the site's reply, plus a plain explanation: 403 means the secret is missing or does not match, 404 means run-due.php has not been uploaded or the address is wrong, and 5xx means a server error.

@@ -46,7 +46,27 @@ if (!$isCli) {
     header('Content-Type: text/plain');
 }
 
+// A PHP fatal error used to end the request as a blank 500, which is all a
+// scheduler (GitHub Actions, the Docker container) could report. The caller
+// has already proved it knows the secret, so say what went wrong - which
+// file and line - in the reply, and in includes/refresh.log.
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err === null || !in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
+        return;
+    }
+    $detail = $err['message'] . ' at ' . basename($err['file']) . ':' . $err['line'];
+    if (function_exists('ukgrid_file_log')) {
+        ukgrid_file_log('cron fatal error - ' . $detail);
+    }
+    echo "PHP fatal error: " . $detail . "\n";
+});
+
 function ukgrid_out(string $line): void
 {
     echo $line . "\n";
+    if (function_exists('ob_get_level') && ob_get_level() > 0) {
+        @ob_flush();
+    }
+    @flush();
 }

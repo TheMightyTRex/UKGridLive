@@ -24,7 +24,13 @@
  */
 
 require __DIR__ . '/_bootstrap.php';
+ukgrid_out('run-due: starting');
 require_once __DIR__ . '/../includes/refresh.php';
+if (!function_exists('ukgrid_refresh_schedule') || !function_exists('ukgrid_ingest_battery')) {
+    http_response_code(500);
+    ukgrid_out('includes/refresh.php or includes/battery.php on the server is out of date: upload both from this version.');
+    exit;
+}
 
 $config = ukgrid_load_config();
 $pdo = ukgrid_db();

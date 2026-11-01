@@ -17,10 +17,29 @@ function ukgrid_load_config(): array
     $hardened = dirname(__DIR__, 2) . '/uk-grid-config/config.php';
     $local = __DIR__ . '/config.php';
 
-    if (is_file($hardened)) {
-        $config = require $hardened;
-    } elseif (is_file($local)) {
-        $config = require $local;
+    $file = is_file($hardened) ? $hardened : (is_file($local) ? $local : null);
+    if ($file !== null) {
+        // A typo in config.php (a missing comma, a quote left open, or a
+        // line pasted outside the "return [ ... ];" list) used to take the
+        // whole site down with a blank error. Say which line instead. Only
+        // the line number goes in the reply - PHP's own message can quote
+        // part of the file, which may be a password, so that goes to the
+        // PHP error log only.
+        try {
+            $config = require $file;
+        } catch (ParseError $e) {
+            error_log('UK Grid: Live+ config.php syntax error: ' . $e->getMessage() . ' on line ' . $e->getLine());
+            http_response_code(500);
+            if (!headers_sent()) {
+                header('Content-Type: application/json');
+            }
+            echo json_encode([
+                'error' => 'config_syntax_error',
+                'message' => 'includes/config.php has a typo on or just before line ' . $e->getLine()
+                    . '. Every setting must sit inside the "return [" ... "];" list and end with a comma, e.g. \'cron_http_secret\' => \'your-value\',',
+            ]);
+            exit;
+        }
     } else {
         http_response_code(500);
         header('Content-Type: application/json');
