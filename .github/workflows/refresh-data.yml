@@ -38,7 +38,19 @@ jobs:
             echo "Add the UKGRID_SITE_URL and UKGRID_CRON_SECRET repository secrets first."
             exit 1
           fi
-          curl --silent --show-error --fail-with-body --max-time 120 \
+          code=$(curl --silent --show-error --max-time 120 -o response.txt -w "%{http_code}" \
             -H "X-Cron-Secret: $CRON_SECRET" \
             -H "User-Agent: ukgridlive-scheduler/github" \
-            "${SITE_URL%/}/cron/run-due.php?caller=github"
+            --data-urlencode "secret=$CRON_SECRET" \
+            "${SITE_URL%/}/cron/run-due.php?caller=github") || code="000"
+          echo "HTTP status: $code"
+          cat response.txt 2>/dev/null; echo
+          case "$code" in
+            200) exit 0 ;;
+            000) echo "Could not reach the site at all (address wrong, or the site is down)." ;;
+            403) echo "Forbidden: check cron_http_secret is set in includes/config.php on the server, and that UKGRID_CRON_SECRET is exactly the same value (no spaces)." ;;
+            404) echo "Not found: upload cron/run-due.php to the server, and check UKGRID_SITE_URL (for example https://ukgridlive.info)." ;;
+            5*)  echo "Server error: see includes/refresh.log on the server." ;;
+            *)   echo "Unexpected response from the site." ;;
+          esac
+          exit 1

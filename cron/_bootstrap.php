@@ -32,11 +32,15 @@ if (!$isCli) {
     $secret = $config['cron_http_secret'] ?? '';
     // The X-Cron-Secret header is preferred (it stays out of server access
     // logs); ?secret= still works for schedulers that can only call a URL.
-    $supplied = $_SERVER['HTTP_X_CRON_SECRET'] ?? ($_GET['secret'] ?? '');
+    // Some hosts do not pass custom headers through to PHP, so a POSTed
+    // "secret" field is accepted too (also kept out of access logs).
+    $supplied = $_SERVER['HTTP_X_CRON_SECRET'] ?? ($_POST['secret'] ?? ($_GET['secret'] ?? ''));
     if ($secret === '' || !hash_equals($secret, (string) $supplied)) {
         http_response_code(403);
         header('Content-Type: text/plain');
-        echo "Forbidden. Run this script via cron CLI, or set cron_http_secret in includes/config.php and pass ?secret=...\n";
+        echo $secret === ''
+            ? "Forbidden: cron_http_secret is not set in includes/config.php on the server.\n"
+            : "Forbidden: the secret sent does not match cron_http_secret in includes/config.php.\n";
         exit;
     }
     header('Content-Type: text/plain');
