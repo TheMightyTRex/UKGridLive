@@ -32,10 +32,19 @@ if (!function_exists('ukgrid_refresh_schedule') || !function_exists('ukgrid_inge
     exit;
 }
 
+@set_time_limit(120);
 $config = ukgrid_load_config();
 $pdo = ukgrid_db();
 $started = microtime(true);
+// Every source must be FINISHED within this many seconds. The host stops a
+// web request at about 60 seconds, so a source is only started when its
+// rough worst case (requests x timeout, see $worst below) still fits, and
+// includes/http.php refuses to start any request after the hard stop. Anything
+// left over runs on the next call five minutes later, or on a page load.
 $budget = (int) ($config['refresh']['run_due_budget_seconds'] ?? 45);
+// And a hard stop for every outgoing request, a little after the budget,
+// in case a source makes more requests than its estimate below.
+ukgrid_http_set_deadline($started + $budget + 5);
 $caller = preg_replace('/[^a-z0-9_-]/i', '', (string) ($_GET['caller'] ?? ($isCli ? 'cli' : 'web')));
 
 [$intervals, $timeouts] = ukgrid_refresh_schedule($config);
@@ -50,12 +59,26 @@ if (!$due) {
     ukgrid_out('Nothing due.');
 }
 
+// ENTSO-E is the slowest and least reliable source, so it goes first, while
+// the whole budget is still there, with a longer timeout than a page load
+// can afford. One country per call (the most out of date one).
+$timeouts['ENTSOE'] = max((int) ($timeouts['ENTSOE'] ?? 6), (int) ($config['refresh']['run_due_entsoe_timeout_seconds'] ?? 12));
+$order = array_keys($due);
+usort($order, function ($a, $b) {
+    return ($b === 'ENTSOE') <=> ($a === 'ENTSOE');
+});
+// Worst case = timeout x the most requests the source makes in one run.
+$worst = ['ENTSOE' => 3, 'EIRGRID' => 4, 'NESO' => 3, 'ELEXON' => 4, 'BATTERY' => 3, 'EIA' => 2, 'OPENELECTRICITY' => 2, 'CARBON_INTENSITY' => 2];
+
 $lock = $pdo->prepare('SELECT GET_LOCK(?, 0)');
 $release = $pdo->prepare('SELECT RELEASE_LOCK(?)');
-foreach (array_keys($due) as $source) {
-    if (microtime(true) - $started > $budget) {
-        ukgrid_out('Stopped: time budget used. The rest run next time.');
-        break;
+$left = [];
+foreach ($order as $source) {
+    $timeout = (int) ($timeouts[$source] ?? 10);
+    $cost = $timeout * ($worst[$source] ?? 2);
+    if (microtime(true) - $started + $cost > $budget) {
+        $left[] = $source;
+        continue;
     }
     $lockName = 'ukgrid_refresh_' . $source;
     $lock->execute([$lockName]);
@@ -65,7 +88,7 @@ foreach (array_keys($due) as $source) {
     }
     $t = microtime(true);
     try {
-        ukgrid_refresh_run_source($pdo, $config, $source, (int) ($timeouts[$source] ?? 10), true);
+        ukgrid_refresh_run_source($pdo, $config, $source, $timeout, true);
         $st = $pdo->prepare('SELECT status, rows_written FROM ingest_log WHERE source = ? ORDER BY ran_at DESC LIMIT 1');
         $st->execute([$source]);
         $last = $st->fetch() ?: [];
@@ -76,5 +99,8 @@ foreach (array_keys($due) as $source) {
     } finally {
         $release->execute([$lockName]);
     }
+}
+if ($left) {
+    ukgrid_out('Left for next time (would not fit in the ' . $budget . 's budget): ' . implode(', ', $left));
 }
 ukgrid_out(sprintf('done in %.1fs', microtime(true) - $started));
